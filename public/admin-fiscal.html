@@ -589,14 +589,10 @@ function atualizarStats() {
         ls  = todos.filter(c=>c.status==='lib-sistema').length,
         cad = todos.filter(c=>c.status==='cadastrado').length,
         rev = todos.filter(c=>c.status==='revisao').length;
-  document.getElementById('sv-total').textContent=t;
-  document.getElementById('sv-preenchido').textContent=pre;
-  document.getElementById('sv-lib-cadastro').textContent=lc;
-  document.getElementById('sv-lib-fiscal').textContent=lf;
-  document.getElementById('sv-lib-sistema').textContent=ls;
-  document.getElementById('sv-cadastrado').textContent=cad;
-  document.getElementById('sv-rev').textContent=rev;
-  const map = {'nb-total':t,'nb-lib-fiscal':lf,'nb-lib-sistema':ls,'nb-cadastrado':cad,'nb-rev':rev};
+  const map = {
+    'sv-total':t,'sv-preenchido':pre,'sv-lib-cadastro':lc,'sv-lib-fiscal':lf,'sv-lib-sistema':ls,'sv-cadastrado':cad,'sv-rev':rev,
+    'nb-total':t,'nb-lib-fiscal':lf,'nb-lib-sistema':ls,'nb-cadastrado':cad,'nb-rev':rev,
+  };
   Object.entries(map).forEach(([id,v]) => { const el=document.getElementById(id); if(el) el.textContent=v; });
 }
 
