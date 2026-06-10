@@ -1,4 +1,4 @@
-require('dotenv').config();
+﻿require('dotenv').config();
 const express = require('express');
 const axios   = require('axios');
 const cors    = require('cors');
@@ -325,6 +325,7 @@ app.get('/api/cep/:cep', async (req, res) => {
 // ─── PAGAMENTOS ───────────────────────────────────────────────────────────────
 const PAG_FILE = path.join(DB_DIR, 'pagamentos.json');
 if (!fs.existsSync(PAG_FILE)) fs.writeFileSync(PAG_FILE, '[]');
+if (!fs.existsSync(PAG_FILE)) fs.writeFileSync(PAG_FILE, '[]');
 const lerPag    = () => { try { return JSON.parse(fs.readFileSync(PAG_FILE,'utf8')); } catch(e){ return []; } };
 const salvarPag = d  => fs.writeFileSync(PAG_FILE, JSON.stringify(d, null, 2));
 
@@ -356,29 +357,34 @@ app.get('/api/pagamentos', (req, res) => {
 });
 
 app.post('/api/pagamentos', (req, res) => {
-  const b = req.body;
-  if (!b.tipo || !b.vendedor_slug) return res.status(400).json({ ok:false, error:'tipo e vendedor são obrigatórios' });
-  const lista = lerPag();
-  const novo = {
-    id:             Date.now().toString(),
-    created_at:     new Date().toISOString(),
-    updated_at:     new Date().toISOString(),
-    tipo:           b.tipo,
-    status:         'aguardando',
-    vendedor_slug:  b.vendedor_slug || '',
-    vendedor_nome:  b.vendedor_nome || '',
-    equipe:         b.equipe || '',
-    cliente_nome:   b.cliente_nome || '',
-    valor:          b.valor || '',
-    descricao:      b.descricao || '',
-    observacoes:    b.observacoes || '',
-    link_pagamento: '',
-    comprovante:    null,
-  };
-  lista.push(novo);
-  salvarPag(lista);
-  console.log(`[+] Pagamento ${novo.tipo}: ${novo.cliente_nome} — ${novo.vendedor_nome} — ${novo.valor}`);
-  res.status(201).json({ ok:true, data:novo });
+  try {
+    const b = req.body;
+    if (!b || !b.tipo || !b.vendedor_slug) return res.status(400).json({ ok:false, error:'tipo e vendedor são obrigatórios' });
+    const lista = lerPag();
+    const novo = {
+      id:             Date.now().toString(),
+      created_at:     new Date().toISOString(),
+      updated_at:     new Date().toISOString(),
+      tipo:           b.tipo,
+      status:         'aguardando',
+      vendedor_slug:  b.vendedor_slug || '',
+      vendedor_nome:  b.vendedor_nome || '',
+      equipe:         b.equipe || '',
+      cliente_nome:   b.cliente_nome || '',
+      valor:          b.valor || '',
+      descricao:      b.descricao || '',
+      observacoes:    b.observacoes || '',
+      link_pagamento: '',
+      comprovante:    null,
+    };
+    lista.push(novo);
+    salvarPag(lista);
+    console.log(`[+] Pagamento ${novo.tipo}: ${novo.cliente_nome} — ${novo.vendedor_nome} — ${novo.valor}`);
+    res.status(201).json({ ok:true, data:novo });
+  } catch(e) {
+    console.error('[POST /api/pagamentos] erro:', e.message);
+    res.status(500).json({ ok:false, error:'Erro interno ao criar solicitação' });
+  }
 });
 
 app.patch('/api/pagamentos/:id', (req, res) => {
@@ -431,3 +437,4 @@ app.listen(PORT, () => {
   console.log(`📁  DB: ${DB_FILE}`);
   console.log(`🗄️   Cache: ${totalCNPJs} CNPJ(s) gravado(s) em ${CACHE_FILE}`);
 });
+

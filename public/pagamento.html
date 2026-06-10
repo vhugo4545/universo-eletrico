@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -50,25 +50,46 @@
 .pill.on{background:#1B3FAB;border-color:#1B3FAB;color:#fff}
 
 /* modal */
-.modal-bg{position:fixed;inset:0;background:rgba(17,24,39,.5);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .18s}
+.modal-bg{position:fixed;inset:0;background:rgba(17,24,39,.55);backdrop-filter:blur(3px);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .2s}
 .modal-bg.on{opacity:1;pointer-events:all}
-.modal-box{background:#fff;border-radius:18px;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(16,24,40,.18);overflow:hidden;transform:translateY(12px);transition:transform .18s}
-.modal-bg.on .modal-box{transform:translateY(0)}
-.modal-head{padding:18px 22px;border-bottom:1px solid #EAF0FB;display:flex;align-items:center;justify-content:space-between}
-.modal-title-txt{font-size:15px;font-weight:700;color:#111827}
-.modal-close{width:30px;height:30px;border-radius:8px;border:none;background:#F3F4F6;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6B7280;font-size:16px;transition:background .15s}
-.modal-close:hover{background:#E5E7EB}
-.modal-body-c{padding:20px 22px}
-.modal-foot-c{padding:14px 22px;border-top:1px solid #EAF0FB;display:flex;gap:8px;justify-content:flex-end}
+.modal-box{background:#fff;border-radius:20px;width:100%;max-width:540px;box-shadow:0 24px 64px rgba(16,24,40,.22);overflow:hidden;transform:translateY(16px) scale(.98);transition:transform .22s}
+.modal-bg.on .modal-box{transform:translateY(0) scale(1)}
+.modal-head{padding:22px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.modal-title-txt{font-size:16px;font-weight:700;color:#111827;line-height:1.2}
+.modal-subtitle{font-size:12px;color:#9CA3AF;margin-top:3px}
+.modal-close{width:32px;height:32px;border-radius:8px;border:none;background:#F3F4F6;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6B7280;font-size:16px;transition:all .15s;flex-shrink:0;margin-top:2px}
+.modal-close:hover{background:#E5E7EB;color:#374151}
+.modal-steps{display:flex;align-items:center;padding:18px 24px;gap:0}
+.mstep{display:flex;align-items:center;gap:8px}
+.mstep-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;background:#F3F4F6;color:#9CA3AF;border:2px solid #E5E7EB;transition:all .2s;flex-shrink:0}
+.mstep.active .mstep-dot{background:#1B3FAB;border-color:#1B3FAB;color:#fff}
+.mstep.done .mstep-dot{background:#16A34A;border-color:#16A34A;color:#fff}
+.mstep-lbl{font-size:12px;font-weight:600;color:#D1D5DB;transition:color .2s}
+.mstep.active .mstep-lbl{color:#1B3FAB}
+.mstep.done .mstep-lbl{color:#16A34A}
+.mstep-line{flex:1;height:2px;background:#E5E7EB;margin:0 12px;transition:background .2s}
+.mstep-line.done{background:#16A34A}
+.modal-body-c{padding:0 24px 24px}
+.modal-foot-c{padding:16px 24px;border-top:1px solid #EAF0FB;display:flex;gap:8px;justify-content:space-between;align-items:center;background:#F8FAFF}
 
 /* tipo select cards */
-.tipo-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
-.tipo-opt{border:2px solid #EAF0FB;border-radius:14px;padding:18px 14px;text-align:center;cursor:pointer;transition:all .2s;background:#FAFBFF}
-.tipo-opt:hover{border-color:#C7D7FF;transform:translateY(-2px)}
-.tipo-opt.on{border-color:#1B3FAB;background:#EEF3FF;box-shadow:0 0 0 3px rgba(27,63,171,.1)}
-.tipo-opt-ico{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 10px}
-.tipo-opt-name{font-size:13px;font-weight:700;color:#111827}
-.tipo-opt-desc{font-size:11px;color:#9CA3AF;margin-top:4px;line-height:1.4}
+.tipo-opts{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.tipo-opt{border:2px solid #E5E7EB;border-radius:14px;padding:16px;cursor:pointer;transition:all .2s;background:#FAFBFF;display:flex;align-items:center;gap:14px;position:relative}
+.tipo-opt:hover{border-color:#C7D7FF;background:#F5F8FF}
+.tipo-opt.on{border-color:#1B3FAB;background:#EEF3FF;box-shadow:0 0 0 4px rgba(27,63,171,.07)}
+.tipo-opt-chk{position:absolute;top:12px;right:12px;width:20px;height:20px;border-radius:50%;border:2px solid #D1D5DB;background:#fff;display:flex;align-items:center;justify-content:center;transition:all .2s;color:transparent;font-size:11px}
+.tipo-opt.on .tipo-opt-chk{background:#1B3FAB;border-color:#1B3FAB;color:#fff}
+.tipo-opt-ico{width:46px;height:46px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.tipo-opt-name{font-size:14px;font-weight:700;color:#111827}
+.tipo-opt-desc{font-size:12px;color:#9CA3AF;margin-top:3px;line-height:1.4}
+.step1-actions{display:flex;gap:8px;justify-content:space-between;align-items:center}
+.tipo-banner{border-radius:12px;padding:12px 14px;margin-bottom:18px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:10px;border:1.5px solid transparent}
+.tipo-banner.pix{background:#DCFCE7;color:#15803D;border-color:#BBF7D0}
+.tipo-banner.cartao{background:#F5F3FF;color:#6D28D9;border-color:#DDD6FE}
+.tipo-banner i{font-size:18px;flex-shrink:0}
+.tipo-banner-txt{flex:1}
+.tipo-banner-name{font-weight:700;font-size:13px}
+.tipo-banner-sub{opacity:.75;font-size:11px;margin-top:2px}
 
 /* form fields inside modal */
 .f-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
@@ -137,34 +158,60 @@ textarea.f-inp{height:72px;padding:10px 12px;resize:vertical}
 <!-- ── NEW REQUEST MODAL ────────────────────────────────────────────────── -->
 <div class="modal-bg" id="modal-bg">
   <div class="modal-box">
+
+    <!-- header -->
     <div class="modal-head">
-      <div class="modal-title-txt" id="modal-title-txt">Nova Solicitação de Pagamento</div>
+      <div>
+        <div class="modal-title-txt" id="modal-title-txt">Nova Solicitação</div>
+        <div class="modal-subtitle" id="modal-subtitle">Passo 1 de 2 — Tipo de pagamento</div>
+      </div>
       <button class="modal-close" onclick="fecharModal()"><i class="ti ti-x"></i></button>
     </div>
+
+    <!-- step indicator -->
+    <div class="modal-steps">
+      <div class="mstep active" id="mstep-1">
+        <div class="mstep-dot">1</div>
+        <div class="mstep-lbl">Tipo</div>
+      </div>
+      <div class="mstep-line" id="mstep-line"></div>
+      <div class="mstep" id="mstep-2">
+        <div class="mstep-dot">2</div>
+        <div class="mstep-lbl">Dados</div>
+      </div>
+    </div>
+
     <div class="modal-body-c">
+
       <!-- step 1: choose tipo -->
       <div id="step-tipo">
-        <div style="font-size:12px;color:#6B7280;margin-bottom:14px">Selecione o tipo de pagamento:</div>
         <div class="tipo-opts">
           <div class="tipo-opt" id="opt-pix" onclick="selectTipo('pix')">
+            <div class="tipo-opt-chk"><i class="ti ti-check"></i></div>
             <div class="tipo-opt-ico" style="background:#DCFCE7"><i class="ti ti-qrcode" style="color:#16A34A"></i></div>
-            <div class="tipo-opt-name">PIX</div>
-            <div class="tipo-opt-desc">Você realiza a transferência e envia o comprovante</div>
+            <div>
+              <div class="tipo-opt-name">PIX</div>
+              <div class="tipo-opt-desc">Você realiza a transferência e envia o comprovante</div>
+            </div>
           </div>
           <div class="tipo-opt" id="opt-cartao" onclick="selectTipo('cartao')">
+            <div class="tipo-opt-chk"><i class="ti ti-check"></i></div>
             <div class="tipo-opt-ico" style="background:#F5F3FF"><i class="ti ti-credit-card" style="color:#7C3AED"></i></div>
-            <div class="tipo-opt-name">Cartão de Crédito</div>
-            <div class="tipo-opt-desc">Financeiro gera o link de pagamento para o cliente</div>
+            <div>
+              <div class="tipo-opt-name">Cartão de Crédito</div>
+              <div class="tipo-opt-desc">Financeiro gera o link de pagamento para o cliente</div>
+            </div>
           </div>
         </div>
-        <div style="display:flex;gap:8px;justify-content:flex-end">
+        <div class="step1-actions">
           <button class="btn btn-ghost btn-sm" onclick="fecharModal()">Cancelar</button>
-          <button class="btn btn-primary btn-sm" onclick="irParaForm()">Continuar <i class="ti ti-arrow-right"></i></button>
+          <button class="btn btn-primary" onclick="irParaForm()">Continuar <i class="ti ti-arrow-right"></i></button>
         </div>
       </div>
+
       <!-- step 2: form -->
       <div id="step-form" style="display:none">
-        <div id="tipo-info-banner" style="border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px"></div>
+        <div id="tipo-info-banner" class="tipo-banner"></div>
         <div class="f-row">
           <div class="f-group">
             <label class="f-lbl">Nome do Cliente *</label>
@@ -183,18 +230,22 @@ textarea.f-inp{height:72px;padding:10px 12px;resize:vertical}
         </div>
         <div class="f-row full" style="margin-bottom:0">
           <div class="f-group">
-            <label class="f-lbl">Observações</label>
-            <textarea class="f-inp" id="inp-obs" placeholder="Informações adicionais (opcional)"></textarea>
+            <label class="f-lbl">Observações <span style="color:#C4D0E8;font-weight:400">(opcional)</span></label>
+            <textarea class="f-inp" id="inp-obs" placeholder="Informações adicionais"></textarea>
           </div>
         </div>
       </div>
+
     </div>
-    <div class="modal-foot-c" id="modal-foot-c">
-      <button class="btn btn-ghost btn-sm" onclick="fecharModal()">Cancelar</button>
-      <button class="btn btn-primary btn-sm" id="btn-salvar" onclick="salvarSolicitacao()">
+
+    <!-- footer step 2 -->
+    <div class="modal-foot-c" id="modal-foot-c" style="display:none">
+      <button class="btn btn-ghost btn-sm" onclick="voltarParaTipo()"><i class="ti ti-arrow-left"></i> Voltar</button>
+      <button class="btn btn-primary" id="btn-salvar" onclick="salvarSolicitacao()">
         <i class="ti ti-send"></i> Enviar Solicitação
       </button>
     </div>
+
   </div>
 </div>
 
@@ -380,6 +431,10 @@ function abrirModal() {
   document.getElementById('modal-foot-c').style.display = 'none';
   document.getElementById('opt-pix').classList.remove('on');
   document.getElementById('opt-cartao').classList.remove('on');
+  document.getElementById('mstep-1').className = 'mstep active';
+  document.getElementById('mstep-2').className = 'mstep';
+  document.getElementById('mstep-line').classList.remove('done');
+  document.getElementById('modal-subtitle').textContent = 'Passo 1 de 2 — Tipo de pagamento';
   ['inp-cliente','inp-valor','inp-descricao','inp-obs'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('modal-bg').classList.add('on');
 }
@@ -399,16 +454,29 @@ function selectTipo(t) {
 function irParaForm() {
   if (!tipoSel) { showToast('Selecione um tipo de pagamento', 'err'); return; }
   const banner = document.getElementById('tipo-info-banner');
+  banner.className = 'tipo-banner ' + tipoSel;
   if (tipoSel === 'pix') {
-    banner.style.cssText = 'background:#DCFCE7;color:#16A34A;border:1px solid #BBF7D0';
-    banner.innerHTML = '<i class="ti ti-qrcode" style="font-size:16px"></i> PIX — Você irá realizar a transferência e enviar o comprovante';
+    banner.innerHTML = '<i class="ti ti-qrcode"></i><div class="tipo-banner-txt"><div class="tipo-banner-name">PIX</div><div class="tipo-banner-sub">Realize a transferência e envie o comprovante</div></div>';
   } else {
-    banner.style.cssText = 'background:#F5F3FF;color:#7C3AED;border:1px solid #DDD6FE';
-    banner.innerHTML = '<i class="ti ti-credit-card" style="font-size:16px"></i> Cartão — O financeiro irá enviar o link de pagamento após a solicitação';
+    banner.innerHTML = '<i class="ti ti-credit-card"></i><div class="tipo-banner-txt"><div class="tipo-banner-name">Cartão de Crédito</div><div class="tipo-banner-sub">O financeiro irá enviar o link após a solicitação</div></div>';
   }
   document.getElementById('step-tipo').style.display = 'none';
   document.getElementById('step-form').style.display = '';
   document.getElementById('modal-foot-c').style.display = 'flex';
+  document.getElementById('mstep-1').className = 'mstep done';
+  document.getElementById('mstep-2').className = 'mstep active';
+  document.getElementById('mstep-line').classList.add('done');
+  document.getElementById('modal-subtitle').textContent = 'Passo 2 de 2 — Dados da solicitação';
+}
+
+function voltarParaTipo() {
+  document.getElementById('step-form').style.display = 'none';
+  document.getElementById('step-tipo').style.display = '';
+  document.getElementById('modal-foot-c').style.display = 'none';
+  document.getElementById('mstep-1').className = 'mstep active';
+  document.getElementById('mstep-2').className = 'mstep';
+  document.getElementById('mstep-line').classList.remove('done');
+  document.getElementById('modal-subtitle').textContent = 'Passo 1 de 2 — Tipo de pagamento';
 }
 
 async function salvarSolicitacao() {
@@ -435,8 +503,9 @@ async function salvarSolicitacao() {
         observacoes:   document.getElementById('inp-obs').value.trim(),
       }),
     });
-    const j = await r.json();
-    if (!j.ok) throw new Error(j.error);
+    let j;
+    try { j = await r.json(); } catch { throw new Error(`Servidor indisponível (HTTP ${r.status})`); }
+    if (!j.ok) throw new Error(j.error || 'Erro desconhecido');
     showToast('Solicitação enviada!', 'ok');
     fecharModal();
     await carregarDados();
@@ -589,3 +658,7 @@ async function recarregarDetalhe() {
 </script>
 </body>
 </html>
+
+
+
+
