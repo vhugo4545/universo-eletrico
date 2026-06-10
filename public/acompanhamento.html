@@ -331,6 +331,7 @@
   <a class="logo" href="/"><div class="logo-bolt"><i class="ti ti-bolt"></i></div><div><div class="logo-top">Universo</div><div class="logo-bot">Elétrico</div></div></a>
   <div style="display:flex;align-items:center;gap:10px">
     <div id="vend-chip"></div>
+    <a class="btn btn-ghost btn-sm" id="link-pag" href="/pagamento.html"><i class="ti ti-cash"></i> Pagamentos</a>
     <a class="btn btn-primary btn-sm" id="link-form" href="/formulario.html"><i class="ti ti-plus"></i> Novo cadastro</a>
   </div>
 </div>
@@ -422,6 +423,7 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('hero-title').textContent = 'Minhas Solicitações';
     document.getElementById('hero-sub').textContent   = 'Cadastros de ' + nome;
     document.getElementById('link-form').href = `formulario.html?v=${v}&t=${t}`;
+    document.getElementById('link-pag').href  = `pagamento.html?v=${v}&t=${t}`;
     if (pessoa && tm) {
       document.getElementById('vend-chip').innerHTML =
         `<div class="chip"><div class="chip-av" style="background:${tm.color}">${pessoa.ini}</div>${pessoa.name}</div>`;

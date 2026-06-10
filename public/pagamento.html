@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pagamentos — Universo Elétrico</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="shared.css">
+<style>
+.page{max-width:960px;margin:0 auto;padding:24px 20px 60px}
+
+/* hero */
+.hero{background:#fff;border-radius:16px;border:1px solid #EAF0FB;padding:22px 28px;margin-bottom:18px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+.hero-label{font-size:11px;font-weight:600;color:#9DAEC4;letter-spacing:.7px;text-transform:uppercase;margin-bottom:3px}
+.hero-title{font-size:22px;font-weight:700;color:#111827;letter-spacing:-.4px}
+.hero-sub{font-size:13px;color:#8A9BB5;margin-top:3px}
+
+/* stats */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
+.stat-card{background:#fff;border-radius:14px;border:1px solid #EAF0FB;padding:18px;text-align:center;cursor:pointer;transition:all .2s}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(27,63,171,.08)}
+.stat-card.on{border-color:#1B3FAB;box-shadow:0 0 0 3px rgba(27,63,171,.1)}
+.stat-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:20px;margin:0 auto 10px}
+.stat-val{font-size:28px;font-weight:700;line-height:1}
+.stat-lbl{font-size:10px;font-weight:600;color:#9DAEC4;letter-spacing:.5px;text-transform:uppercase;margin-top:4px}
+
+/* table */
+.table-wrap{background:#fff;border-radius:16px;border:1px solid #EAF0FB;overflow:hidden}
+.table-head{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 120px;padding:10px 20px;background:#F8FAFF;border-bottom:1px solid #EAF0FB}
+.th{font-size:10px;font-weight:700;color:#9DAEC4;letter-spacing:.6px;text-transform:uppercase}
+.t-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 120px;padding:14px 20px;border-bottom:1px solid #F3F4F6;align-items:center;cursor:pointer;transition:background .15s}
+.t-row:last-child{border-bottom:none}
+.t-row:hover{background:#F8FAFF}
+
+/* tipo & status badges */
+.tipo-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.tipo-pix{background:#DCFCE7;color:#16A34A}
+.tipo-cartao{background:#F5F3FF;color:#7C3AED}
+.st-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.st-aguardando{background:#FEF3C7;color:#D97706}
+.st-link{background:#EEF3FF;color:#1B3FAB}
+.st-comp{background:#FFF7ED;color:#EA580C}
+.st-concluido{background:#DCFCE7;color:#16A34A}
+
+/* toolbar / pills */
+.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{padding:6px 14px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid #EAF0FB;background:#fff;color:#8A9BB5;transition:all .2s;font-family:'Plus Jakarta Sans',sans-serif}
+.pill:hover{border-color:#C7D7FF;color:#1B3FAB}
+.pill.on{background:#1B3FAB;border-color:#1B3FAB;color:#fff}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(17,24,39,.5);z-index:400;display:flex;align-items:center;justify-content:center;padding:20px;opacity:0;pointer-events:none;transition:opacity .18s}
+.modal-bg.on{opacity:1;pointer-events:all}
+.modal-box{background:#fff;border-radius:18px;width:100%;max-width:520px;box-shadow:0 20px 60px rgba(16,24,40,.18);overflow:hidden;transform:translateY(12px);transition:transform .18s}
+.modal-bg.on .modal-box{transform:translateY(0)}
+.modal-head{padding:18px 22px;border-bottom:1px solid #EAF0FB;display:flex;align-items:center;justify-content:space-between}
+.modal-title-txt{font-size:15px;font-weight:700;color:#111827}
+.modal-close{width:30px;height:30px;border-radius:8px;border:none;background:#F3F4F6;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#6B7280;font-size:16px;transition:background .15s}
+.modal-close:hover{background:#E5E7EB}
+.modal-body-c{padding:20px 22px}
+.modal-foot-c{padding:14px 22px;border-top:1px solid #EAF0FB;display:flex;gap:8px;justify-content:flex-end}
+
+/* tipo select cards */
+.tipo-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.tipo-opt{border:2px solid #EAF0FB;border-radius:14px;padding:18px 14px;text-align:center;cursor:pointer;transition:all .2s;background:#FAFBFF}
+.tipo-opt:hover{border-color:#C7D7FF;transform:translateY(-2px)}
+.tipo-opt.on{border-color:#1B3FAB;background:#EEF3FF;box-shadow:0 0 0 3px rgba(27,63,171,.1)}
+.tipo-opt-ico{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin:0 auto 10px}
+.tipo-opt-name{font-size:13px;font-weight:700;color:#111827}
+.tipo-opt-desc{font-size:11px;color:#9CA3AF;margin-top:4px;line-height:1.4}
+
+/* form fields inside modal */
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.f-row.full{grid-template-columns:1fr}
+.f-group{display:flex;flex-direction:column;gap:5px}
+.f-lbl{font-size:11px;font-weight:600;color:#374151}
+.f-inp{width:100%;height:40px;border:1.5px solid #E5E7EB;border-radius:10px;padding:0 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:#111827;outline:none;transition:border-color .2s;box-sizing:border-box;background:#fff}
+.f-inp:focus{border-color:#1B3FAB;box-shadow:0 0 0 3px rgba(27,63,171,.07)}
+textarea.f-inp{height:72px;padding:10px 12px;resize:vertical}
+
+/* detail overlay */
+.overlay{position:fixed;inset:0;background:#F0F4FF;z-index:200;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .22s}
+.overlay.on{opacity:1;pointer-events:all}
+.det-topbar{background:#fff;border-bottom:1px solid #EAF0FB;position:sticky;top:0;z-index:10;box-shadow:0 1px 4px rgba(27,63,171,.06)}
+.det-topbar-inner{max-width:780px;margin:0 auto;padding:0 24px;height:58px;display:flex;align-items:center;gap:10px}
+.det-body{max-width:780px;margin:0 auto;padding:24px 24px 80px}
+
+/* detail cards */
+.det-card{background:#fff;border-radius:14px;border:1px solid #EAF0FB;overflow:hidden;box-shadow:0 1px 3px rgba(16,24,40,.04);margin-bottom:14px}
+.det-card-head{font-size:10px;font-weight:700;color:#6B7280;letter-spacing:.6px;text-transform:uppercase;padding:13px 16px;border-bottom:1px solid #EAF0FB;display:flex;align-items:center;gap:8px;background:linear-gradient(to right,#FAFBFF,#F4F7FF)}
+.det-card-head i{font-size:15px;color:#1B3FAB}
+.det-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:14px 16px}
+.det-f{background:#F8FAFF;border:1px solid #EAF0FB;border-radius:10px;padding:12px 14px}
+.det-lbl{font-size:9px;font-weight:700;color:#9CA3AF;text-transform:uppercase;letter-spacing:.6px}
+.det-val{font-size:13px;font-weight:600;color:#111827;margin-top:4px;word-break:break-word;line-height:1.4}
+.det-val.large{font-size:22px;color:#16A34A;font-weight:700}
+
+/* upload zone */
+.upload-zone{border:2px dashed #C7D7FF;border-radius:12px;padding:24px;text-align:center;cursor:pointer;transition:all .2s;background:#FAFBFF;position:relative;overflow:hidden}
+.upload-zone:hover,.upload-zone.uploading{border-color:#1B3FAB;background:#EEF3FF}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+
+/* link display */
+.link-box{background:#EEF3FF;border:1.5px solid #C7D7FF;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.link-box i{font-size:20px;color:#1B3FAB;flex-shrink:0}
+.link-box a{color:#1B3FAB;font-size:13px;font-weight:600;text-decoration:none;word-break:break-all;flex:1}
+.link-box a:hover{text-decoration:underline}
+
+@media(max-width:640px){
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .table-head{display:none}
+  .t-row{grid-template-columns:1fr;gap:4px}
+  .t-row>*:nth-child(n+2){display:none}
+  .tipo-opts{grid-template-columns:1fr}
+  .f-row{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- ── DETAIL OVERLAY ──────────────────────────────────────────────────── -->
+<div class="overlay" id="overlay">
+  <div class="det-topbar">
+    <div class="det-topbar-inner">
+      <button class="btn btn-ghost btn-sm" onclick="fecharDetalhe()">
+        <i class="ti ti-arrow-left"></i> Voltar
+      </button>
+      <div style="flex:1;min-width:0;display:flex;align-items:center;gap:10px" id="det-titulo"></div>
+      <div id="det-status-wrap"></div>
+    </div>
+  </div>
+  <div class="det-body" id="det-body"></div>
+</div>
+
+<!-- ── NEW REQUEST MODAL ────────────────────────────────────────────────── -->
+<div class="modal-bg" id="modal-bg">
+  <div class="modal-box">
+    <div class="modal-head">
+      <div class="modal-title-txt" id="modal-title-txt">Nova Solicitação de Pagamento</div>
+      <button class="modal-close" onclick="fecharModal()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="modal-body-c">
+      <!-- step 1: choose tipo -->
+      <div id="step-tipo">
+        <div style="font-size:12px;color:#6B7280;margin-bottom:14px">Selecione o tipo de pagamento:</div>
+        <div class="tipo-opts">
+          <div class="tipo-opt" id="opt-pix" onclick="selectTipo('pix')">
+            <div class="tipo-opt-ico" style="background:#DCFCE7"><i class="ti ti-qrcode" style="color:#16A34A"></i></div>
+            <div class="tipo-opt-name">PIX</div>
+            <div class="tipo-opt-desc">Você realiza a transferência e envia o comprovante</div>
+          </div>
+          <div class="tipo-opt" id="opt-cartao" onclick="selectTipo('cartao')">
+            <div class="tipo-opt-ico" style="background:#F5F3FF"><i class="ti ti-credit-card" style="color:#7C3AED"></i></div>
+            <div class="tipo-opt-name">Cartão de Crédito</div>
+            <div class="tipo-opt-desc">Financeiro gera o link de pagamento para o cliente</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;justify-content:flex-end">
+          <button class="btn btn-ghost btn-sm" onclick="fecharModal()">Cancelar</button>
+          <button class="btn btn-primary btn-sm" onclick="irParaForm()">Continuar <i class="ti ti-arrow-right"></i></button>
+        </div>
+      </div>
+      <!-- step 2: form -->
+      <div id="step-form" style="display:none">
+        <div id="tipo-info-banner" style="border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:8px"></div>
+        <div class="f-row">
+          <div class="f-group">
+            <label class="f-lbl">Nome do Cliente *</label>
+            <input class="f-inp" id="inp-cliente" type="text" placeholder="Razão social ou nome">
+          </div>
+          <div class="f-group">
+            <label class="f-lbl">Valor *</label>
+            <input class="f-inp" id="inp-valor" type="text" placeholder="R$ 0,00" oninput="this.value=maskValor(this.value)">
+          </div>
+        </div>
+        <div class="f-row full">
+          <div class="f-group">
+            <label class="f-lbl">Descrição / Pedido *</label>
+            <input class="f-inp" id="inp-descricao" type="text" placeholder="Ex: Pedido #1234, materiais elétricos...">
+          </div>
+        </div>
+        <div class="f-row full" style="margin-bottom:0">
+          <div class="f-group">
+            <label class="f-lbl">Observações</label>
+            <textarea class="f-inp" id="inp-obs" placeholder="Informações adicionais (opcional)"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot-c" id="modal-foot-c">
+      <button class="btn btn-ghost btn-sm" onclick="fecharModal()">Cancelar</button>
+      <button class="btn btn-primary btn-sm" id="btn-salvar" onclick="salvarSolicitacao()">
+        <i class="ti ti-send"></i> Enviar Solicitação
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOPBAR ────────────────────────────────────────────────────────────── -->
+<div class="topbar">
+  <a class="logo" href="/"><div class="logo-bolt"><i class="ti ti-bolt"></i></div><div><div class="logo-top">Universo</div><div class="logo-bot">Elétrico</div></div></a>
+  <div style="display:flex;align-items:center;gap:10px">
+    <div id="vend-chip"></div>
+    <a class="btn btn-ghost btn-sm" id="link-acomp" href="/acompanhamento.html"><i class="ti ti-list"></i> Meus Cadastros</a>
+    <button class="btn btn-primary btn-sm" onclick="abrirModal()"><i class="ti ti-plus"></i> Nova Solicitação</button>
+  </div>
+</div>
+
+<!-- ── PAGE ──────────────────────────────────────────────────────────────── -->
+<div class="page">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div>
+      <div class="hero-label">Universo Elétrico — Financeiro</div>
+      <div class="hero-title" id="hero-title">Notificações de Pagamento</div>
+      <div class="hero-sub" id="hero-sub">Solicite PIX ou link de cartão para o setor financeiro</div>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="carregarDados()"><i class="ti ti-refresh"></i> Atualizar</button>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat-card" id="sc-todos" onclick="setFiltro('todos')">
+      <div class="stat-icon" style="background:#EEF3FF"><i class="ti ti-cash" style="color:#1B3FAB"></i></div>
+      <div class="stat-val" id="sv-total" style="color:#1B3FAB">—</div>
+      <div class="stat-lbl">Total</div>
+    </div>
+    <div class="stat-card" id="sc-aguardando" onclick="setFiltro('aguardando')">
+      <div class="stat-icon" style="background:#FEF3C7"><i class="ti ti-clock" style="color:#D97706"></i></div>
+      <div class="stat-val" id="sv-aguardando" style="color:#D97706">—</div>
+      <div class="stat-lbl">Aguardando</div>
+    </div>
+    <div class="stat-card" id="sc-comp" onclick="setFiltro('comprovante-enviado')">
+      <div class="stat-icon" style="background:#FFF7ED"><i class="ti ti-file-check" style="color:#EA580C"></i></div>
+      <div class="stat-val" id="sv-comp" style="color:#EA580C">—</div>
+      <div class="stat-lbl">Comp. Enviado</div>
+    </div>
+    <div class="stat-card" id="sc-concluido" onclick="setFiltro('concluido')">
+      <div class="stat-icon" style="background:#DCFCE7"><i class="ti ti-circle-check" style="color:#16A34A"></i></div>
+      <div class="stat-val" id="sv-concluido" style="color:#16A34A">—</div>
+      <div class="stat-lbl">Concluído</div>
+    </div>
+  </div>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="pills">
+      <button class="pill on" id="pill-todos"               onclick="setFiltro('todos')">Todos</button>
+      <button class="pill"    id="pill-aguardando"          onclick="setFiltro('aguardando')">Aguardando</button>
+      <button class="pill"    id="pill-link-enviado"        onclick="setFiltro('link-enviado')">Link Disponível</button>
+      <button class="pill"    id="pill-comprovante-enviado" onclick="setFiltro('comprovante-enviado')">Comp. Enviado</button>
+      <button class="pill"    id="pill-concluido"           onclick="setFiltro('concluido')">Concluído</button>
+    </div>
+    <button class="btn btn-ghost btn-sm" onclick="carregarDados()"><i class="ti ti-refresh"></i></button>
+  </div>
+
+  <!-- TABLE -->
+  <div class="table-wrap">
+    <div class="table-head">
+      <div class="th">Cliente</div>
+      <div class="th">Tipo</div>
+      <div class="th">Valor</div>
+      <div class="th">Data</div>
+      <div class="th">Status</div>
+    </div>
+    <div id="table-body"><div class="loading-state"><i class="ti ti-loader-2"></i><h3>Carregando...</h3></div></div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+const params   = new URLSearchParams(location.search);
+const vendSlug = params.get('v') || '';
+const vendTeam = params.get('t') || '';
+let todos = [], filtro = 'todos', tipoSel = null, detId = null;
+
+const ST_LABEL = { aguardando:'Aguardando', 'link-enviado':'Link Disponível', 'comprovante-enviado':'Comp. Enviado', concluido:'Concluído' };
+const ST_CLASS = { aguardando:'st-aguardando', 'link-enviado':'st-link', 'comprovante-enviado':'st-comp', concluido:'st-concluido' };
+const ST_ICO   = { aguardando:'ti-clock', 'link-enviado':'ti-link', 'comprovante-enviado':'ti-file-check', concluido:'ti-circle-check' };
+
+const maskValor = v => {
+  v = v.replace(/\D/g,'');
+  if (!v) return '';
+  return 'R$ ' + (parseInt(v)/100).toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+};
+
+// ── init ──────────────────────────────────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  const pessoa = getPessoa(vendSlug);
+  const tm     = pessoa ? getTeam(pessoa.team) : null;
+  if (pessoa) {
+    document.getElementById('hero-title').textContent = 'Notificações de Pagamento';
+    document.getElementById('hero-sub').textContent   = 'Solicitações de ' + pessoa.name;
+    document.getElementById('vend-chip').innerHTML =
+      `<div class="chip"><div class="chip-av" style="background:${tm?.color||'#1B3FAB'}">${pessoa.ini}</div>${pessoa.name}</div>`;
+  }
+  document.getElementById('link-acomp').href = `acompanhamento.html?v=${vendSlug}&t=${vendTeam}`;
+  carregarDados();
+});
+
+// ── api ───────────────────────────────────────────────────────────────
+async function carregarDados() {
+  document.getElementById('table-body').innerHTML = '<div class="loading-state"><i class="ti ti-loader-2"></i><h3>Carregando...</h3></div>';
+  try {
+    const qs = vendSlug ? `?vendedor=${vendSlug}` : '';
+    const r  = await fetch(`${API}/api/pagamentos${qs}`);
+    const j  = await r.json();
+    if (!j.ok) throw new Error(j.error || 'Erro ao carregar');
+    todos = j.data;
+    atualizarStats();
+    renderTabela();
+    // refresh detail if open
+    if (detId) {
+      const item = todos.find(p => p.id === detId);
+      if (item) { detId = item.id; renderDetalhe(item); }
+    }
+  } catch(e) {
+    document.getElementById('table-body').innerHTML =
+      `<div class="empty-state"><i class="ti ti-alert-circle"></i><h3>Erro ao carregar</h3><p>${e.message||'Erro de conexão com o servidor'}</p><button class="btn btn-primary" style="margin-top:12px" onclick="carregarDados()"><i class="ti ti-refresh"></i> Tentar novamente</button></div>`;
+  }
+}
+
+function atualizarStats() {
+  document.getElementById('sv-total').textContent     = todos.length;
+  document.getElementById('sv-aguardando').textContent = todos.filter(p=>p.status==='aguardando'||p.status==='link-enviado').length;
+  document.getElementById('sv-comp').textContent      = todos.filter(p=>p.status==='comprovante-enviado').length;
+  document.getElementById('sv-concluido').textContent = todos.filter(p=>p.status==='concluido').length;
+}
+
+// ── render ────────────────────────────────────────────────────────────
+function getLista() {
+  return filtro === 'todos' ? todos : todos.filter(p => p.status === filtro);
+}
+
+function setFiltro(f) {
+  filtro = f;
+  document.querySelectorAll('.pill').forEach(b => b.classList.remove('on'));
+  const el = document.getElementById('pill-' + f);
+  if (el) el.classList.add('on');
+  renderTabela();
+}
+
+function renderTabela() {
+  const lista = getLista();
+  if (!lista.length) {
+    const noData = filtro === 'todos';
+    document.getElementById('table-body').innerHTML = `<div class="empty-state">
+      <i class="ti ti-${noData?'cash':'search-off'}"></i>
+      <h3>${noData?'Nenhuma solicitação ainda':'Nenhum resultado para este filtro'}</h3>
+      <p>${noData?'Clique em "Nova Solicitação" para criar sua primeira solicitação de pagamento':'Tente outro filtro'}</p>
+    </div>`;
+    return;
+  }
+  document.getElementById('table-body').innerHTML = lista.map(p => {
+    const d = new Date(p.created_at);
+    return `<div class="t-row" onclick="abrirDetalhe('${p.id}')">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#111827">${p.cliente_nome||'—'}</div>
+        <div style="font-size:11px;color:#9CA3AF;margin-top:1px">${p.descricao||''}</div>
+      </div>
+      <div><span class="tipo-badge tipo-${p.tipo}"><i class="ti ti-${p.tipo==='pix'?'qrcode':'credit-card'}"></i> ${p.tipo==='pix'?'PIX':'Cartão'}</span></div>
+      <div style="font-size:13px;font-weight:700;color:#111827">${p.valor||'—'}</div>
+      <div>
+        <div style="font-size:12px;color:#374151">${d.toLocaleDateString('pt-BR')}</div>
+        <div style="font-size:10px;color:#C4D0E8">${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+      <div><span class="st-badge ${ST_CLASS[p.status]||'st-aguardando'}"><i class="ti ${ST_ICO[p.status]||'ti-clock'}"></i> ${ST_LABEL[p.status]||p.status}</span></div>
+    </div>`;
+  }).join('');
+}
+
+// ── modal novo ────────────────────────────────────────────────────────
+function abrirModal() {
+  tipoSel = null;
+  document.getElementById('step-tipo').style.display = '';
+  document.getElementById('step-form').style.display = 'none';
+  document.getElementById('modal-foot-c').style.display = 'none';
+  document.getElementById('opt-pix').classList.remove('on');
+  document.getElementById('opt-cartao').classList.remove('on');
+  ['inp-cliente','inp-valor','inp-descricao','inp-obs'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('modal-bg').classList.add('on');
+}
+
+function fecharModal() { document.getElementById('modal-bg').classList.remove('on'); }
+
+document.getElementById('modal-bg').addEventListener('click', e => {
+  if (e.target === document.getElementById('modal-bg')) fecharModal();
+});
+
+function selectTipo(t) {
+  tipoSel = t;
+  document.getElementById('opt-pix').classList.toggle('on', t==='pix');
+  document.getElementById('opt-cartao').classList.toggle('on', t==='cartao');
+}
+
+function irParaForm() {
+  if (!tipoSel) { showToast('Selecione um tipo de pagamento', 'err'); return; }
+  const banner = document.getElementById('tipo-info-banner');
+  if (tipoSel === 'pix') {
+    banner.style.cssText = 'background:#DCFCE7;color:#16A34A;border:1px solid #BBF7D0';
+    banner.innerHTML = '<i class="ti ti-qrcode" style="font-size:16px"></i> PIX — Você irá realizar a transferência e enviar o comprovante';
+  } else {
+    banner.style.cssText = 'background:#F5F3FF;color:#7C3AED;border:1px solid #DDD6FE';
+    banner.innerHTML = '<i class="ti ti-credit-card" style="font-size:16px"></i> Cartão — O financeiro irá enviar o link de pagamento após a solicitação';
+  }
+  document.getElementById('step-tipo').style.display = 'none';
+  document.getElementById('step-form').style.display = '';
+  document.getElementById('modal-foot-c').style.display = 'flex';
+}
+
+async function salvarSolicitacao() {
+  const cliente   = document.getElementById('inp-cliente').value.trim();
+  const valor     = document.getElementById('inp-valor').value.trim();
+  const descricao = document.getElementById('inp-descricao').value.trim();
+  if (!cliente || !valor || !descricao) { showToast('Preencha os campos obrigatórios', 'err'); return; }
+  const btn = document.getElementById('btn-salvar');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin .8s linear infinite"></i> Enviando...';
+  try {
+    const pessoa = getPessoa(vendSlug);
+    const r = await fetch(`${API}/api/pagamentos`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        tipo:          tipoSel,
+        vendedor_slug: vendSlug,
+        vendedor_nome: pessoa?.name || vendSlug,
+        equipe:        pessoa ? getTeam(pessoa.team).name : '',
+        cliente_nome:  cliente,
+        valor,
+        descricao,
+        observacoes:   document.getElementById('inp-obs').value.trim(),
+      }),
+    });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error);
+    showToast('Solicitação enviada!', 'ok');
+    fecharModal();
+    await carregarDados();
+    abrirDetalhe(j.data.id);
+  } catch(e) {
+    showToast(e.message || 'Erro ao enviar', 'err');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-send"></i> Enviar Solicitação';
+  }
+}
+
+// ── detalhe ───────────────────────────────────────────────────────────
+function abrirDetalhe(id) {
+  const item = todos.find(p => p.id === id);
+  if (!item) return;
+  detId = id;
+  renderDetalhe(item);
+  document.getElementById('overlay').classList.add('on');
+}
+
+function fecharDetalhe() {
+  document.getElementById('overlay').classList.remove('on');
+  detId = null;
+}
+
+function renderDetalhe(p) {
+  const tipoBadge = `<span class="tipo-badge tipo-${p.tipo}"><i class="ti ti-${p.tipo==='pix'?'qrcode':'credit-card'}"></i> ${p.tipo==='pix'?'PIX':'Cartão de Crédito'}</span>`;
+  const stBadge   = `<span class="st-badge ${ST_CLASS[p.status]||'st-aguardando'}" style="font-size:11px;padding:5px 12px"><i class="ti ${ST_ICO[p.status]||'ti-clock'}"></i> ${ST_LABEL[p.status]||p.status}</span>`;
+  document.getElementById('det-titulo').innerHTML = `<span style="font-size:14px;font-weight:700;color:#111827">${p.cliente_nome||'—'}</span> ${tipoBadge}`;
+  document.getElementById('det-status-wrap').innerHTML = stBadge;
+
+  let acaoHTML = '';
+
+  if (p.tipo === 'pix' && p.status === 'aguardando') {
+    acaoHTML = `<div class="det-card" style="border:2px solid #BBF7D0">
+      <div class="det-card-head" style="background:#DCFCE7"><i class="ti ti-upload" style="color:#16A34A"></i> Enviar Comprovante PIX</div>
+      <div style="padding:16px">
+        <p style="font-size:13px;color:#6B7280;margin:0 0 14px">Realize a transferência PIX e envie o comprovante:</p>
+        <div class="upload-zone">
+          <input type="file" accept="image/*,.pdf" onchange="enviarComprovante(this.files[0])">
+          <i class="ti ti-cloud-upload" style="font-size:28px;color:#C7D7FF;display:block;margin:0 auto 8px"></i>
+          <div style="font-size:13px;font-weight:600;color:#6B7280">Clique ou arraste o comprovante aqui</div>
+          <div style="font-size:11px;color:#9CA3AF;margin-top:4px">Imagem ou PDF — máx. 20 MB</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if (p.tipo === 'cartao' && p.status === 'aguardando') {
+    acaoHTML = `<div class="det-card" style="border:2px solid #FEF3C7">
+      <div class="det-card-head" style="background:#FFFBEB"><i class="ti ti-clock" style="color:#D97706"></i> Aguardando Link de Pagamento</div>
+      <div style="padding:20px;text-align:center;color:#9CA3AF">
+        <i class="ti ti-loader" style="font-size:32px;display:block;margin:0 auto 12px;color:#D97706;animation:spin .8s linear infinite"></i>
+        <div style="font-size:13px;font-weight:600;color:#374151">O financeiro está preparando o link</div>
+        <div style="font-size:12px;margin-top:6px">Você receberá o link de pagamento em breve.<br>Clique em atualizar para verificar.</div>
+        <button class="btn btn-ghost btn-sm" style="margin-top:14px" onclick="recarregarDetalhe()"><i class="ti ti-refresh"></i> Verificar agora</button>
+      </div>
+    </div>`;
+  }
+
+  if (p.tipo === 'cartao' && p.status === 'link-enviado') {
+    acaoHTML = `<div class="det-card" style="border:2px solid #C7D7FF">
+      <div class="det-card-head"><i class="ti ti-link"></i> Link de Pagamento Disponível!</div>
+      <div style="padding:16px">
+        <div class="link-box" style="margin-bottom:16px">
+          <i class="ti ti-credit-card"></i>
+          <a href="${p.link_pagamento}" target="_blank" rel="noopener">${p.link_pagamento}</a>
+          <button class="btn btn-ghost btn-sm" onclick="navigator.clipboard.writeText('${p.link_pagamento.replace(/'/g,"\\'")}').then(()=>showToast('Link copiado!','ok'))"><i class="ti ti-copy"></i></button>
+        </div>
+        <p style="font-size:13px;color:#6B7280;margin:0 0 14px">Após o pagamento, envie o comprovante abaixo:</p>
+        <div class="upload-zone">
+          <input type="file" accept="image/*,.pdf" onchange="enviarComprovante(this.files[0])">
+          <i class="ti ti-cloud-upload" style="font-size:28px;color:#C7D7FF;display:block;margin:0 auto 8px"></i>
+          <div style="font-size:13px;font-weight:600;color:#6B7280">Clique ou arraste o comprovante aqui</div>
+          <div style="font-size:11px;color:#9CA3AF;margin-top:4px">Imagem ou PDF — máx. 20 MB</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  if (p.comprovante && (p.status === 'comprovante-enviado' || p.status === 'concluido')) {
+    const comp = p.comprovante;
+    const ext  = comp.nome.split('.').pop().toLowerCase();
+    const url  = `${API}/api/pagamentos/${p.id}/comprovante/${comp.arquivo}`;
+    const ico  = ['pdf'].includes(ext)?'file-type-pdf':['jpg','jpeg','png','gif','webp'].includes(ext)?'photo':'file';
+    acaoHTML = `<div class="det-card" style="border:2px solid ${p.status==='concluido'?'#BBF7D0':'#FED7AA'}">
+      <div class="det-card-head" style="background:${p.status==='concluido'?'#DCFCE7':'#FFF7ED'}">
+        <i class="ti ti-file-check" style="color:${p.status==='concluido'?'#16A34A':'#EA580C'}"></i>
+        ${p.status==='concluido'?'Pagamento Confirmado':'Comprovante Enviado'}
+      </div>
+      <div style="padding:16px">
+        <div style="display:flex;align-items:center;gap:12px;background:#F8FAFF;border:1px solid #EAF0FB;border-radius:12px;padding:14px;margin-bottom:12px">
+          <div style="width:42px;height:42px;background:${p.status==='concluido'?'#DCFCE7':'#FFF7ED'};border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i class="ti ti-${ico}" style="font-size:20px;color:${p.status==='concluido'?'#16A34A':'#EA580C'}"></i>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${comp.nome}</div>
+            <div style="font-size:11px;color:#9CA3AF;margin-top:2px">${new Date(comp.criado_at).toLocaleString('pt-BR')}</div>
+          </div>
+          <a href="${url}" target="_blank" class="btn btn-ghost btn-sm"><i class="ti ti-eye"></i> Ver</a>
+          <a href="${url}" download="${comp.nome}" class="btn btn-ghost btn-sm"><i class="ti ti-download"></i></a>
+        </div>
+        <div style="background:${p.status==='concluido'?'#DCFCE7':'#FFF7ED'};border-radius:10px;padding:10px 14px;font-size:12px;font-weight:600;color:${p.status==='concluido'?'#16A34A':'#EA580C'};display:flex;align-items:center;gap:8px">
+          <i class="ti ti-${p.status==='concluido'?'circle-check':'clock'}"></i>
+          ${p.status==='concluido'?'Pagamento confirmado pelo setor financeiro':'Aguardando confirmação do financeiro'}
+        </div>
+      </div>
+    </div>`;
+  }
+
+  const d = new Date(p.created_at);
+  document.getElementById('det-body').innerHTML = `${acaoHTML}
+    <div class="det-card">
+      <div class="det-card-head"><i class="ti ti-info-circle"></i> Detalhes da Solicitação</div>
+      <div class="det-grid">
+        <div class="det-f"><div class="det-lbl">Cliente</div><div class="det-val">${p.cliente_nome||'—'}</div></div>
+        <div class="det-f"><div class="det-lbl">Valor</div><div class="det-val large">${p.valor||'—'}</div></div>
+        <div class="det-f" style="grid-column:span 2"><div class="det-lbl">Descrição</div><div class="det-val">${p.descricao||'—'}</div></div>
+        ${p.observacoes?`<div class="det-f" style="grid-column:span 2"><div class="det-lbl">Observações</div><div class="det-val">${p.observacoes}</div></div>`:''}
+        <div class="det-f"><div class="det-lbl">Tipo</div><div class="det-val">${p.tipo==='pix'?'PIX':'Cartão de Crédito'}</div></div>
+        <div class="det-f"><div class="det-lbl">Solicitado em</div><div class="det-val">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div></div>
+      </div>
+    </div>`;
+}
+
+async function enviarComprovante(file) {
+  if (!file || !detId) return;
+  showToast('Enviando comprovante...', '');
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const r = await fetch(`${API}/api/pagamentos/${detId}/comprovante`, { method:'POST', body:fd });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error);
+    showToast('Comprovante enviado com sucesso!', 'ok');
+    await carregarDados();
+    const item = todos.find(p => p.id === detId);
+    if (item) renderDetalhe(item);
+  } catch(e) {
+    showToast(e.message || 'Erro ao enviar comprovante', 'err');
+  }
+}
+
+async function recarregarDetalhe() {
+  await carregarDados();
+  const item = todos.find(p => p.id === detId);
+  if (item) renderDetalhe(item);
+}
+</script>
+</body>
+</html>

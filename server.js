@@ -61,7 +61,15 @@ const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 } });
 // ─── MIDDLEWARES ──────────────────────────────────────────────────────────────
 app.use(cors());
 app.use(express.json());
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), {
+  etag: false,
+  lastModified: false,
+  setHeaders: (res) => {
+    res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
+  }
+}));
 
 // ─── CADASTROS ────────────────────────────────────────────────────────────────
 app.get('/api/cadastros', (req, res) => {
@@ -312,6 +320,109 @@ app.get('/api/cep/:cep', async (req, res) => {
     console.error(`[GET /api/cep/${req.params.cep}] → erro ${e.response?.status||500}:`, e.message);
     res.status(e.response?.status||500).json({ ok:false, error:'CEP não encontrado' });
   }
+});
+
+// ─── PAGAMENTOS ───────────────────────────────────────────────────────────────
+const PAG_FILE = path.join(DB_DIR, 'pagamentos.json');
+if (!fs.existsSync(PAG_FILE)) fs.writeFileSync(PAG_FILE, '[]');
+const lerPag    = () => { try { return JSON.parse(fs.readFileSync(PAG_FILE,'utf8')); } catch(e){ return []; } };
+const salvarPag = d  => fs.writeFileSync(PAG_FILE, JSON.stringify(d, null, 2));
+
+const COMP_DIR = path.join(__dirname, 'data', 'comprovantes');
+if (!fs.existsSync(COMP_DIR)) fs.mkdirSync(COMP_DIR, { recursive: true });
+
+const storageComp = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(COMP_DIR, req.params.id);
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const ext  = path.extname(file.originalname);
+    const base = path.basename(file.originalname, ext)
+                   .replace(/[^a-zA-Z0-9_\-.]/g, '_').slice(0, 60);
+    cb(null, `${Date.now()}_${base}${ext}`);
+  },
+});
+const uploadComp = multer({ storage: storageComp, limits: { fileSize: 20 * 1024 * 1024 } });
+
+app.get('/api/pagamentos', (req, res) => {
+  let lista = lerPag();
+  if (req.query.vendedor) lista = lista.filter(p => p.vendedor_slug === req.query.vendedor);
+  if (req.query.tipo)     lista = lista.filter(p => p.tipo === req.query.tipo);
+  if (req.query.status)   lista = lista.filter(p => p.status === req.query.status);
+  lista.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+  res.json({ ok:true, data:lista, total:lista.length });
+});
+
+app.post('/api/pagamentos', (req, res) => {
+  const b = req.body;
+  if (!b.tipo || !b.vendedor_slug) return res.status(400).json({ ok:false, error:'tipo e vendedor são obrigatórios' });
+  const lista = lerPag();
+  const novo = {
+    id:             Date.now().toString(),
+    created_at:     new Date().toISOString(),
+    updated_at:     new Date().toISOString(),
+    tipo:           b.tipo,
+    status:         'aguardando',
+    vendedor_slug:  b.vendedor_slug || '',
+    vendedor_nome:  b.vendedor_nome || '',
+    equipe:         b.equipe || '',
+    cliente_nome:   b.cliente_nome || '',
+    valor:          b.valor || '',
+    descricao:      b.descricao || '',
+    observacoes:    b.observacoes || '',
+    link_pagamento: '',
+    comprovante:    null,
+  };
+  lista.push(novo);
+  salvarPag(lista);
+  console.log(`[+] Pagamento ${novo.tipo}: ${novo.cliente_nome} — ${novo.vendedor_nome} — ${novo.valor}`);
+  res.status(201).json({ ok:true, data:novo });
+});
+
+app.patch('/api/pagamentos/:id', (req, res) => {
+  const lista = lerPag();
+  const idx   = lista.findIndex(p => p.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ ok:false, error:'Não encontrado' });
+  lista[idx] = { ...lista[idx], ...req.body, updated_at: new Date().toISOString() };
+  salvarPag(lista);
+  console.log(`[PATCH /api/pagamentos/${req.params.id}] status → ${lista[idx].status}`);
+  res.json({ ok:true, data:lista[idx] });
+});
+
+app.delete('/api/pagamentos/:id', (req, res) => {
+  let lista = lerPag();
+  const len = lista.length;
+  lista = lista.filter(p => p.id !== req.params.id);
+  if (lista.length === len) return res.status(404).json({ ok:false, error:'Não encontrado' });
+  salvarPag(lista);
+  res.json({ ok:true });
+});
+
+app.post('/api/pagamentos/:id/comprovante', uploadComp.single('file'), (req, res) => {
+  const lista = lerPag();
+  const idx   = lista.findIndex(p => p.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ ok:false, error:'Não encontrado' });
+  if (!req.file)  return res.status(400).json({ ok:false, error:'Nenhum arquivo enviado' });
+  lista[idx].comprovante = {
+    nome:      req.file.originalname,
+    arquivo:   req.file.filename,
+    tipo:      req.file.mimetype,
+    tamanho:   req.file.size,
+    criado_at: new Date().toISOString(),
+  };
+  lista[idx].status     = 'comprovante-enviado';
+  lista[idx].updated_at = new Date().toISOString();
+  salvarPag(lista);
+  res.json({ ok:true, data:lista[idx].comprovante });
+});
+
+app.get('/api/pagamentos/:id/comprovante/:arquivo', (req, res) => {
+  const arquivo = path.basename(req.params.arquivo);
+  const file    = path.join(COMP_DIR, req.params.id, arquivo);
+  if (!fs.existsSync(file)) return res.status(404).json({ ok:false, error:'Arquivo não encontrado' });
+  res.sendFile(file);
 });
 
 app.listen(PORT, () => {

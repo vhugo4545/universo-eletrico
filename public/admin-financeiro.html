@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Financeiro — Universo Elétrico</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="shared.css">
+<style>
+:root{
+  --sb:224px;--bg:#F2F4F8;--white:#fff;--bd:#E8ECF4;--text:#111827;--sec:#6B7280;--muted:#9CA3AF;
+  --blue:#1B3FAB;--blue-bg:#EEF3FF;--blue-bd:#C7D7FF;--r:14px;
+  --sh:0 1px 3px rgba(16,24,40,.06),0 4px 16px rgba(16,24,40,.04);
+}
+body{display:flex;min-height:100vh;background:var(--bg);overflow-x:hidden;margin:0;padding:0}
+
+/* ── SIDEBAR ── */
+.sb{width:var(--sb);flex-shrink:0;background:var(--white);border-right:1px solid var(--bd);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;overflow-y:auto;scrollbar-width:none}
+.sb::-webkit-scrollbar{display:none}
+.sb-logo{padding:18px 16px 15px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:10px}
+.sb-bolt{width:32px;height:32px;background:var(--blue);border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.sb-bolt i{font-size:17px;color:#fff}
+.sb-top{font-size:13px;font-weight:700;color:var(--blue);line-height:1.1}
+.sb-bot{font-size:8px;color:#E53012;letter-spacing:1.8px;text-transform:uppercase}
+.sb-sec{padding:16px 16px 4px;font-size:9px;font-weight:700;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.ni{display:flex;align-items:center;gap:9px;padding:9px 10px;margin:1px 8px;border-radius:10px;cursor:pointer;transition:all .15s;font-size:12px;font-weight:600;color:var(--sec);text-decoration:none;user-select:none;background:transparent;border:none;font-family:'Plus Jakarta Sans',sans-serif;width:calc(100% - 16px);text-align:left}
+.ni i{font-size:16px;flex-shrink:0;width:16px;text-align:center}
+.ni:hover{background:var(--bg);color:var(--text)}
+.ni.on{background:var(--text);color:#fff}
+.ni.on i{color:#fff}
+.nb{margin-left:auto;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;background:var(--blue-bg);color:var(--blue);flex-shrink:0}
+.ni.on .nb{background:rgba(255,255,255,.18);color:#fff}
+.sb-div{height:1px;background:var(--bd);margin:8px 14px}
+.sb-foot{margin-top:auto;padding:12px 16px;border-top:1px solid var(--bd);font-size:11px;color:var(--muted);display:flex;align-items:center;gap:7px}
+.sb-foot i{font-size:14px}
+
+/* ── MAIN ── */
+.mw{margin-left:var(--sb);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.tb{background:var(--white);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:50;height:58px;display:flex;align-items:center;padding:0 24px;gap:12px}
+.tb-title{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;flex-shrink:0}
+.tb-sep{width:1px;height:20px;background:var(--bd);flex-shrink:0}
+.tb-search{display:flex;align-items:center;border:1.5px solid var(--bd);border-radius:10px;background:var(--bg);overflow:hidden;flex:1;max-width:380px;transition:all .2s}
+.tb-search:focus-within{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(27,63,171,.07)}
+.tb-search i{padding:0 10px;font-size:14px;color:var(--muted);flex-shrink:0}
+.tb-search input{flex:1;height:36px;border:none;outline:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:var(--text)}
+.tb-sp{flex:1}
+.tb-acts{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.icon-btn{width:36px;height:36px;border-radius:9px;border:1.5px solid var(--bd);background:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--sec);transition:all .15s}
+.icon-btn:hover{border-color:var(--blue-bd);background:var(--blue-bg);color:var(--blue)}
+.sel-wrap{position:relative;display:flex;align-items:center}
+.si{position:absolute;left:10px;font-size:13px;color:var(--muted);pointer-events:none;z-index:1}
+.fsel{height:36px;padding:0 28px 0 30px;border:1.5px solid var(--bd);border-radius:10px;background:var(--white);font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;color:var(--text);cursor:pointer;outline:none;appearance:none;min-width:140px}
+.fsel:focus{border-color:var(--blue)}
+.sel-arr{position:absolute;right:8px;font-size:11px;color:var(--muted);pointer-events:none}
+.mc{padding:24px}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.ph-title{font-size:20px;font-weight:700;color:var(--text);letter-spacing:-.3px}
+.ph-sub{font-size:12px;color:var(--sec);margin-top:3px;display:flex;align-items:center;gap:5px}
+.ph-sub i{font-size:12px;color:var(--blue)}
+
+/* ── STAT CARDS ── */
+.stats-row{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-bottom:20px}
+.stat-card{background:var(--white);border-radius:var(--r);padding:18px;box-shadow:var(--sh);cursor:pointer;transition:all .2s;border:1.5px solid transparent}
+.stat-card:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(16,24,40,.10)}
+.stat-card.on{border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,63,171,.08),var(--sh)}
+.sc-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.sc-ico{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.sc-badge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;background:var(--blue-bg);color:var(--blue)}
+.sc-val{font-size:28px;font-weight:700;line-height:1.1;margin-bottom:4px}
+.sc-lbl{font-size:10px;font-weight:600;color:var(--muted);letter-spacing:.4px;text-transform:uppercase}
+
+/* ── TABLE ── */
+.table-wrap{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.table-head{display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr 1fr 140px;padding:10px 20px;background:#F8FAFF;border-bottom:1px solid var(--bd)}
+.th{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.6px;text-transform:uppercase}
+.t-row{display:grid;grid-template-columns:2fr 1fr 1fr 1.5fr 1fr 140px;padding:14px 20px;border-bottom:1px solid #F3F4F6;align-items:center;cursor:pointer;transition:background .15s}
+.t-row:last-child{border-bottom:none}
+.t-row:hover{background:#F8FAFF}
+.t-name{font-size:13px;font-weight:700;color:var(--text)}
+.t-sub{font-size:11px;color:var(--muted);margin-top:1px}
+.t-cell{font-size:12px;color:#374151}
+.t-date{font-size:12px;color:#374151}
+.t-time{font-size:10px;color:var(--muted);margin-top:1px}
+
+/* ── BADGES ── */
+.tipo-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700}
+.tipo-pix{background:#DCFCE7;color:#16A34A}
+.tipo-cartao{background:#F5F3FF;color:#7C3AED}
+.st-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700;white-space:nowrap}
+.st-aguardando{background:#FEF3C7;color:#D97706}
+.st-link{background:#EEF3FF;color:#1B3FAB}
+.st-comp{background:#FFF7ED;color:#EA580C}
+.st-concluido{background:#DCFCE7;color:#16A34A}
+
+/* ── PAGER ── */
+.pager{display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-top:1px solid var(--bd);background:var(--bg)}
+.pager-info{font-size:11px;color:var(--muted)}
+.pager-btns{display:flex;gap:4px}
+.pg-btn{min-width:30px;height:30px;border-radius:7px;border:1.5px solid var(--bd);background:var(--white);font-size:11px;font-weight:600;color:var(--sec);cursor:pointer;padding:0 8px;transition:all .15s;font-family:'Plus Jakarta Sans',sans-serif}
+.pg-btn:hover{border-color:var(--blue-bd);color:var(--blue)}
+.pg-btn.on{background:var(--blue);border-color:var(--blue);color:#fff}
+.pg-btn:disabled{opacity:.4;cursor:default}
+
+/* ── EMPTY / LOADING ── */
+.empty-state,.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:12px;color:var(--muted)}
+.empty-state i,.loading-state i{font-size:32px}
+.empty-state h3,.loading-state h3{font-size:15px;font-weight:700;color:var(--sec)}
+.empty-state p{font-size:13px;color:var(--muted);text-align:center}
+.loading-state i{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── BTNS (override shared for admin theme) ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:0 14px;height:36px;border-radius:9px;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;text-decoration:none;transition:all .15s;white-space:nowrap}
+.btn-primary{background:var(--blue);color:#fff}
+.btn-primary:hover{background:#1535A0}
+.btn-ghost{background:transparent;color:var(--sec);border:1.5px solid var(--bd)}
+.btn-ghost:hover{border-color:var(--blue-bd);color:var(--blue);background:var(--blue-bg)}
+.btn-success{background:#16A34A;color:#fff}
+.btn-success:hover{background:#15803D}
+.btn-sm{height:30px;padding:0 10px;font-size:11px;border-radius:7px}
+
+/* ── DETAIL OVERLAY ── */
+.overlay{position:fixed;inset:0;background:var(--bg);z-index:200;overflow-y:auto;opacity:0;pointer-events:none;transition:opacity .22s}
+.overlay.on{opacity:1;pointer-events:all}
+.det-topbar{background:var(--white);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:10;box-shadow:0 1px 4px rgba(27,63,171,.06)}
+.det-topbar-inner{max-width:860px;margin:0 auto;padding:0 24px;height:58px;display:flex;align-items:center;gap:12px}
+.det-body{max-width:860px;margin:0 auto;padding:24px 24px 80px}
+.det-card{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden}
+.det-card-head{font-size:10px;font-weight:700;color:var(--sec);letter-spacing:.6px;text-transform:uppercase;padding:13px 18px;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;background:linear-gradient(to right,#FAFBFF,#F4F7FF)}
+.det-card-head i{font-size:15px;color:var(--blue)}
+.det-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:16px 18px}
+.det-f{background:#F8FAFF;border:1px solid var(--bd);border-radius:10px;padding:12px 14px}
+.det-lbl{font-size:9px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.6px}
+.det-val{font-size:13px;font-weight:600;color:var(--text);margin-top:5px;word-break:break-word;line-height:1.4}
+.det-val.large{font-size:22px;color:#16A34A}
+.link-inp{width:100%;height:44px;border:2px solid var(--bd);border-radius:11px;padding:0 14px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:var(--text);outline:none;transition:border-color .2s;box-sizing:border-box;background:#fff}
+.link-inp:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(27,63,171,.07)}
+.link-box{background:var(--blue-bg);border:1.5px solid var(--blue-bd);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px}
+.link-box i{font-size:20px;color:var(--blue);flex-shrink:0}
+.link-box a{color:var(--blue);font-size:12px;font-weight:600;text-decoration:none;word-break:break-all;flex:1}
+.link-box a:hover{text-decoration:underline}
+
+@media(max-width:900px){.sb{display:none}.mw{margin-left:0}.stats-row{grid-template-columns:repeat(3,1fr)}.table-head{display:none}.t-row{grid-template-columns:1fr;gap:4px}.t-row>*:nth-child(n+3){display:none}}
+@media(max-width:1300px){.stats-row{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- ── DETAIL OVERLAY ──────────────────────────────────────────────── -->
+<div class="overlay" id="overlay">
+  <div class="det-topbar">
+    <div class="det-topbar-inner">
+      <button class="btn btn-ghost btn-sm" onclick="fecharDetalhe()" style="flex-shrink:0">
+        <i class="ti ti-arrow-left"></i> Voltar
+      </button>
+      <div style="flex:1;min-width:0">
+        <div id="det-title" style="font-size:15px;font-weight:700;color:var(--text)">—</div>
+        <div id="det-sub"   style="font-size:11px;color:var(--muted);margin-top:1px"></div>
+      </div>
+      <div id="det-status-wrap"></div>
+      <button id="btn-del" class="btn btn-sm" style="background:#FEF2F2;border:1px solid #FECACA;color:#DC2626;flex-shrink:0" onclick="confirmarExclusao()">
+        <i class="ti ti-trash"></i>
+      </button>
+    </div>
+  </div>
+  <div class="det-body" id="det-body"></div>
+</div>
+
+<!-- ── SIDEBAR ─────────────────────────────────────────────────────── -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-bolt"><i class="ti ti-bolt"></i></div>
+    <div><div class="sb-top">Universo</div><div class="sb-bot">Elétrico</div></div>
+  </div>
+
+  <div class="sb-sec">Painel</div>
+  <button class="ni on" id="pill-todos" onclick="setFiltro('todos')">
+    <i class="ti ti-layout-grid"></i> Todas as Solicitações
+    <span class="nb" id="nb-total">—</span>
+  </button>
+
+  <div class="sb-sec">Por Tipo</div>
+  <button class="ni" id="pill-tipo-pix" onclick="setFiltroTipo('pix')">
+    <i class="ti ti-qrcode" style="color:#16A34A"></i> PIX
+    <span class="nb" id="nb-pix">—</span>
+  </button>
+  <button class="ni" id="pill-tipo-cartao" onclick="setFiltroTipo('cartao')">
+    <i class="ti ti-credit-card" style="color:#7C3AED"></i> Cartão de Crédito
+    <span class="nb" id="nb-cartao">—</span>
+  </button>
+
+  <div class="sb-sec">Por Status</div>
+  <button class="ni" id="pill-aguardando" onclick="setFiltro('aguardando')">
+    <i class="ti ti-clock"></i> Aguardando
+    <span class="nb" id="nb-aguardando">—</span>
+  </button>
+  <button class="ni" id="pill-link-enviado" onclick="setFiltro('link-enviado')">
+    <i class="ti ti-link"></i> Link Enviado
+    <span class="nb" id="nb-link">—</span>
+  </button>
+  <button class="ni" id="pill-comprovante-enviado" onclick="setFiltro('comprovante-enviado')">
+    <i class="ti ti-file-check"></i> Comp. Recebido
+    <span class="nb" id="nb-comp">—</span>
+  </button>
+  <button class="ni" id="pill-concluido" onclick="setFiltro('concluido')">
+    <i class="ti ti-circle-check"></i> Concluído
+    <span class="nb" id="nb-concluido">—</span>
+  </button>
+
+  <div class="sb-div"></div>
+  <div class="sb-sec">Painéis</div>
+  <a class="ni" href="/admin.html"><i class="ti ti-layout-grid"></i> Visão Geral</a>
+  <a class="ni" href="/admin-cadastro.html"><i class="ti ti-clipboard-list"></i> Setor de Cadastro</a>
+  <a class="ni" href="/admin-fiscal.html"><i class="ti ti-file-invoice"></i> Setor Fiscal</a>
+
+  <div class="sb-div"></div>
+  <div class="sb-sec">Ações</div>
+  <button class="ni" onclick="carregarDados()"><i class="ti ti-refresh"></i> Atualizar dados</button>
+
+  <div class="sb-foot">
+    <i class="ti ti-clock"></i>
+    Atualizado: <strong id="last-update" style="color:var(--text);margin-left:3px">—</strong>
+  </div>
+</aside>
+
+<!-- ── MAIN WRAP ────────────────────────────────────────────────────── -->
+<div class="mw">
+  <!-- TOPBAR -->
+  <div class="tb">
+    <div class="tb-title"><i class="ti ti-cash" style="color:#EA580C;margin-right:6px;font-size:15px"></i>Setor Financeiro</div>
+    <div class="tb-sep"></div>
+    <div class="tb-search">
+      <i class="ti ti-search"></i>
+      <input id="search-inp" type="text" placeholder="Buscar cliente, vendedor ou descrição..." oninput="paginaAtual=1;renderTabela()">
+    </div>
+    <div class="tb-sp"></div>
+    <div class="tb-acts">
+      <div class="sel-wrap">
+        <i class="ti ti-users si"></i>
+        <select class="fsel" id="sel-equipe" onchange="paginaAtual=1;renderTabela()">
+          <option value="">Todas as equipes</option>
+        </select>
+        <i class="ti ti-chevron-down sel-arr"></i>
+      </div>
+      <div class="tb-sep"></div>
+      <button class="icon-btn" onclick="carregarDados()" title="Atualizar"><i class="ti ti-refresh"></i></button>
+    </div>
+  </div>
+
+  <!-- CONTENT -->
+  <div class="mc">
+    <div class="ph">
+      <div>
+        <div class="ph-title">Gestão Financeira</div>
+        <div class="ph-sub"><i class="ti ti-point-filled"></i> Solicitações de PIX e Cartão de Crédito</div>
+      </div>
+      <button class="btn btn-primary btn-sm" onclick="carregarDados()"><i class="ti ti-refresh"></i> Atualizar</button>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-row">
+      <div class="stat-card" id="sc-total" onclick="setFiltro('todos')">
+        <div class="sc-row"><div class="sc-ico" style="background:#FFF7ED"><i class="ti ti-cash" style="color:#EA580C"></i></div><span class="sc-badge" style="background:#FFF7ED;color:#EA580C">Total</span></div>
+        <div class="sc-val" id="sv-total" style="color:#EA580C">—</div><div class="sc-lbl">Solicitações</div>
+      </div>
+      <div class="stat-card" id="sc-aguardando" onclick="setFiltro('aguardando')">
+        <div class="sc-row"><div class="sc-ico" style="background:#FEF3C7"><i class="ti ti-clock" style="color:#D97706"></i></div><span class="sc-badge" style="background:#FEF3C7;color:#D97706">Novo</span></div>
+        <div class="sc-val" id="sv-aguardando" style="color:#D97706">—</div><div class="sc-lbl">Aguardando</div>
+      </div>
+      <div class="stat-card" id="sc-link" onclick="setFiltro('link-enviado')">
+        <div class="sc-row"><div class="sc-ico" style="background:#EEF3FF"><i class="ti ti-link" style="color:#1B3FAB"></i></div><span class="sc-badge">Link</span></div>
+        <div class="sc-val" id="sv-link" style="color:#1B3FAB">—</div><div class="sc-lbl">Link Enviado</div>
+      </div>
+      <div class="stat-card" id="sc-comp" onclick="setFiltro('comprovante-enviado')">
+        <div class="sc-row"><div class="sc-ico" style="background:#FFF7ED"><i class="ti ti-file-check" style="color:#EA580C"></i></div><span class="sc-badge" style="background:#FFF7ED;color:#EA580C">Ação!</span></div>
+        <div class="sc-val" id="sv-comp" style="color:#EA580C">—</div><div class="sc-lbl">Comp. Recebido</div>
+      </div>
+      <div class="stat-card" id="sc-concluido" onclick="setFiltro('concluido')">
+        <div class="sc-row"><div class="sc-ico" style="background:#DCFCE7"><i class="ti ti-circle-check" style="color:#16A34A"></i></div><span class="sc-badge" style="background:#DCFCE7;color:#16A34A">OK</span></div>
+        <div class="sc-val" id="sv-concluido" style="color:#16A34A">—</div><div class="sc-lbl">Concluído</div>
+      </div>
+    </div>
+
+    <!-- TABLE -->
+    <div class="table-wrap">
+      <div class="table-head">
+        <div class="th">Cliente</div>
+        <div class="th">Tipo</div>
+        <div class="th">Valor</div>
+        <div class="th">Consultor</div>
+        <div class="th">Data</div>
+        <div class="th">Status</div>
+      </div>
+      <div id="table-body"><div class="loading-state"><i class="ti ti-loader-2"></i><h3>Carregando...</h3></div></div>
+      <div class="pager" id="pager" style="display:none">
+        <div class="pager-info" id="pager-info"></div>
+        <div class="pager-btns" id="pager-btns"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+let todos = [], filtro = 'todos', filtroTipo = '', detId = null, paginaAtual = 1;
+const POR_PAGINA = 20;
+
+const ST_LABEL = { aguardando:'Aguardando', 'link-enviado':'Link Enviado', 'comprovante-enviado':'Comp. Recebido', concluido:'Concluído' };
+const ST_CLASS = { aguardando:'st-aguardando', 'link-enviado':'st-link', 'comprovante-enviado':'st-comp', concluido:'st-concluido' };
+const ST_ICO   = { aguardando:'ti-clock', 'link-enviado':'ti-link', 'comprovante-enviado':'ti-file-check', concluido:'ti-circle-check' };
+
+window.addEventListener('DOMContentLoaded', () => {
+  TEAMS.forEach(t => {
+    const o = document.createElement('option');
+    o.value = t.name; o.textContent = t.name;
+    document.getElementById('sel-equipe').appendChild(o);
+  });
+  carregarDados();
+  setInterval(carregarDados, 30000);
+});
+
+async function carregarDados() {
+  const tb = document.getElementById('table-body');
+  if (!todos.length) tb.innerHTML = '<div class="loading-state"><i class="ti ti-loader-2"></i><h3>Carregando...</h3></div>';
+  try {
+    const r = await fetch(`${API}/api/pagamentos`);
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'Erro ao carregar');
+    todos = j.data;
+    atualizarStats();
+    renderTabela();
+    document.getElementById('last-update').textContent = new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});
+    if (detId) {
+      const item = todos.find(p => p.id === detId);
+      if (item) renderDetalhe(item);
+    }
+  } catch(e) {
+    tb.innerHTML = `<div class="empty-state"><i class="ti ti-alert-circle"></i><h3>Erro ao carregar</h3><p>${e.message||'Erro de conexão com o servidor'}</p><button class="btn btn-primary" style="margin-top:12px" onclick="carregarDados()"><i class="ti ti-refresh"></i> Tentar novamente</button></div>`;
+  }
+}
+
+function atualizarStats() {
+  const ag = todos.filter(p=>p.status==='aguardando').length;
+  const lk = todos.filter(p=>p.status==='link-enviado').length;
+  const cp = todos.filter(p=>p.status==='comprovante-enviado').length;
+  const cn = todos.filter(p=>p.status==='concluido').length;
+  const px = todos.filter(p=>p.tipo==='pix').length;
+  const ca = todos.filter(p=>p.tipo==='cartao').length;
+  document.getElementById('sv-total').textContent      = todos.length;
+  document.getElementById('sv-aguardando').textContent = ag;
+  document.getElementById('sv-link').textContent       = lk;
+  document.getElementById('sv-comp').textContent       = cp;
+  document.getElementById('sv-concluido').textContent  = cn;
+  document.getElementById('nb-total').textContent      = todos.length;
+  document.getElementById('nb-pix').textContent        = px;
+  document.getElementById('nb-cartao').textContent     = ca;
+  document.getElementById('nb-aguardando').textContent = ag;
+  document.getElementById('nb-link').textContent       = lk;
+  document.getElementById('nb-comp').textContent       = cp;
+  document.getElementById('nb-concluido').textContent  = cn;
+}
+
+function getLista() {
+  const q      = document.getElementById('search-inp').value.toLowerCase();
+  const equipe = document.getElementById('sel-equipe').value;
+  return todos.filter(p => {
+    if (filtro !== 'todos' && p.status !== filtro) return false;
+    if (filtroTipo && p.tipo !== filtroTipo) return false;
+    if (equipe && p.equipe !== equipe) return false;
+    if (q && !`${p.cliente_nome} ${p.vendedor_nome} ${p.descricao}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+function setFiltro(f) {
+  filtro = f; filtroTipo = ''; paginaAtual = 1;
+  document.querySelectorAll('aside .ni').forEach(b => b.classList.remove('on'));
+  const el = document.getElementById('pill-' + f);
+  if (el) el.classList.add('on');
+  renderTabela();
+}
+
+function setFiltroTipo(t) {
+  filtroTipo = t; filtro = 'todos'; paginaAtual = 1;
+  document.querySelectorAll('aside .ni').forEach(b => b.classList.remove('on'));
+  const el = document.getElementById('pill-tipo-' + t);
+  if (el) el.classList.add('on');
+  renderTabela();
+}
+
+function renderTabela() {
+  const lista  = getLista();
+  const total  = lista.length;
+  const inicio = (paginaAtual-1) * POR_PAGINA;
+  const pagina = lista.slice(inicio, inicio+POR_PAGINA);
+
+  if (!total) {
+    const noData = filtro==='todos' && !filtroTipo && !document.getElementById('search-inp').value && !document.getElementById('sel-equipe').value;
+    document.getElementById('table-body').innerHTML = `<div class="empty-state">
+      <i class="ti ti-${noData?'cash':'search-off'}"></i>
+      <h3>${noData?'Nenhuma solicitação ainda':'Nenhum resultado'}</h3>
+      <p>${noData?'As solicitações dos consultores aparecerão aqui':'Tente outros termos ou filtros'}</p>
+    </div>`;
+    document.getElementById('pager').style.display = 'none';
+    return;
+  }
+
+  document.getElementById('table-body').innerHTML = pagina.map(p => {
+    const d = new Date(p.created_at);
+    return `<div class="t-row" onclick="abrirDetalhe('${p.id}')">
+      <div>
+        <div class="t-name">${p.cliente_nome||'—'}</div>
+        <div class="t-sub">${p.descricao||''}</div>
+      </div>
+      <div><span class="tipo-badge tipo-${p.tipo}"><i class="ti ti-${p.tipo==='pix'?'qrcode':'credit-card'}"></i> ${p.tipo==='pix'?'PIX':'Cartão'}</span></div>
+      <div class="t-cell" style="font-weight:700">${p.valor||'—'}</div>
+      <div>
+        <div class="t-cell">${p.vendedor_nome||'—'}</div>
+        <div class="t-sub">${p.equipe||''}</div>
+      </div>
+      <div>
+        <div class="t-date">${d.toLocaleDateString('pt-BR')}</div>
+        <div class="t-time">${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+      <div><span class="st-badge ${ST_CLASS[p.status]||'st-aguardando'}"><i class="ti ${ST_ICO[p.status]||'ti-clock'}"></i> ${ST_LABEL[p.status]||p.status}</span></div>
+    </div>`;
+  }).join('');
+
+  const max = Math.ceil(total/POR_PAGINA);
+  document.getElementById('pager').style.display = max>1 ? 'flex' : 'none';
+  document.getElementById('pager-info').textContent = `${inicio+1}–${Math.min(inicio+POR_PAGINA,total)} de ${total}`;
+  const btns = [];
+  btns.push(`<button class="pg-btn" onclick="irPag(${paginaAtual-1})" ${paginaAtual<=1?'disabled':''}>‹</button>`);
+  for (let i=Math.max(1,paginaAtual-2); i<=Math.min(max,paginaAtual+2); i++)
+    btns.push(`<button class="pg-btn${i===paginaAtual?' on':''}" onclick="irPag(${i})">${i}</button>`);
+  btns.push(`<button class="pg-btn" onclick="irPag(${paginaAtual+1})" ${paginaAtual>=max?'disabled':''}>›</button>`);
+  document.getElementById('pager-btns').innerHTML = btns.join('');
+}
+
+function irPag(n) {
+  const max = Math.ceil(getLista().length/POR_PAGINA);
+  if (n<1||n>max) return;
+  paginaAtual = n;
+  renderTabela();
+}
+
+// ── detail ────────────────────────────────────────────────────────────
+function abrirDetalhe(id) {
+  const item = todos.find(p => p.id === id);
+  if (!item) return;
+  detId = id;
+  renderDetalhe(item);
+  document.getElementById('overlay').classList.add('on');
+}
+
+function fecharDetalhe() {
+  document.getElementById('overlay').classList.remove('on');
+  detId = null;
+}
+
+function renderDetalhe(p) {
+  const tipoBadge = `<span class="tipo-badge tipo-${p.tipo}" style="font-size:12px;padding:4px 12px"><i class="ti ti-${p.tipo==='pix'?'qrcode':'credit-card'}"></i> ${p.tipo==='pix'?'PIX':'Cartão de Crédito'}</span>`;
+  const stBadge   = `<span class="st-badge ${ST_CLASS[p.status]||'st-aguardando'}" style="font-size:11px;padding:5px 12px"><i class="ti ${ST_ICO[p.status]||'ti-clock'}"></i> ${ST_LABEL[p.status]||p.status}</span>`;
+  document.getElementById('det-title').textContent = p.cliente_nome || '—';
+  document.getElementById('det-sub').textContent   = `${p.vendedor_nome||'—'} · ${p.equipe||'—'} · ${p.valor||'—'}`;
+  document.getElementById('det-status-wrap').innerHTML = `${tipoBadge}&nbsp;${stBadge}`;
+  document.getElementById('btn-del').style.display = p.status==='concluido' ? 'none' : '';
+
+  let acaoHTML = '';
+
+  // CARTÃO + aguardando → enviar link
+  if (p.tipo === 'cartao' && p.status === 'aguardando') {
+    acaoHTML = `<div class="det-card" style="border:2px solid #C7D7FF">
+      <div class="det-card-head" style="background:#EEF3FF"><i class="ti ti-link"></i> Enviar Link de Pagamento ao Consultor</div>
+      <div style="padding:16px 18px">
+        <div style="font-size:12px;color:#6B7280;margin-bottom:10px">
+          Cole o link de pagamento para o cliente <strong>${p.cliente_nome}</strong> — o consultor <strong>${p.vendedor_nome}</strong> irá receber:
+        </div>
+        <input class="link-inp" id="inp-link" type="url" placeholder="https://..." value="">
+        <button class="btn btn-primary" style="margin-top:10px;width:100%;justify-content:center;height:42px" onclick="enviarLink()">
+          <i class="ti ti-send"></i> Enviar Link ao Consultor
+        </button>
+      </div>
+    </div>`;
+  }
+
+  // PIX + aguardando → aguardando comprovante
+  if (p.tipo === 'pix' && p.status === 'aguardando') {
+    acaoHTML = `<div class="det-card" style="border:2px solid #FEF3C7">
+      <div class="det-card-head" style="background:#FFFBEB"><i class="ti ti-clock" style="color:#D97706"></i> Aguardando Comprovante PIX</div>
+      <div style="padding:20px 18px;text-align:center;color:#9CA3AF">
+        <i class="ti ti-clock" style="font-size:32px;display:block;margin:0 auto 12px;color:#D97706"></i>
+        <div style="font-size:13px;font-weight:600;color:#374151">Aguardando o consultor enviar o comprovante</div>
+        <div style="font-size:12px;margin-top:6px">O consultor precisa realizar a transferência PIX e enviar o comprovante pelo sistema.</div>
+      </div>
+    </div>`;
+  }
+
+  // Link enviado → aguardando comprovante
+  if (p.status === 'link-enviado') {
+    acaoHTML = `<div class="det-card" style="border:2px solid var(--blue-bd)">
+      <div class="det-card-head"><i class="ti ti-link"></i> Link Enviado — Aguardando Comprovante</div>
+      <div class="link-box" style="margin:0 18px 16px">
+        <i class="ti ti-credit-card"></i>
+        <a href="${p.link_pagamento}" target="_blank" rel="noopener">${p.link_pagamento}</a>
+      </div>
+      <div style="padding:0 18px 16px;text-align:center;color:#9CA3AF">
+        <div style="font-size:13px;font-weight:600;color:#374151">Link enviado. Aguardando o consultor enviar o comprovante.</div>
+      </div>
+    </div>`;
+  }
+
+  // Comprovante recebido → confirmar pagamento
+  if (p.status === 'comprovante-enviado' && p.comprovante) {
+    const comp = p.comprovante;
+    const ext  = comp.nome.split('.').pop().toLowerCase();
+    const url  = `${API}/api/pagamentos/${p.id}/comprovante/${comp.arquivo}`;
+    const ico  = ['pdf'].includes(ext)?'file-type-pdf':['jpg','jpeg','png','gif','webp'].includes(ext)?'photo':'file';
+    acaoHTML = `<div class="det-card" style="border:2px solid #FED7AA">
+      <div class="det-card-head" style="background:#FFF7ED"><i class="ti ti-file-check" style="color:#EA580C"></i> Comprovante Recebido — Confirmar Pagamento</div>
+      <div style="padding:16px 18px">
+        <div style="display:flex;align-items:center;gap:14px;background:#F8FAFF;border:1px solid #EAF0FB;border-radius:12px;padding:14px;margin-bottom:14px">
+          <div style="width:44px;height:44px;background:#FFF7ED;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+            <i class="ti ti-${ico}" style="font-size:22px;color:#EA580C"></i>
+          </div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;font-weight:600;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${comp.nome}</div>
+            <div style="font-size:11px;color:#9CA3AF;margin-top:2px">${new Date(comp.criado_at).toLocaleString('pt-BR')}</div>
+          </div>
+          <a href="${url}" target="_blank" class="btn btn-ghost btn-sm"><i class="ti ti-eye"></i> Visualizar</a>
+          <a href="${url}" download="${comp.nome}" class="btn btn-ghost btn-sm"><i class="ti ti-download"></i></a>
+        </div>
+        <button class="btn btn-success" style="width:100%;justify-content:center;height:42px" onclick="confirmarPagamento()">
+          <i class="ti ti-circle-check"></i> Confirmar Pagamento — Marcar como Concluído
+        </button>
+      </div>
+    </div>`;
+  }
+
+  // Concluído
+  if (p.status === 'concluido') {
+    let compHTML = '';
+    if (p.comprovante) {
+      const comp = p.comprovante;
+      const ext  = comp.nome.split('.').pop().toLowerCase();
+      const url  = `${API}/api/pagamentos/${p.id}/comprovante/${comp.arquivo}`;
+      const ico  = ['pdf'].includes(ext)?'file-type-pdf':['jpg','jpeg','png','gif','webp'].includes(ext)?'photo':'file';
+      compHTML = `<div style="display:flex;align-items:center;gap:14px;background:#F8FAFF;border:1px solid #EAF0FB;border-radius:12px;padding:14px;margin-bottom:14px">
+        <div style="width:44px;height:44px;background:#DCFCE7;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="ti ti-${ico}" style="font-size:22px;color:#16A34A"></i>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:13px;font-weight:600;color:#111827;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${comp.nome}</div>
+          <div style="font-size:11px;color:#9CA3AF;margin-top:2px">${new Date(comp.criado_at).toLocaleString('pt-BR')}</div>
+        </div>
+        <a href="${url}" target="_blank" class="btn btn-ghost btn-sm"><i class="ti ti-eye"></i> Ver</a>
+        <a href="${url}" download="${comp.nome}" class="btn btn-ghost btn-sm"><i class="ti ti-download"></i></a>
+      </div>`;
+    }
+    if (p.tipo === 'cartao' && p.link_pagamento) {
+      compHTML = `<div class="link-box" style="margin-bottom:14px"><i class="ti ti-credit-card"></i><a href="${p.link_pagamento}" target="_blank" rel="noopener">${p.link_pagamento}</a></div>` + compHTML;
+    }
+    acaoHTML = `<div class="det-card" style="border:2px solid #BBF7D0">
+      <div class="det-card-head" style="background:#DCFCE7"><i class="ti ti-circle-check" style="color:#16A34A"></i> Pagamento Confirmado e Concluído</div>
+      <div style="padding:16px 18px">${compHTML}
+        <div style="background:#DCFCE7;border-radius:10px;padding:12px 16px;font-size:12px;font-weight:600;color:#16A34A;display:flex;align-items:center;gap:8px">
+          <i class="ti ti-circle-check"></i> Pagamento confirmado e encerrado com sucesso.
+        </div>
+      </div>
+    </div>`;
+  }
+
+  const d = new Date(p.created_at);
+  document.getElementById('det-body').innerHTML = `${acaoHTML}
+    <div class="det-card">
+      <div class="det-card-head"><i class="ti ti-info-circle"></i> Dados da Solicitação</div>
+      <div class="det-grid">
+        <div class="det-f"><div class="det-lbl">Cliente</div><div class="det-val">${p.cliente_nome||'—'}</div></div>
+        <div class="det-f"><div class="det-lbl">Valor</div><div class="det-val large">${p.valor||'—'}</div></div>
+        <div class="det-f" style="grid-column:span 2"><div class="det-lbl">Descrição</div><div class="det-val">${p.descricao||'—'}</div></div>
+        ${p.observacoes?`<div class="det-f" style="grid-column:span 2"><div class="det-lbl">Observações</div><div class="det-val">${p.observacoes}</div></div>`:''}
+        <div class="det-f"><div class="det-lbl">Consultor</div><div class="det-val">${p.vendedor_nome||'—'}</div></div>
+        <div class="det-f"><div class="det-lbl">Equipe</div><div class="det-val">${p.equipe||'—'}</div></div>
+        <div class="det-f"><div class="det-lbl">Tipo</div><div class="det-val">${p.tipo==='pix'?'PIX':'Cartão de Crédito'}</div></div>
+        <div class="det-f"><div class="det-lbl">Solicitado em</div><div class="det-val">${d.toLocaleDateString('pt-BR')} ${d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'})}</div></div>
+      </div>
+    </div>`;
+}
+
+async function enviarLink() {
+  const link = document.getElementById('inp-link')?.value.trim();
+  if (!link) { showToast('Insira o link de pagamento', 'err'); return; }
+  if (!/^https?:\/\//i.test(link)) { showToast('Link inválido — deve começar com http(s)://', 'err'); return; }
+  try {
+    const r = await fetch(`${API}/api/pagamentos/${detId}`, {
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ status:'link-enviado', link_pagamento:link }),
+    });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error);
+    showToast('Link enviado ao consultor!', 'ok');
+    await carregarDados();
+    const item = todos.find(p => p.id === detId);
+    if (item) renderDetalhe(item);
+  } catch(e) { showToast(e.message||'Erro ao enviar link', 'err'); }
+}
+
+async function confirmarPagamento() {
+  if (!confirm('Confirmar pagamento e marcar como concluído?')) return;
+  try {
+    const r = await fetch(`${API}/api/pagamentos/${detId}`, {
+      method:'PATCH', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ status:'concluido' }),
+    });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error);
+    showToast('Pagamento confirmado!', 'ok');
+    await carregarDados();
+    const item = todos.find(p => p.id === detId);
+    if (item) renderDetalhe(item);
+  } catch(e) { showToast(e.message||'Erro ao confirmar', 'err'); }
+}
+
+async function confirmarExclusao() {
+  if (!detId || !confirm('Excluir esta solicitação? Esta ação não pode ser desfeita.')) return;
+  try {
+    const r = await fetch(`${API}/api/pagamentos/${detId}`, { method:'DELETE' });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error);
+    showToast('Solicitação excluída', 'ok');
+    fecharDetalhe();
+    await carregarDados();
+  } catch(e) { showToast(e.message||'Erro ao excluir', 'err'); }
+}
+</script>
+</body>
+</html>
