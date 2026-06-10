@@ -157,6 +157,15 @@ app.patch('/api/cadastros/:id', (req, res) => {
   lista[idx] = { ...antes, ...b, historico, updated_at: new Date().toISOString() };
   salvarDB(lista);
   console.log(`[PATCH /api/cadastros/${req.params.id}] status: ${antes.status} → ${lista[idx].status}`);
+
+  // ── Notificações ao cliente quando cadastro é finalizado ──────────
+  if (b.status === 'cadastrado' && antes.status !== 'cadastrado') {
+    const { enviarNotificacoes } = require('./notifications');
+    enviarNotificacoes(lista[idx]).catch(err =>
+      console.error('[NOTIF] Erro inesperado:', err.message)
+    );
+  }
+
   res.json({ ok:true, data:lista[idx] });
 });
 
