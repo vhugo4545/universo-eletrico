@@ -613,8 +613,9 @@ async function carregarDados() {
     renderFila();
     renderTabela();
   } catch(e) {
+    console.error('[carregarDados]', e);
     document.getElementById('table-body').innerHTML =
-      `<div class="empty-state"><i class="ti ti-alert-circle"></i><h3>Erro ao carregar</h3><p>Verifique se o servidor está rodando em localhost:3000</p></div>`;
+      `<div class="empty-state"><i class="ti ti-alert-circle"></i><h3>Erro ao carregar</h3><p>${e.message||'Erro de conexão com o servidor'}</p><button class="btn btn-primary" style="margin-top:12px" onclick="carregarDados()"><i class="ti ti-refresh"></i> Tentar novamente</button></div>`;
   }
 }
 
