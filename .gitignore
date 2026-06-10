@@ -1,0 +1,8 @@
+node_modules/
+.env
+
+# uploads ficam no servidor, não no git
+data/uploads/
+
+# cache de CNPJ pode ser recriado
+data/cnpj-cache.json

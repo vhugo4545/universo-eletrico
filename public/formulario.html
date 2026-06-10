@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cadastro de Cliente — Universo Elétrico</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="shared.css">
+<style>
+.page{max-width:700px;margin:0 auto;padding:24px 20px 60px}
+
+/* progress */
+.progress{background:#fff;border-radius:14px;border:1px solid #EAF0FB;padding:14px 20px;display:flex;align-items:center;margin-bottom:20px}
+.step-item{display:flex;align-items:center;gap:8px;flex:1}
+.step-item:not(:last-child){margin-right:0}
+.step-connector{flex:1;height:1px;background:#EAF0FB;margin:0 4px}
+.step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;transition:all .3s;border:2px solid transparent}
+.step-dot.pending{background:#F0F4FF;color:#9DAEC4;border-color:#EAF0FB}
+.step-dot.active{background:#1B3FAB;color:#fff;box-shadow:0 0 0 4px rgba(27,63,171,.15);border-color:#1B3FAB}
+.step-dot.done{background:#EEF3FF;color:#1B3FAB;border-color:#C7D7FF}
+.step-lbl{font-size:11px;font-weight:600;white-space:nowrap}
+.step-lbl.pending{color:#9DAEC4}
+.step-lbl.active{color:#1B3FAB}
+.step-lbl.done{color:#6B8ADE}
+
+/* card */
+.card{background:#fff;border-radius:16px;border:1px solid #EAF0FB;padding:24px;margin-bottom:14px}
+.card-title{font-size:15px;font-weight:700;color:#111827;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.card-title i{font-size:18px;color:#1B3FAB}
+
+/* screens */
+.step-screen{display:none}
+.step-screen.on{display:block}
+
+/* footer */
+.step-footer{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0;flex-wrap:wrap}
+.foot-note{font-size:11px;color:#C4D0E8;display:flex;align-items:center;gap:5px}
+
+/* success */
+.suc-page{display:flex;flex-direction:column;align-items:center;text-align:center;gap:16px;padding:60px 20px;background:#fff;border-radius:16px;border:1px solid #EAF0FB}
+.suc-ring{width:72px;height:72px;background:#EEF3FF;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:28px;color:#1B3FAB;animation:pop .5s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes pop{0%{transform:scale(0);opacity:0}100%{transform:scale(1);opacity:1}}
+.suc-title{font-size:22px;font-weight:700;color:#111827}
+.suc-sub{font-size:14px;color:#8A9BB5;max-width:340px;line-height:1.7}
+.suc-proto{font-family:monospace;font-size:13px;background:#F0F4FF;color:#1B3FAB;padding:8px 16px;border-radius:8px;border:1px solid #C7D7FF}
+
+/* option buttons */
+.opt-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+.opt-btn{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 18px;border-radius:10px;
+  border:1.5px solid #EAF0FB;background:#FAFBFF;
+  font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;
+  color:#6B7280;cursor:pointer;transition:all .18s;
+}
+.opt-btn:hover{border-color:#C7D7FF;color:#1B3FAB;background:#EEF3FF}
+.opt-btn.on{border-color:#1B3FAB;background:#1B3FAB;color:#fff;box-shadow:0 2px 8px rgba(27,63,171,.18)}
+.opt-btn i{font-size:15px}
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+<div class="topbar">
+  <a class="logo" href="/"><div class="logo-bolt"><i class="ti ti-bolt"></i></div><div><div class="logo-top">Universo</div><div class="logo-bot">Elétrico</div></div></a>
+  <div id="vend-chip"></div>
+</div>
+
+<div class="page">
+  <!-- PROGRESS -->
+  <div class="progress" id="progress-bar">
+    <div class="step-item">
+      <div class="step-dot active" id="dot1">1</div>
+      <span class="step-lbl active" id="lbl1">Empresa</span>
+    </div>
+    <div class="step-connector"></div>
+    <div class="step-item" style="flex:0">
+      <div class="step-dot pending" id="dot2">2</div>
+      <span class="step-lbl pending" id="lbl2">Ficha Cadastral</span>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div class="step-screen on" id="step1">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-building-store"></i> Dados da Empresa</div>
+      <div class="field" style="margin-bottom:12px">
+        <div class="field-lbl">CNPJ da empresa</div>
+        <div class="irow" id="row-cnpj"><div class="iico"><i class="ti ti-building-store"></i></div>
+          <input class="finput" id="inp-cnpj" type="text" placeholder="00.000.000/0001-00" maxlength="18" autocomplete="off">
+          <div class="istat" id="st-cnpj"></div></div>
+        <div class="fmsg" id="msg-cnpj">Consulta automática Receita Federal + SINTEGRA</div>
+      </div>
+      <div class="cbanner" id="cbanner"><div class="cbanner-ico"><i class="ti ti-building"></i></div>
+        <div style="overflow:hidden;flex:1"><div class="cb-name" id="cb-name">–</div><div class="cb-sit" id="cb-sit">–</div></div></div>
+      <div class="stbanner" id="stbanner"><div class="stbanner-ico"><i class="ti ti-receipt-tax"></i></div>
+        <div style="overflow:hidden;flex:1"><div class="stb-ie" id="stb-ie">–</div><div class="stb-sit" id="stb-sit">–</div></div></div>
+      <div class="g2" style="margin-bottom:12px">
+        <div class="field"><div class="field-lbl">Razão social <span class="badge-a">Auto</span></div>
+          <div class="irow auto-f" id="row-razao"><div class="iico"><i class="ti ti-briefcase"></i></div>
+            <input class="finput" id="inp-razao" type="text" placeholder="—" disabled></div></div>
+        <div class="field"><div class="field-lbl">Nome fantasia <span class="badge-a">Auto</span></div>
+          <div class="irow auto-f"><div class="iico"><i class="ti ti-tag"></i></div>
+            <input class="finput" id="inp-fantasia" type="text" placeholder="—" disabled></div></div>
+      </div>
+      <div class="g2" style="margin-bottom:12px">
+        <div class="field"><div class="field-lbl">Insc. Estadual <span class="badge-st">SINTEGRA</span></div>
+          <div class="irow auto-f" id="row-ie"><div class="iico"><i class="ti ti-file-certificate"></i></div>
+            <input class="finput" id="inp-ie" type="text" placeholder="Aguardando CNPJ..." disabled>
+            <div class="istat" id="st-ie"></div></div>
+          <div class="fmsg" id="msg-ie"></div></div>
+        <div class="field"><div class="field-lbl">Atividade principal <span class="badge-a">Auto</span></div>
+          <div class="irow auto-f"><div class="iico"><i class="ti ti-tools"></i></div>
+            <input class="finput" id="inp-ativ" type="text" placeholder="—" disabled></div></div>
+      </div>
+      <div class="g2">
+        <div class="field"><div class="field-lbl">Telefone da Empresa <span class="badge-a">Auto</span></div>
+          <div class="irow" id="row-tel-empresa"><div class="iico"><i class="ti ti-building"></i></div>
+            <input class="finput" id="inp-tel-empresa" type="tel" placeholder="(31) 0000-0000" maxlength="16">
+            <div class="istat" id="st-tel-empresa"></div></div>
+          <div class="fmsg" id="msg-tel-empresa"></div></div>
+        <div class="field"><div class="field-lbl">E-mail da Empresa <span class="badge-a">Auto</span></div>
+          <div class="irow" id="row-email-empresa"><div class="iico"><i class="ti ti-mail"></i></div>
+            <input class="finput" id="inp-email-empresa" type="email" placeholder="contato@empresa.com">
+            <div class="istat" id="st-email-empresa"></div></div>
+          <div class="fmsg" id="msg-email-empresa"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-user"></i> Responsável</div>
+      <div class="g2" style="margin-bottom:12px">
+        <div class="field"><div class="field-lbl">Nome completo</div>
+          <div class="irow" id="row-nome"><div class="iico"><i class="ti ti-user"></i></div>
+            <input class="finput" id="inp-nome" type="text" placeholder="Nome do responsável" autocomplete="name">
+            <div class="istat" id="st-nome"></div></div>
+          <div class="fmsg" id="msg-nome"></div></div>
+        <div class="field"><div class="field-lbl">Telefone / WhatsApp</div>
+          <div class="irow" id="row-tel"><div class="iico"><i class="ti ti-phone"></i></div>
+            <input class="finput" id="inp-tel" type="tel" placeholder="(31) 9 0000-0000" maxlength="16">
+            <div class="istat" id="st-tel"></div></div>
+          <div class="fmsg" id="msg-tel"></div></div>
+      </div>
+      <div class="g2" style="margin-bottom:12px">
+        <div class="field"><div class="field-lbl">E-mail do Responsável <span class="badge-o">Opcional</span></div>
+          <div class="irow" id="row-email-resp"><div class="iico"><i class="ti ti-mail"></i></div>
+            <input class="finput" id="inp-email-resp" type="email" placeholder="responsavel@empresa.com">
+            <div class="istat" id="st-email-resp"></div></div>
+          <div class="fmsg" id="msg-email-resp"></div></div>
+        <div class="field"><div class="field-lbl">Vendedor <span class="badge-a">Auto</span></div>
+          <div class="irow auto-f"><div class="iico"><i class="ti ti-id-badge"></i></div>
+            <input class="finput" id="inp-vend" type="text" placeholder="—" readonly></div></div>
+      </div>
+    </div>
+
+    <div class="step-footer">
+      <div class="foot-note"><i class="ti ti-shield-lock"></i> LGPD</div>
+      <button class="btn btn-primary btn-submit" id="btn1" onclick="nextStep(1)">
+        <span class="btn-txt">Continuar</span><i class="ti ti-arrow-right btn-ico"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="step-screen" id="step2">
+    <div class="card">
+      <div class="card-title"><i class="ti ti-map-pin"></i> Endereço Comercial</div>
+      <div class="g4" style="margin-bottom:12px">
+        <div class="field" style="grid-column:span 2"><div class="field-lbl">CEP</div>
+          <div class="irow" id="row-cep"><div class="iico"><i class="ti ti-map-pin"></i></div>
+            <input class="finput" id="inp-cep" type="text" placeholder="00000-000" maxlength="9">
+            <div class="istat" id="st-cep"></div></div>
+          <div class="fmsg" id="msg-cep">Autocompletar endereço</div></div>
+        <div class="field"><div class="field-lbl">Número</div>
+          <div class="irow" id="row-num"><div class="iico"><i class="ti ti-hash"></i></div>
+            <input class="finput" id="inp-num" type="text" placeholder="Nº">
+            <div class="istat" id="st-num"></div></div>
+          <div class="fmsg" id="msg-num"></div></div>
+        <div class="field"><div class="field-lbl">UF <span class="badge-a">Auto</span></div>
+          <div class="irow auto-f"><div class="iico"><i class="ti ti-map"></i></div>
+            <input class="finput" id="inp-uf" type="text" placeholder="—" disabled></div></div>
+      </div>
+      <div class="field" style="margin-bottom:12px"><div class="field-lbl">Logradouro <span class="badge-a">Auto</span></div>
+        <div class="irow auto-f"><div class="iico"><i class="ti ti-road"></i></div>
+          <input class="finput" id="inp-end" type="text" placeholder="—"></div></div>
+      <div class="g3" style="margin-bottom:12px">
+        <div class="field"><div class="field-lbl">Complemento <span class="badge-o">Opcional</span></div>
+          <div class="irow"><div class="iico"><i class="ti ti-home"></i></div>
+            <input class="finput" id="inp-comp" type="text" placeholder="Sala, Andar..."></div></div>
+        <div class="field"><div class="field-lbl">Bairro <span class="badge-a">Auto</span></div>
+          <div class="irow auto-f" id="row-bairro"><div class="iico"><i class="ti ti-building-community"></i></div>
+            <input class="finput" id="inp-bairro" type="text" placeholder="—" disabled></div></div>
+        <div class="field"><div class="field-lbl">Cidade <span class="badge-a">Auto</span></div>
+          <div class="irow auto-f" id="row-cidade"><div class="iico"><i class="ti ti-building"></i></div>
+            <input class="finput" id="inp-cidade" type="text" placeholder="—" disabled></div></div>
+      </div>
+      <div class="field"><div class="field-lbl">Telefone Comercial <span class="badge-o">Opcional</span></div>
+        <div class="irow" id="row-tel-com"><div class="iico"><i class="ti ti-phone"></i></div>
+          <input class="finput" id="inp-tel-com" type="tel" placeholder="(31) 0000-0000" maxlength="16">
+          <div class="istat" id="st-tel-com"></div></div>
+        <div class="fmsg" id="msg-tel-com"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-truck-delivery"></i> Endereço de Entrega</div>
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:14px;font-size:13px;font-weight:600;color:#374151">
+        <input type="checkbox" id="chk-mesmo-end" checked onchange="toggleEndEntrega()" style="width:16px;height:16px;accent-color:#1B3FAB">
+        Mesmo que o endereço comercial
+      </label>
+      <div id="end-entrega-fields" style="display:none">
+        <div class="g4" style="margin-bottom:12px">
+          <div class="field" style="grid-column:span 2"><div class="field-lbl">CEP</div>
+            <div class="irow" id="row-dcep"><div class="iico"><i class="ti ti-map-pin"></i></div>
+              <input class="finput" id="inp-dcep" type="text" placeholder="00000-000" maxlength="9">
+              <div class="istat" id="st-dcep"></div></div>
+            <div class="fmsg" id="msg-dcep">Autocompletar endereço</div></div>
+          <div class="field"><div class="field-lbl">Número</div>
+            <div class="irow" id="row-dnum"><div class="iico"><i class="ti ti-hash"></i></div>
+              <input class="finput" id="inp-dnum" type="text" placeholder="Nº">
+              <div class="istat" id="st-dnum"></div></div></div>
+          <div class="field"><div class="field-lbl">UF <span class="badge-a">Auto</span></div>
+            <div class="irow auto-f"><div class="iico"><i class="ti ti-map"></i></div>
+              <input class="finput" id="inp-duf" type="text" placeholder="—" disabled></div></div>
+        </div>
+        <div class="field" style="margin-bottom:12px"><div class="field-lbl">Logradouro <span class="badge-a">Auto</span></div>
+          <div class="irow auto-f"><div class="iico"><i class="ti ti-road"></i></div>
+            <input class="finput" id="inp-dend" type="text" placeholder="—"></div></div>
+        <div class="g3">
+          <div class="field"><div class="field-lbl">Complemento <span class="badge-o">Opcional</span></div>
+            <div class="irow"><div class="iico"><i class="ti ti-home"></i></div>
+              <input class="finput" id="inp-dcomp" type="text" placeholder="Sala, Andar..."></div></div>
+          <div class="field"><div class="field-lbl">Bairro <span class="badge-a">Auto</span></div>
+            <div class="irow auto-f"><div class="iico"><i class="ti ti-building-community"></i></div>
+              <input class="finput" id="inp-dbairro" type="text" placeholder="—" disabled></div></div>
+          <div class="field"><div class="field-lbl">Cidade <span class="badge-a">Auto</span></div>
+            <div class="irow auto-f"><div class="iico"><i class="ti ti-building"></i></div>
+              <input class="finput" id="inp-dcidade" type="text" placeholder="—" disabled></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-mail"></i> E-mails</div>
+      <div class="g2" style="margin-bottom:12px">
+        <div class="field"><div class="field-lbl">E-mail para NFe</div>
+          <div class="irow" id="row-enfe"><div class="iico"><i class="ti ti-mail"></i></div>
+            <input class="finput" id="inp-enfe" type="email" placeholder="nfe@empresa.com">
+            <div class="istat" id="st-enfe"></div></div>
+          <div class="fmsg" id="msg-enfe"></div></div>
+        <div class="field"><div class="field-lbl">E-mail para portal</div>
+          <div class="irow" id="row-eport"><div class="iico"><i class="ti ti-mail"></i></div>
+            <input class="finput" id="inp-eport" type="email" placeholder="acesso@empresa.com">
+            <div class="istat" id="st-eport"></div></div>
+          <div class="fmsg" id="msg-eport"></div></div>
+      </div>
+      <div class="field"><div class="field-lbl">E-mail de Acesso ao Sistema <span class="badge-o">Opcional</span></div>
+        <div class="irow" id="row-email-acesso"><div class="iico"><i class="ti ti-login"></i></div>
+          <input class="finput" id="inp-email-acesso" type="email" placeholder="login@empresa.com">
+          <div class="istat" id="st-email-acesso"></div></div>
+        <div class="fmsg" id="msg-email-acesso"></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-users"></i> Pessoas Autorizadas a Comprar</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:6px">
+        <div class="ct-head">Contato</div><div class="ct-head">Cargo</div><div class="ct-head">Telefone</div><div class="ct-head">E-mail</div>
+      </div>
+      <div id="contacts-rows"></div>
+      <button class="add-btn" onclick="addContact()"><i class="ti ti-plus" style="font-size:13px"></i> Adicionar contato</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-building-bank"></i> Dados Bancários</div>
+      <div id="banks-rows"></div>
+      <button class="add-btn" onclick="addBank()"><i class="ti ti-plus" style="font-size:13px"></i> Adicionar banco</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-building-community"></i> Referências Comerciais</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
+        <div class="ct-head">Empresa</div><div class="ct-head">Telefone</div>
+      </div>
+      <div id="refs-rows"></div>
+      <button class="add-btn" onclick="addRef()"><i class="ti ti-plus" style="font-size:13px"></i> Adicionar referência</button>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-notes"></i> Observações</div>
+      <div class="irow" style="height:auto;align-items:flex-start">
+        <div class="iico" style="padding-top:12px"><i class="ti ti-notes"></i></div>
+        <textarea id="inp-obs" placeholder="Informações adicionais..." style="flex:1;min-height:72px;border:none;outline:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:#111827;padding:12px 4px 10px 0;resize:vertical;line-height:1.5"></textarea>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><i class="ti ti-receipt-tax"></i> Informações Fiscais</div>
+
+      <div class="field" style="margin-bottom:14px">
+        <div class="field-lbl">Consumidor Final <span class="badge-o">Opcional</span></div>
+        <div class="opt-group" id="grp-cons-final">
+          <button type="button" class="opt-btn" data-val="sim" onclick="selectOpt('cons-final','sim')"><i class="ti ti-user-check"></i> Sim</button>
+          <button type="button" class="opt-btn" data-val="nao" onclick="selectOpt('cons-final','nao')"><i class="ti ti-user-x"></i> Não</button>
+        </div>
+        <input type="hidden" id="inp-cons-final">
+      </div>
+
+      <div class="field" style="margin-bottom:14px">
+        <div class="field-lbl">Finalidade da Mercadoria <span class="badge-o">Opcional</span></div>
+        <div class="opt-group" id="grp-finalidade">
+          <button type="button" class="opt-btn" data-val="revenda" onclick="selectOpt('finalidade','revenda')"><i class="ti ti-shopping-cart"></i> Revenda</button>
+          <button type="button" class="opt-btn" data-val="ativo-imobilizado" onclick="selectOpt('finalidade','ativo-imobilizado')"><i class="ti ti-tool"></i> Ativo Imobilizado</button>
+        </div>
+        <input type="hidden" id="inp-finalidade">
+      </div>
+
+      <div class="field">
+        <div class="field-lbl">Contribuinte de ICMS <span class="badge-o">Opcional</span></div>
+        <div class="opt-group" id="grp-contribuinte">
+          <button type="button" class="opt-btn" data-val="sim" onclick="selectOpt('contribuinte','sim')"><i class="ti ti-check"></i> Sim</button>
+          <button type="button" class="opt-btn" data-val="nao" onclick="selectOpt('contribuinte','nao')"><i class="ti ti-x"></i> Não</button>
+        </div>
+        <input type="hidden" id="inp-contribuinte">
+      </div>
+    </div>
+
+    <div class="step-footer">
+      <button class="btn btn-ghost" onclick="showStep(1)"><i class="ti ti-arrow-left"></i> Voltar</button>
+      <div class="foot-note"><i class="ti ti-shield-lock"></i> LGPD</div>
+      <button class="btn btn-primary btn-submit" id="btn2" onclick="nextStep(2)">
+        <span class="btn-txt">Finalizar Cadastro</span><i class="ti ti-check btn-ico"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- SUCESSO -->
+  <div class="step-screen" id="step-success">
+    <div class="suc-page">
+      <div class="suc-ring"><i class="ti ti-check"></i></div>
+      <div class="suc-title">Obrigado!</div>
+      <div class="suc-sub">Suas informações foram recebidas com sucesso.<br>Em breve entraremos em contato.</div>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+let vend = null, vendSlug = '';
+let ccnt = 0, bcnt = 0, rcnt = 0, cnpjTimer = null, cepTimer = null, dcepTimer = null;
+
+window.addEventListener('DOMContentLoaded', () => {
+  const p = new URLSearchParams(window.location.search);
+  const v = p.get('v'), t = p.get('t')||'';
+  if (v) {
+    vend = getPessoa(v);
+    if (vend) {
+      vendSlug = v;
+      const tm = getTeam(vend.team);
+      document.getElementById('inp-vend').value = vend.name;
+      document.getElementById('vend-chip').innerHTML =
+        `<div class="chip"><div class="chip-av" style="background:${tm.color}">${vend.ini}</div>${vend.name} — ${tm.name}</div>`;
+    }
+  }
+  bindEvents();
+  addContact();
+  addBank();
+});
+
+/* ── STEPS ─────────────────────────────────────────────────────── */
+function showStep(n) {
+  document.querySelectorAll('.step-screen').forEach(s => s.classList.remove('on'));
+  document.getElementById('step'+n).classList.add('on');
+  window.scrollTo({top:0,behavior:'smooth'});
+  [1,2].forEach(i => {
+    const dot = document.getElementById('dot'+i);
+    const lbl = document.getElementById('lbl'+i);
+    const st  = i<n?'done':i===n?'active':'pending';
+    dot.className = 'step-dot '+st;
+    dot.innerHTML = i<n?'<i class="ti ti-check" style="font-size:11px"></i>':i;
+    lbl.className = 'step-lbl '+st;
+  });
+}
+
+function nextStep(from) {
+  if (from===1) {
+    const cnpj = document.getElementById('inp-cnpj').value.replace(/\D/g,'');
+    const nome = document.getElementById('inp-nome').value.trim();
+    const tel  = document.getElementById('inp-tel').value.replace(/\D/g,'');
+    let ok = true;
+    if (!validarCNPJ(cnpj)) { setF('cnpj','err','CNPJ inválido'); ok=false; }
+    if (nome.length<3)       { setF('nome','err','Preencha o nome completo'); ok=false; }
+    if (tel.length<10)       { setF('tel','err','Telefone inválido'); ok=false; }
+    if (!ok) return;
+    showStep(2);
+  } else if (from===2) {
+    const cep = document.getElementById('inp-cep').value.replace(/\D/g,'');
+    const num = document.getElementById('inp-num').value.trim();
+    let ok = true;
+    if (cep.length<8) { setF('cep','err','CEP inválido'); ok=false; }
+    if (!num)          { setF('num','err','Informe o número'); ok=false; }
+    if (!ok) return;
+    submitForm();
+  }
+}
+
+/* ── SUBMIT ─────────────────────────────────────────────────────── */
+async function submitForm() {
+  const btn = document.getElementById('btn2');
+  btn.classList.add('loading');
+
+  const contatos = [];
+  document.querySelectorAll('[id^="ct-"]').forEach(row => {
+    const ins = row.querySelectorAll('input');
+    if (ins[0]?.value) contatos.push({nome:ins[0].value, cargo:ins[1]?.value||'', telefone:ins[2]?.value||'', email:ins[3]?.value||''});
+  });
+  const bancos = [];
+  document.querySelectorAll('[id^="bk-"]').forEach(row => {
+    const ins = row.querySelectorAll('input');
+    if (ins[0]?.value) bancos.push({banco:ins[0].value, agencia:ins[1]?.value||'', conta:ins[2]?.value||''});
+  });
+  const referencias_comerciais = [];
+  document.querySelectorAll('[id^="rf-"]').forEach(row => {
+    const ins = row.querySelectorAll('input');
+    if (ins[0]?.value) referencias_comerciais.push({empresa:ins[0].value, telefone:ins[1]?.value||''});
+  });
+
+  const g = id => document.getElementById('inp-'+id)?.value || '';
+
+  const mesmoEnd = document.getElementById('chk-mesmo-end')?.checked;
+  const endereco_entrega = mesmoEnd
+    ? { mesmo_comercial: true }
+    : { mesmo_comercial: false, cep:g('dcep'), logradouro:g('dend'), numero:g('dnum'), complemento:g('dcomp'), bairro:g('dbairro'), cidade:g('dcidade'), uf:g('duf') };
+  const payload = {
+    cnpj: g('cnpj'), razao_social: g('razao'), nome_fantasia: g('fantasia'),
+    insc_estadual: g('ie'), atividade: g('ativ'),
+    telefone_empresa: g('tel-empresa'), email_empresa: g('email-empresa'),
+    responsavel: g('nome'), telefone: g('tel'), email_responsavel: g('email-resp'),
+    cond_pagamento: '',
+    cep: g('cep'), logradouro: g('end'), numero: g('num'),
+    complemento: g('comp'), bairro: g('bairro'), cidade: g('cidade'), uf: g('uf'),
+    telefone_comercial: g('tel-com'),
+    endereco_entrega,
+    email_nfe: g('enfe'), email_portal: g('eport'), email_acesso: g('email-acesso'),
+    vendedor_slug: vendSlug, vendedor_nome: vend?vend.name:'',
+    equipe: vend?getTeam(vend.team).name:'',
+    contatos, bancos, referencias_comerciais, observacoes: g('obs'),
+    consumidor_final:      document.getElementById('inp-cons-final').value,
+    finalidade_mercadoria: document.getElementById('inp-finalidade').value,
+    contribuinte:          document.getElementById('inp-contribuinte').value,
+  };
+
+  console.log('[SUBMIT] enviando cadastro...', { cnpj: payload.cnpj, vendedor: payload.vendedor_nome, equipe: payload.equipe });
+  try {
+    const r = await fetch(`${API}/api/cadastros`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+    });
+    const j = await r.json();
+    document.getElementById('btn2').classList.remove('loading');
+    if (j.ok) {
+      console.log('[SUBMIT] sucesso! protocolo #'+j.data.id);
+      document.getElementById('progress-bar').style.display = 'none';
+      document.querySelectorAll('.step-screen').forEach(s => s.classList.remove('on'));
+      document.getElementById('step-success').classList.add('on');
+      showToast('Cadastro enviado com sucesso!','ok');
+    } else {
+      console.error('[SUBMIT] erro do servidor:', j.error);
+      showToast('Erro: '+(j.error||'Tente novamente'),'err');
+    }
+  } catch(e) {
+    document.getElementById('btn2').classList.remove('loading');
+    console.error('[SUBMIT] erro de conexão:', e.message);
+    showToast('Erro de conexão. Verifique se o servidor está rodando.','err');
+  }
+}
+
+function selectOpt(group, val) {
+  const inp = document.getElementById('inp-'+group);
+  const current = inp.value;
+  const next = current === val ? '' : val;
+  inp.value = next;
+  document.getElementById('grp-'+group).querySelectorAll('.opt-btn')
+    .forEach(b => b.classList.toggle('on', b.dataset.val === next && next !== ''));
+}
+
+function resetForm() {
+  document.getElementById('progress-bar').style.display = 'flex';
+  ['cnpj','razao','fantasia','ie','ativ','tel-empresa','email-empresa','nome','tel','email-resp',
+   'cep','num','end','comp','bairro','cidade','uf','tel-com','enfe','eport','email-acesso','obs'].forEach(id => {
+    const el = document.getElementById('inp-'+id);
+    if (el) { el.value=''; if(['razao','fantasia','ativ','ie','bairro','cidade','uf'].includes(id)) el.disabled=true; }
+    const row = document.getElementById('row-'+id);
+    if (row) row.className = ['razao','fantasia','ativ','ie','bairro','cidade','uf'].includes(id)?'irow auto-f':'irow';
+    setF(id,'','');
+  });
+  document.getElementById('cbanner').classList.remove('show');
+  document.getElementById('stbanner').classList.remove('show');
+  document.getElementById('contacts-rows').innerHTML='';
+  document.getElementById('banks-rows').innerHTML='';
+  document.getElementById('refs-rows').innerHTML='';
+  document.getElementById('chk-mesmo-end').checked=true;
+  document.getElementById('end-entrega-fields').style.display='none';
+  ['dcep','dend','dnum','dcomp','dbairro','dcidade','duf'].forEach(id=>{
+    const el=document.getElementById('inp-'+id);
+    if(el){el.value='';if(['dbairro','dcidade','duf'].includes(id))el.disabled=true;}
+    setF(id,'','');
+  });
+  ['cons-final','finalidade','contribuinte'].forEach(g => {
+    document.getElementById('inp-'+g).value='';
+    document.getElementById('grp-'+g).querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('on'));
+  });
+  ccnt=0; bcnt=0; rcnt=0; addContact(); addBank();
+  if (vend) document.getElementById('inp-vend').value=vend.name;
+  showStep(1);
+}
+
+/* ── FIELD HELPERS ─────────────────────────────────────────────── */
+function setF(id, state, msg) {
+  const row=document.getElementById('row-'+id), st=document.getElementById('st-'+id), m=document.getElementById('msg-'+id);
+  if(row){let c='irow';if(state==='ok')c+=' valid';else if(state==='err')c+=' invalid';else if(state==='auto'||state==='st')c+=' auto-f';row.className=c;}
+  if(st){if(state==='ok'){st.className='istat ok';st.innerHTML='<i class="ti ti-check"></i>';}else if(state==='err'){st.className='istat err';st.innerHTML='<i class="ti ti-x"></i>';}else if(state==='loading'){st.className='istat spin';st.innerHTML='<i class="ti ti-loader-2"></i>';}else if(state==='loading-st'){st.className='istat spin-or';st.innerHTML='<i class="ti ti-loader-2"></i>';}else{st.className='istat';st.innerHTML='';}}
+  if(m){m.textContent=msg||'';m.className='fmsg'+(state==='err'?' err':state==='ok'?' ok':'');}
+}
+
+/* ── BIND EVENTS ────────────────────────────────────────────────── */
+function bindEvents() {
+  const cEl=document.getElementById('inp-cnpj');
+  cEl.addEventListener('input',()=>{
+    cEl.value=maskCNPJ(cEl.value);
+    const d=cEl.value.replace(/\D/g,'');
+    if(!d){setF('cnpj','','');document.getElementById('cbanner').classList.remove('show');document.getElementById('stbanner').classList.remove('show');return;}
+    if(d.length<14){setF('cnpj','','Digitando...');return;}
+    if(!validarCNPJ(d)){setF('cnpj','err','CNPJ inválido');return;}
+    setF('cnpj','loading','Consultando...');
+    clearTimeout(cnpjTimer); cnpjTimer=setTimeout(()=>buscarCNPJ(d),600);
+  });
+  document.getElementById('inp-tel-empresa').addEventListener('input',function(){this.value=maskTel(this.value);const d=this.value.replace(/\D/g,'');setF('tel-empresa',d.length>=10?'ok':d?'err':'',d.length>=10?'':d?'Incompleto':'');});
+  document.getElementById('inp-email-empresa').addEventListener('input',function(){const v=this.value.trim();setF('email-empresa',!v?'':validEmail(v)?'ok':'err',validEmail(v)||!v?'':'E-mail inválido');});
+  document.getElementById('inp-nome').addEventListener('input',function(){const v=this.value.trim();setF('nome',v.length>=3?'ok':v?'err':'',v.length>=3?'':v?'Nome muito curto':'');});
+  document.getElementById('inp-tel').addEventListener('input',function(){this.value=maskTel(this.value);const d=this.value.replace(/\D/g,'');setF('tel',d.length>=10?'ok':d?'err':'',d.length>=10?'':d?'Incompleto':'');});
+  document.getElementById('inp-tel-com').addEventListener('input',function(){this.value=maskTel(this.value);const d=this.value.replace(/\D/g,'');setF('tel-com',!d?'':d.length>=10?'ok':'err',d&&d.length<10?'Incompleto':'');});
+  document.getElementById('inp-cep').addEventListener('input',function(){
+    this.value=maskCEP(this.value);const d=this.value.replace(/\D/g,'');
+    if(d.length<8){setF('cep','','Autocompletar endereço');return;}
+    setF('cep','loading','Buscando...');clearTimeout(cepTimer);cepTimer=setTimeout(()=>buscarCEP(d),600);
+  });
+  document.getElementById('inp-dcep').addEventListener('input',function(){
+    this.value=maskCEP(this.value);const d=this.value.replace(/\D/g,'');
+    if(d.length<8){setF('dcep','','Autocompletar endereço');return;}
+    setF('dcep','loading','Buscando...');clearTimeout(dcepTimer);dcepTimer=setTimeout(()=>buscarCEPEntrega(d),600);
+  });
+  document.getElementById('inp-num').addEventListener('input',function(){setF('num',this.value.trim()?'ok':'','');});
+  document.getElementById('inp-dnum').addEventListener('input',function(){setF('dnum',this.value.trim()?'ok':'','');});
+  document.getElementById('inp-email-resp').addEventListener('input',function(){const v=this.value.trim();setF('email-resp',!v?'':validEmail(v)?'ok':'err',validEmail(v)||!v?'':'E-mail inválido');});
+  document.getElementById('inp-email-acesso').addEventListener('input',function(){const v=this.value.trim();setF('email-acesso',!v?'':validEmail(v)?'ok':'err',validEmail(v)||!v?'':'E-mail inválido');});
+  ['enfe','eport'].forEach(id=>{document.getElementById('inp-'+id).addEventListener('input',function(){const v=this.value.trim();setF(id,!v?'':validEmail(v)?'ok':'err',validEmail(v)||!v?'':'E-mail inválido');});});
+}
+
+/* ── API CALLS ──────────────────────────────────────────────────── */
+async function buscarCNPJ(cnpj) {
+  console.log(`%c🔍 CNPJ %c${cnpj}`, 'font-weight:bold;color:#6B7C99', 'font-weight:bold;color:#111');
+  try {
+    const r=await fetch(`${API}/api/cnpj/${cnpj}`);
+    const j=await r.json();
+    if(!j.ok) throw new Error(j.error||'Resposta não ok');
+    const d=j.data;
+    if (j.fromCache) {
+      console.log(`%c💾 CACHE  %cReceita Federal → ${d.razao_social} | ${d.descricao_situacao_cadastral}`, 'font-weight:bold;color:#16A34A', 'color:#374151');
+    } else {
+      console.log(`%c🌐 API    %cReceita Federal → ${d.razao_social} | ${d.descricao_situacao_cadastral}`, 'font-weight:bold;color:#D97706', 'color:#374151');
+    }
+    setF('cnpj','ok','Receita Federal ✓');
+    const setA=(id,val)=>{const i=document.getElementById('inp-'+id);const rw=document.getElementById('row-'+id);if(i){i.value=val||'';i.disabled=!val;}if(val&&rw)rw.className='irow valid';};
+    setA('razao',d.razao_social); setA('fantasia',d.nome_fantasia||d.razao_social); setA('ativ',d.cnae_fiscal_descricao);
+    document.getElementById('cb-name').textContent=d.razao_social||'';
+    document.getElementById('cb-sit').textContent=[d.descricao_situacao_cadastral,d.porte].filter(Boolean).join(' · ');
+    document.getElementById('cbanner').classList.add('show');
+    if(d.ddd_telefone_1){const te=document.getElementById('inp-tel-empresa');if(te&&!te.value){te.value=maskTel(d.ddd_telefone_1.replace(/\D/g,''));setF('tel-empresa','ok','');}}
+    if(d.email){const em=document.getElementById('inp-email-empresa');if(em&&!em.value){em.value=d.email;setF('email-empresa','ok','');}}
+    if(d.numero){const n=document.getElementById('inp-num');if(n&&!n.value){n.value=d.numero;setF('num','ok','');}}
+    const cep=d.cep?d.cep.replace(/\D/g,''):'';
+    if(cep&&cep.length===8){const c=document.getElementById('inp-cep');if(c&&!c.value){c.value=maskCEP(cep);buscarCEP(cep);}}
+  } catch(e){
+    console.error('%c❌ ERRO   %cReceita Federal:', 'font-weight:bold;color:#DC2626', 'color:#374151', e.message);
+    setF('cnpj','err','Erro ao consultar Receita Federal');
+    return;
+  }
+
+  setF('ie','loading-st','Buscando IE no SINTEGRA...');
+  try {
+    const r2=await fetch(`${API}/api/sintegra/${document.getElementById('inp-cnpj').value.replace(/\D/g,'')}`);
+    const j2=await r2.json();
+    if(!j2.ok) throw new Error(j2.error||'Resposta não ok');
+    const s=j2.data;
+    const ie=s.inscricao_estadual||'';
+    const sit=s.situacao_ie_desc||s.situacao_ie||s.situacao_cnpj||'';
+    if (j2.fromCache) {
+      console.log(`%c💾 CACHE  %cSINTEGRA → IE: ${ie||'não encontrada'} | ${sit||'—'}`, 'font-weight:bold;color:#16A34A', 'color:#374151');
+    } else {
+      console.log(`%c🌐 API    %cSINTEGRA → IE: ${ie||'não encontrada'} | ${sit||'—'}`, 'font-weight:bold;color:#D97706', 'color:#374151');
+    }
+    if(s.numero){const n=document.getElementById('inp-num');if(n&&!n.value){n.value=s.numero;setF('num','ok','');}}
+    if(ie){const ieEl=document.getElementById('inp-ie');if(ieEl){ieEl.value=ie;ieEl.disabled=false;}document.getElementById('row-ie').className='irow st-f';setF('ie','ok','SINTEGRA ✓');}
+    else{const ieEl=document.getElementById('inp-ie');if(ieEl){ieEl.disabled=false;ieEl.placeholder='Preencha manualmente';}setF('ie','','Não encontrado no SINTEGRA');}
+    document.getElementById('stb-ie').textContent='IE: '+(ie||'Não encontrada');
+    document.getElementById('stb-sit').textContent=sit||'Dados do SINTEGRA';
+    document.getElementById('stbanner').classList.add('show');
+    if(ie) setF('cnpj','ok','Receita Federal ✓  SINTEGRA ✓');
+  } catch(e){
+    console.error('%c❌ ERRO   %cSINTEGRA:', 'font-weight:bold;color:#DC2626', 'color:#374151', e.message);
+    const ieEl=document.getElementById('inp-ie');
+    if(ieEl){ieEl.disabled=false;ieEl.placeholder='Preencha manualmente';}
+    setF('ie','','Erro no SINTEGRA');
+  }
+}
+
+async function buscarCEP(cep) {
+  console.log(`[CEP] buscando ${cep}...`);
+  try {
+    const r=await fetch(`${API}/api/cep/${cep}`);
+    const j=await r.json();
+    if(!j.ok) throw new Error(j.error||'Resposta não ok');
+    const d=j.data;
+    console.log(`[CEP] ok → ${d.street}, ${d.neighborhood}, ${d.city}/${d.state}`);
+    setF('cep','ok','Endereço encontrado ✓');
+    const setA=(fid,val)=>{const i=document.getElementById('inp-'+fid);const rw=document.getElementById('row-'+fid);if(i){i.value=val||'';i.disabled=false;}if(rw&&val)rw.className='irow valid';};
+    setA('end',d.street||''); setA('bairro',d.neighborhood||''); setA('cidade',d.city||''); setA('uf',d.state||'');
+    document.getElementById('inp-num').focus();
+  } catch(e){
+    console.error('[CEP] não encontrado:', e.message);
+    setF('cep','err','CEP não encontrado');
+  }
+}
+
+async function buscarCEPEntrega(cep) {
+  try {
+    const r=await fetch(`${API}/api/cep/${cep}`);
+    const j=await r.json();
+    if(!j.ok) throw new Error(j.error||'');
+    const d=j.data;
+    setF('dcep','ok','Endereço encontrado ✓');
+    const setA=(fid,val)=>{const i=document.getElementById('inp-'+fid);if(i){i.value=val||'';i.disabled=false;}};
+    setA('dend',d.street||''); setA('dbairro',d.neighborhood||''); setA('dcidade',d.city||''); setA('duf',d.state||'');
+    document.getElementById('inp-dnum').focus();
+  } catch(e){
+    setF('dcep','err','CEP não encontrado');
+  }
+}
+
+/* ── DYNAMIC ROWS ───────────────────────────────────────────────── */
+function addContact() {
+  ccnt++;const c=ccnt;
+  const row=document.createElement('div');
+  row.className='ct-row';row.id='ct-'+c;
+  row.innerHTML=`
+    <div class="irow" style="border-radius:10px"><div class="iico"><i class="ti ti-user"></i></div><input class="finput" type="text" placeholder="Nome completo"></div>
+    <div class="irow" style="border-radius:10px"><div class="iico"><i class="ti ti-briefcase"></i></div><input class="finput" type="text" placeholder="Cargo"></div>
+    <div class="irow" style="border-radius:10px"><div class="iico"><i class="ti ti-phone"></i></div><input class="finput" type="tel" placeholder="(31) 9 0000-0000"></div>
+    <div style="display:flex;gap:4px;align-items:center">
+      <div class="irow" style="border-radius:10px;flex:1"><div class="iico"><i class="ti ti-mail"></i></div><input class="finput" type="email" placeholder="email@..."></div>
+      <button class="rm-btn" onclick="document.getElementById('ct-${c}').remove()"><i class="ti ti-x"></i></button>
+    </div>`;
+  document.getElementById('contacts-rows').appendChild(row);
+}
+
+function addRef() {
+  rcnt++;const r=rcnt;
+  const row=document.createElement('div');
+  row.className='ref-row';row.id='rf-'+r;
+  row.innerHTML=`
+    <div class="irow" style="border-radius:10px"><div class="iico"><i class="ti ti-building"></i></div><input class="finput" type="text" placeholder="Nome da empresa"></div>
+    <div style="display:flex;gap:4px;align-items:center">
+      <div class="irow" style="border-radius:10px;flex:1"><div class="iico"><i class="ti ti-phone"></i></div><input class="finput" type="tel" placeholder="(31) 9 0000-0000"></div>
+      <button class="rm-btn" onclick="document.getElementById('rf-${r}').remove()"><i class="ti ti-x"></i></button>
+    </div>`;
+  document.getElementById('refs-rows').appendChild(row);
+}
+
+function toggleEndEntrega() {
+  const mesmo = document.getElementById('chk-mesmo-end').checked;
+  document.getElementById('end-entrega-fields').style.display = mesmo ? 'none' : 'block';
+}
+
+function addBank() {
+  bcnt++;const b=bcnt;
+  const row=document.createElement('div');
+  row.className='bank-row';row.id='bk-'+b;
+  row.innerHTML=`
+    <div class="field"><div class="field-lbl">Banco</div><div class="irow" style="border-radius:10px"><div class="iico"><i class="ti ti-building-bank"></i></div><input class="finput" type="text" placeholder="Ex: Bradesco"></div></div>
+    <div class="field"><div class="field-lbl">Agência</div><div class="irow" style="border-radius:10px"><div class="iico"><i class="ti ti-hash"></i></div><input class="finput" type="text" placeholder="0000-0"></div></div>
+    <div class="field"><div class="field-lbl">Conta</div>
+      <div style="display:flex;gap:4px;align-items:flex-end">
+        <div class="irow" style="border-radius:10px;flex:1"><div class="iico"><i class="ti ti-credit-card"></i></div><input class="finput" type="text" placeholder="00000-0"></div>
+        <button class="rm-btn" onclick="document.getElementById('bk-${b}').remove()"><i class="ti ti-x"></i></button>
+      </div></div>`;
+  document.getElementById('banks-rows').appendChild(row);
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,666 @@
+[
+  {
+    "id": "1780332316209",
+    "created_at": "2026-06-01T16:45:16.209Z",
+    "updated_at": "2026-06-10T10:59:58.634Z",
+    "status": "preenchido",
+    "cnpj": "02.697.297/0001-11",
+    "razao_social": "UNIVERSO ELETRICO LTDA",
+    "nome_fantasia": "UNIVERSO ELETRICO",
+    "insc_estadual": "teste",
+    "atividade": "Comércio atacadista de material elétrico",
+    "responsavel": "teste ",
+    "telefone": "(31) 31982-800",
+    "cond_pagamento": "",
+    "cep": "31250-682",
+    "logradouro": "Rua Otaviano Fabri",
+    "numero": "540",
+    "complemento": "teste",
+    "bairro": "Ermelinda",
+    "cidade": "Belo Horizonte",
+    "uf": "MG",
+    "email_nfe": "",
+    "email_portal": "",
+    "email_acesso": "a@gmail.com",
+    "vendedor_slug": "devidson-mansur",
+    "vendedor_nome": "Devidson Mansur ",
+    "equipe": "Atacado",
+    "contatos": [
+      {
+        "nome": "victor ",
+        "cargo": "aaaa",
+        "email": "victor@gmail.com"
+      },
+      {
+        "nome": "aaaaaa",
+        "cargo": "aaaa",
+        "email": "victor@gmail.com"
+      }
+    ],
+    "bancos": [
+      {
+        "banco": "bradesco",
+        "agencia": "55555555",
+        "conta": "4545454"
+      }
+    ],
+    "observacoes": "aaaaaaaaaaaaaaaa",
+    "historico": [
+      {
+        "campo": "status",
+        "de": "pendente",
+        "para": "preenchido",
+        "em": "2026-06-10T10:59:58.634Z"
+      }
+    ]
+  },
+  {
+    "id": "1780333519681",
+    "created_at": "2026-06-01T17:05:19.681Z",
+    "updated_at": "2026-06-10T10:59:54.850Z",
+    "status": "preenchido",
+    "cnpj": "25.022.742/0001-49",
+    "razao_social": "FREITAS E MACHADO REFORMAS LTDA",
+    "nome_fantasia": "FREMA REFORMAS",
+    "insc_estadual": "",
+    "atividade": "Construção de edifícios",
+    "responsavel": "teste ",
+    "telefone": "(31) 38791-110",
+    "cond_pagamento": "",
+    "cep": "30775-010",
+    "logradouro": "Rua Rodeio",
+    "numero": "5600",
+    "complemento": "500",
+    "bairro": "Alto Caiçaras",
+    "cidade": "Belo Horizonte",
+    "uf": "MG",
+    "email_nfe": "teste@gamil.com",
+    "email_portal": "teste@gamil.com",
+    "email_acesso": "teste@gmail.com",
+    "vendedor_slug": "devidson-mansur",
+    "vendedor_nome": "Devidson Mansur ",
+    "equipe": "Atacado",
+    "contatos": [
+      {
+        "nome": "tesgte",
+        "cargo": "testetes",
+        "email": "teste"
+      }
+    ],
+    "bancos": [
+      {
+        "banco": "tesete",
+        "agencia": "",
+        "conta": ""
+      }
+    ],
+    "observacoes": "",
+    "historico": [
+      {
+        "campo": "status",
+        "de": "finalizado",
+        "para": "preenchido",
+        "em": "2026-06-10T10:59:54.850Z"
+      }
+    ]
+  },
+  {
+    "id": "1780930232439",
+    "created_at": "2026-06-08T14:50:32.439Z",
+    "updated_at": "2026-06-10T10:59:51.850Z",
+    "status": "preenchido",
+    "cnpj": "43.469.617/0001-63",
+    "razao_social": "GRUPO VILA VERDE EVENTOS LTDA",
+    "nome_fantasia": "VILA VERDE EVENTOS",
+    "insc_estadual": "0041443050067",
+    "atividade": "Restaurantes e similares",
+    "responsavel": "Victor Teste",
+    "telefone": "(31) 84243-626",
+    "cond_pagamento": "",
+    "cep": "31910-520",
+    "logradouro": "Avenida Joaquim José Diniz",
+    "numero": "501",
+    "complemento": "250",
+    "bairro": "Fernão Dias",
+    "cidade": "Belo Horizonte",
+    "uf": "MG",
+    "email_nfe": "victor@gmail.com",
+    "email_portal": "victor@gmail.com",
+    "email_acesso": "setorintegracao@gmail.com",
+    "vendedor_slug": "devidson-mansur",
+    "vendedor_nome": "Devidson Mansur ",
+    "equipe": "Atacado",
+    "contatos": [
+      {
+        "nome": "Victor",
+        "cargo": "teste",
+        "email": "victor@gmail.com"
+      }
+    ],
+    "bancos": [],
+    "observacoes": "",
+    "historico": [
+      {
+        "campo": "status",
+        "de": "pendente",
+        "para": "preenchido",
+        "em": "2026-06-10T10:59:51.850Z"
+      }
+    ]
+  },
+  {
+    "id": "1780930793458",
+    "created_at": "2026-06-08T14:59:53.458Z",
+    "updated_at": "2026-06-10T10:59:46.906Z",
+    "status": "preenchido",
+    "cnpj": "43.469.617/0001-63",
+    "razao_social": "GRUPO VILA VERDE EVENTOS LTDA",
+    "nome_fantasia": "VILA VERDE EVENTOS",
+    "insc_estadual": "0041443050067",
+    "atividade": "Restaurantes e similares",
+    "responsavel": "Victor Nunes",
+    "telefone": "(31) 84243-626",
+    "cond_pagamento": "",
+    "cep": "31910-520",
+    "logradouro": "Avenida Joaquim José Diniz",
+    "numero": "501",
+    "complemento": "teste teste",
+    "bairro": "Fernão Dias",
+    "cidade": "Belo Horizonte",
+    "uf": "MG",
+    "email_nfe": "setorintegracao@gmail.com",
+    "email_portal": "setorintegracao@gmail.com",
+    "email_acesso": "",
+    "vendedor_slug": "devidson-mansur",
+    "vendedor_nome": "Devidson Mansur ",
+    "equipe": "Atacado",
+    "contatos": [
+      {
+        "nome": "Setor Integração",
+        "cargo": "teste",
+        "email": "teste"
+      }
+    ],
+    "bancos": [
+      {
+        "banco": "teste",
+        "agencia": "test",
+        "conta": "teste"
+      }
+    ],
+    "observacoes": "teste",
+    "historico": [
+      {
+        "campo": "status",
+        "de": "pendente",
+        "para": "preenchido",
+        "em": "2026-06-10T10:59:46.906Z"
+      }
+    ]
+  },
+  {
+    "id": "1780931262074",
+    "created_at": "2026-06-08T15:07:42.074Z",
+    "updated_at": "2026-06-10T10:59:43.227Z",
+    "status": "preenchido",
+    "cnpj": "43.469.617/0001-63",
+    "razao_social": "GRUPO VILA VERDE EVENTOS LTDA",
+    "nome_fantasia": "VILA VERDE EVENTOS",
+    "insc_estadual": "0041443050067",
+    "atividade": "Restaurantes e similares",
+    "responsavel": "Setor Integração",
+    "telefone": "(31) 84243-626",
+    "cond_pagamento": "",
+    "cep": "31910-520",
+    "logradouro": "Avenida Joaquim José Diniz",
+    "numero": "501",
+    "complemento": "teste",
+    "bairro": "Fernão Dias",
+    "cidade": "Belo Horizonte",
+    "uf": "MG",
+    "email_nfe": "teste@gmail.com",
+    "email_portal": "teste@gmail.com",
+    "email_acesso": "",
+    "vendedor_slug": "devidson-mansur",
+    "vendedor_nome": "Devidson Mansur ",
+    "equipe": "Atacado",
+    "contatos": [
+      {
+        "nome": "Setor Integração",
+        "cargo": "teste",
+        "email": "teste@gmail.com"
+      }
+    ],
+    "bancos": [
+      {
+        "banco": "teste",
+        "agencia": "test",
+        "conta": "teste"
+      }
+    ],
+    "observacoes": "",
+    "historico": [
+      {
+        "campo": "status",
+        "de": "pendente",
+        "para": "preenchido",
+        "em": "2026-06-10T10:59:43.227Z"
+      }
+    ]
+  },
+  {
+    "id": "1780931471413",
+    "created_at": "2026-06-08T15:11:11.413Z",
+    "updated_at": "2026-06-10T10:59:34.171Z",
+    "status": "preenchido",
+    "cnpj": "43.469.617/0001-63",
+    "razao_social": "GRUPO VILA VERDE EVENTOS LTDA",
+    "nome_fantasia": "VILA VERDE EVENTOS",
+    "insc_estadual": "0041443050067",
+    "atividade": "Restaurantes e similares",
+    "responsavel": "Setor Integração",
+    "telefone": "(31) 84243-626",
+    "cond_pagamento": "",
+    "cep": "31910-520",
+    "logradouro": "Avenida Joaquim José Diniz",
+    "numero": "501",
+    "complemento": "aaaaaaa",
+    "bairro": "Fernão Dias",
+    "cidade": "Belo Horizonte",
+    "uf": "MG",
+    "email_nfe": "aaaaaaaaaa@gmail.com",
+    "email_portal": "aaaaaaaaaa@gmail.com",
+    "email_acesso": "",
+    "vendedor_slug": "devidson-mansur",
+    "vendedor_nome": "Devidson Mansur ",
+    "equipe": "Atacado",
+    "contatos": [
+      {
+        "nome": "aaaaaaaaa",
+        "cargo": "aaaaaaaaaaa",
+        "email": "aaaaaaaaaa@gmail.com"
+      }
+    ],
+    "bancos": [
+      {
+        "banco": "aaaaaaa",
+        "agencia": "aaaaaaa",
+        "conta": "aaaaaaaaa"
+      }
+    ],
+    "observacoes": "aaaaaaaaaaaa",
+    "historico": [
+      {
+        "campo": "status",
+        "de": "pendente",
+        "para": "preenchido",
+        "em": "2026-06-10T10:59:34.171Z"
+      }
+    ]
+  },
+  {
+    "id": "1780949288466",
+    "created_at": "2026-06-08T20:08:08.466Z",
+    "updated_at": "2026-06-10T10:59:39.235Z",
+    "status": "preenchido",
+    "cnpj": "22.745.178/0001-02",
+    "razao_social": "CONSTRUTORA PONTAL EMPREENDIMENTOS IMOBILIARIOS LTDA",
+    "nome_fantasia": "CONSTRUTORA PONTAL",
+    "insc_estadual": "0905870670016",
+    "atividade": "Construção de edifícios",
+    "responsavel": "Victor Hugo",
+    "telefone": "(31) 35711-155",
+    "cond_pagamento": "",
+    "cep": "32480-002",
+    "logradouro": "Rua Presidente Vargas",
+    "numero": "325",
+    "complemento": "250",
+    "bairro": "Centro",
+    "cidade": "Brumadinho",
+    "uf": "MG",
+    "email_nfe": "victor@gmail.com",
+    "email_portal": "victor@gmail.com",
+    "email_acesso": "",
+    "vendedor_slug": "lucas-barbosa",
+    "vendedor_nome": "Lucas Barbosa",
+    "equipe": "Atacado",
+    "contatos": [
+      {
+        "nome": "victor",
+        "cargo": "Gestor",
+        "email": "victor@gmail.com"
+      },
+      {
+        "nome": "Fabio",
+        "cargo": "compras ",
+        "email": "victor@gmail.com"
+      }
+    ],
+    "bancos": [
+      {
+        "banco": "teste",
+        "agencia": "teste",
+        "conta": "teste"
+      }
+    ],
+    "observacoes": "asss",
+    "limite_credito": "",
+    "forma_pagamento": "",
+    "email_financeiro": "",
+    "telefone_financeiro": "",
+    "historico": [
+      {
+        "campo": "status",
+        "de": "revisao",
+        "para": "preenchido",
+        "em": "2026-06-10T10:59:39.235Z"
+      }
+    ]
+  },
+  {
+    "id": "1780950561487",
+    "created_at": "2026-06-08T20:29:21.487Z",
+    "updated_at": "2026-06-10T10:59:30.251Z",
+    "status": "preenchido",
+    "cnpj": "22.745.178/0001-02",
+    "razao_social": "CONSTRUTORA PONTAL EMPREENDIMENTOS IMOBILIARIOS LTDA",
+    "nome_fantasia": "CONSTRUTORA PONTAL",
+    "insc_estadual": "0905870670016",
+    "atividade": "Construção de edifícios",
+    "responsavel": "Victor  Hugo ",
+    "telefone": "(31) 35711-155",
+    "cond_pagamento": "",
+    "cep": "32480-002",
+    "logradouro": "Rua Presidente Vargas",
+    "numero": "325",
+    "complemento": "150",
+    "bairro": "Centro",
+    "cidade": "Brumadinho",
+    "uf": "MG",
+    "email_nfe": "victor@gmail.com",
+    "email_portal": "victor@gmail.com",
+    "email_acesso": "",
+    "vendedor_slug": "devidson-mansur",
+    "vendedor_nome": "Devidson Mansur ",
+    "equipe": "Atacado",
+    "contatos": [
+      {
+        "nome": "victor ",
+        "cargo": "Gestor ",
+        "email": "victor@gmail.com"
+      },
+      {
+        "nome": "teste",
+        "cargo": "teste",
+        "email": "victor@gmail.com"
+      }
+    ],
+    "bancos": [
+      {
+        "banco": "15000",
+        "agencia": "000",
+        "conta": "000"
+      }
+    ],
+    "observacoes": "teste testes teste",
+    "limite_credito": "",
+    "forma_pagamento": "",
+    "historico": [
+      {
+        "campo": "status",
+        "de": "liberado",
+        "para": "preenchido",
+        "em": "2026-06-10T10:59:30.251Z"
+      }
+    ]
+  },
+  {
+    "id": "1781004459156",
+    "created_at": "2026-06-09T11:27:39.157Z",
+    "updated_at": "2026-06-10T10:59:26.587Z",
+    "status": "preenchido",
+    "cnpj": "43.469.617/0001-63",
+    "razao_social": "GRUPO VILA VERDE EVENTOS LTDA",
+    "nome_fantasia": "VILA VERDE EVENTOS",
+    "insc_estadual": "0041443050067",
+    "atividade": "Restaurantes e similares",
+    "responsavel": "Victor Hugo",
+    "telefone": "(31) 00000-0000",
+    "email_responsavel": "Victor Teste",
+    "cond_pagamento": "",
+    "cep": "31910-520",
+    "logradouro": "Avenida Joaquim José Diniz",
+    "numero": "501",
+    "complemento": "teste",
+    "bairro": "Fernão Dias",
+    "cidade": "Belo Horizonte",
+    "uf": "MG",
+    "endereco_entrega": {
+      "mesmo_comercial": false,
+      "cep": "31910-520",
+      "logradouro": "Avenida Joaquim José Diniz",
+      "numero": "501",
+      "complemento": "Avenida Joaquim José Diniz",
+      "bairro": "Fernão Dias",
+      "cidade": "Belo Horizonte",
+      "uf": "MG"
+    },
+    "email_nfe": "setorintegracao@gmail.com",
+    "email_portal": "setorintegracao@gmail.com",
+    "email_acesso": "",
+    "vendedor_slug": "lucas-barbosa",
+    "vendedor_nome": "Lucas Barbosa",
+    "equipe": "Atacado",
+    "contatos": [
+      {
+        "nome": "Setor Integração",
+        "cargo": "teste",
+        "telefone": "310000000",
+        "email": "setorintegracao@gmail.com"
+      }
+    ],
+    "bancos": [
+      {
+        "banco": "teste 1",
+        "agencia": "teste 1",
+        "conta": "teste 1"
+      }
+    ],
+    "referencias_comerciais": [
+      {
+        "empresa": "teste",
+        "telefone": "3100000000"
+      },
+      {
+        "empresa": "teste",
+        "telefone": "3100000000"
+      }
+    ],
+    "observacoes": "",
+    "operador_slug": "",
+    "operador_nome": "",
+    "limite_credito": "",
+    "forma_pagamento": "",
+    "historico": [
+      {
+        "campo": "status",
+        "de": "pendente",
+        "para": "preenchido",
+        "em": "2026-06-10T10:59:26.587Z"
+      }
+    ],
+    "email_financeiro": "",
+    "telefone_financeiro": ""
+  },
+  {
+    "id": "1781038438268",
+    "created_at": "2026-06-09T20:53:58.268Z",
+    "updated_at": "2026-06-10T12:20:45.132Z",
+    "status": "lib-cadastro",
+    "cnpj": "43.469.617/0001-63",
+    "razao_social": "GRUPO VILA VERDE EVENTOS LTDA",
+    "nome_fantasia": "VILA VERDE EVENTOS",
+    "insc_estadual": "0041443050067",
+    "atividade": "Restaurantes e similares",
+    "telefone_empresa": "(31) 84243-626",
+    "email_empresa": "",
+    "responsavel": "Victor Hugo",
+    "telefone": "(31) 99200-0000",
+    "email_responsavel": "victor@teste.com",
+    "cond_pagamento": "",
+    "cep": "31910-520",
+    "logradouro": "Avenida Joaquim José Diniz",
+    "numero": "501",
+    "complemento": "teste",
+    "bairro": "Fernão Dias",
+    "cidade": "Belo Horizonte",
+    "uf": "MG",
+    "endereco_entrega": {
+      "mesmo_comercial": false,
+      "cep": "33350-000",
+      "logradouro": "",
+      "numero": "500",
+      "complemento": "teste",
+      "bairro": "",
+      "cidade": "São José da Lapa",
+      "uf": "MG"
+    },
+    "email_nfe": "vhugo7751@gmail.com",
+    "email_portal": "vhugo7751@gmail.com",
+    "email_acesso": "vhugo7751@gmail.com",
+    "vendedor_slug": "devidson-mansur",
+    "vendedor_nome": "Devidson Mansur ",
+    "equipe": "Atacado",
+    "contatos": [
+      {
+        "nome": "vcitor",
+        "cargo": "teste",
+        "telefone": "3999999999",
+        "email": "vhugo7751@gmail.com"
+      }
+    ],
+    "bancos": [
+      {
+        "banco": "aaaa",
+        "agencia": "aaaa",
+        "conta": "aaaa"
+      }
+    ],
+    "referencias_comerciais": [
+      {
+        "empresa": "aaaaaaaaaaa",
+        "telefone": "319999999"
+      }
+    ],
+    "observacoes": "",
+    "operador_slug": "",
+    "operador_nome": "",
+    "limite_credito": "",
+    "forma_pagamento": "",
+    "email_financeiro": "",
+    "telefone_financeiro": "",
+    "historico": [
+      {
+        "campo": "status",
+        "de": "pendente",
+        "para": "liberado",
+        "em": "2026-06-09T21:02:03.559Z"
+      },
+      {
+        "campo": "status",
+        "de": "liberado",
+        "para": "preenchido",
+        "em": "2026-06-10T10:59:17.327Z"
+      },
+      {
+        "campo": "status",
+        "de": "preenchido",
+        "para": "lib-cadastro",
+        "em": "2026-06-10T12:19:49.806Z"
+      }
+    ]
+  },
+  {
+    "id": "1781095065805",
+    "created_at": "2026-06-10T12:37:45.805Z",
+    "updated_at": "2026-06-10T12:48:33.499Z",
+    "status": "lib-cadastro",
+    "cnpj": "02.697.297/0001-11",
+    "razao_social": "UNIVERSO ELETRICO LTDA",
+    "nome_fantasia": "UNIVERSO ELETRICO",
+    "insc_estadual": "0629871370023",
+    "atividade": "Comércio atacadista de material elétrico",
+    "telefone_empresa": "(31) 31982-800",
+    "email_empresa": "",
+    "responsavel": "Victor",
+    "telefone": "(31) 00000-0000",
+    "email_responsavel": "vhugo7751@gmail.com",
+    "cond_pagamento": "30 dias",
+    "cep": "31250-682",
+    "logradouro": "Rua Otaviano Fabri",
+    "numero": "220",
+    "complemento": "teste",
+    "bairro": "Ermelinda",
+    "cidade": "Belo Horizonte",
+    "uf": "MG",
+    "endereco_entrega": {
+      "mesmo_comercial": false,
+      "cep": "33350-000",
+      "logradouro": "Avenida Nicolau Elias Simão",
+      "numero": "500",
+      "complemento": "",
+      "bairro": "dom pede",
+      "cidade": "São José da Lapa",
+      "uf": "MG"
+    },
+    "email_nfe": "Victor@gamial.com",
+    "email_portal": "Victor@gamial.com",
+    "email_acesso": "Victor@gamial.com",
+    "vendedor_slug": "devidson-mansur",
+    "vendedor_nome": "Devidson Mansur",
+    "equipe": "Atacado",
+    "contatos": [
+      {
+        "nome": "Victor",
+        "cargo": "aaa",
+        "email": "Victor@gamial.com"
+      }
+    ],
+    "bancos": [],
+    "referencias_comerciais": [
+      {
+        "empresa": "Victor",
+        "telefone": "31 998505000"
+      }
+    ],
+    "observacoes": "",
+    "operador_slug": "",
+    "operador_nome": "",
+    "limite_credito": "",
+    "forma_pagamento": "",
+    "email_financeiro": "",
+    "telefone_financeiro": "",
+    "historico": [
+      {
+        "campo": "status",
+        "de": "pendente",
+        "para": "lib-cadastro",
+        "em": "2026-06-10T12:47:22.075Z"
+      }
+    ],
+    "anexos": [
+      {
+        "id": "17810950824855z8zsl",
+        "nome": "original-af013b9d2ad467baaff21e7be4bd055f.webp",
+        "arquivo": "1781095082481_original-af013b9d2ad467baaff21e7be4bd055f.webp",
+        "tipo": "image/webp",
+        "tamanho": 13170,
+        "criado_at": "2026-06-10T12:38:02.485Z"
+      }
+    ],
+    "telefone_comercial": "",
+    "consumidor_final": "",
+    "finalidade_mercadoria": "",
+    "contribuinte": ""
+  }
+]
