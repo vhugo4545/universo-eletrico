@@ -203,17 +203,18 @@ app.get('/api/stats/:slug', (req, res) => {
 
 // ─── PROXIES EXTERNOS ─────────────────────────────────────────────────────────
 app.get('/api/cnpj/:cnpj', async (req, res) => {
-  const cnpj = req.params.cnpj.replace(/\D/g, '');
-
-  // verificar cache
-  const entrada = getCacheEntry(cnpj);
-  if (entrada?.receita) {
-    console.log(`[CNPJ ${cnpj}] ✅ cache hit (Receita Federal) → ${entrada.receita.razao_social}`);
-    return res.json({ ok:true, data:entrada.receita, fromCache:true });
-  }
-
-  console.log(`[CNPJ ${cnpj}] 🌐 consultando Receita Federal...`);
   try {
+    const cnpj = req.params.cnpj.replace(/\D/g, '');
+    if (!cnpj) return res.status(400).json({ ok:false, error:'CNPJ inválido' });
+
+    // verificar cache
+    const entrada = getCacheEntry(cnpj);
+    if (entrada?.receita) {
+      console.log(`[CNPJ ${cnpj}] ✅ cache hit (Receita Federal) → ${entrada.receita.razao_social}`);
+      return res.json({ ok:true, data:entrada.receita, fromCache:true });
+    }
+
+    console.log(`[CNPJ ${cnpj}] 🌐 consultando Receita Federal...`);
     const { data } = await axios.get(
       `https://brasilapi.com.br/api/cnpj/v1/${cnpj}`, { timeout:8000 }
     );
@@ -221,8 +222,8 @@ app.get('/api/cnpj/:cnpj', async (req, res) => {
     setCacheEntry(cnpj, 'receita', data);
     res.json({ ok:true, data });
   } catch(e) {
-    console.error(`[CNPJ ${cnpj}] erro Receita Federal ${e.response?.status||500}:`, e.message);
-    res.status(e.response?.status||500).json({ ok:false, error:'Erro na Receita Federal' });
+    console.error(`[CNPJ] erro ${e.response?.status||500}:`, e.message);
+    res.status(e.response?.status||500).json({ ok:false, error: e.response?.status === 404 ? 'CNPJ não encontrado na Receita Federal' : 'Erro ao consultar Receita Federal' });
   }
 });
 
@@ -249,7 +250,7 @@ app.get('/api/sintegra/:cnpj', async (req, res) => {
     res.json({ ok:true, data });
   } catch(e) {
     console.error(`[SINTEGRA ${cnpj}] erro ${e.response?.status||500}:`, e.message);
-    res.status(e.response?.status||500).json({ ok:false, error:'Erro no SINTEGRA' });
+    res.status(e.response?.status||500).json({ ok:false, error: e.response?.status === 404 ? 'CNPJ não encontrado no SINTEGRA' : 'Erro ao consultar SINTEGRA' });
   }
 });
 
@@ -437,4 +438,5 @@ app.listen(PORT, () => {
   console.log(`📁  DB: ${DB_FILE}`);
   console.log(`🗄️   Cache: ${totalCNPJs} CNPJ(s) gravado(s) em ${CACHE_FILE}`);
 });
+
 

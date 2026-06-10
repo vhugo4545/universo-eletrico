@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -1053,8 +1053,9 @@ async function carregarCnaes() {
   </div>`;
   try {
     const r = await fetch(`${API}/api/cnpj/${cnpj}`);
-    const j = await r.json();
-    if (!j.ok) throw new Error(j.error||'Erro');
+    let j;
+    try { j = await r.json(); } catch { throw new Error(`Servidor retornou resposta inválida (HTTP ${r.status})`); }
+    if (!j.ok) throw new Error(j.error || 'Erro na consulta');
     const d = j.data;
     const fmtCnae = code => {
       const s = String(code).replace(/\D/g,'').padStart(7,'0');
@@ -1331,3 +1332,4 @@ function detalheHTML(c) {
 </script>
 </body>
 </html>
+
