@@ -817,6 +817,24 @@ function switchDetTab(name) {
   if (name === 'fiscal') carregarCnaes();
 }
 
+let _cnaeRows = [];
+
+function _renderCnaes(principalCodigo) {
+  const container = document.getElementById('cnaes-container');
+  if (!container) return;
+  container.innerHTML = _cnaeRows.map((cn, i) => {
+    const isPrincipal = cn.codigoRaw === principalCodigo || (!principalCodigo && i === 0);
+    return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;${i<_cnaeRows.length-1?'border-bottom:1px solid #F3F4F6':''}">
+      <span style="font-family:monospace;font-size:12px;color:#1B3FAB;background:#EEF3FF;padding:3px 8px;border-radius:6px;white-space:nowrap;flex-shrink:0">${cn.codigo}</span>
+      <span style="font-size:12px;color:#374151;flex:1;line-height:1.5">${cn.descricao}</span>
+      ${isPrincipal
+        ? '<span style="font-size:9px;font-weight:700;background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:20px;flex-shrink:0;margin-top:2px">Principal</span>'
+        : `<button onclick="definirCnaePrincipal(${i})" style="font-size:10px;font-weight:600;background:#EEF3FF;color:#1B3FAB;border:1.5px solid #C7D7FF;border-radius:20px;padding:2px 10px;cursor:pointer;flex-shrink:0;margin-top:2px;font-family:inherit">Definir como Principal</button>`
+      }
+    </div>`;
+  }).join('');
+}
+
 async function carregarCnaes() {
   const container = document.getElementById('cnaes-container');
   if (!container || container.dataset.loaded) return;
@@ -836,61 +854,32 @@ async function carregarCnaes() {
       const s = String(code).replace(/\D/g,'').padStart(7,'0');
       return s.replace(/(\d{4})(\d{1})(\d{2})/,'$1-$2/$3');
     };
-    const rows = [];
-    if (d.cnae_fiscal) rows.push({codigo:fmtCnae(d.cnae_fiscal),codigoRaw:String(d.cnae_fiscal),descricao:d.cnae_fiscal_descricao||'—'});
-    (d.cnaes_secundarios||[]).forEach(cn => rows.push({codigo:fmtCnae(cn.codigo),codigoRaw:String(cn.codigo),descricao:cn.descricao||'—'}));
+    _cnaeRows = [];
+    if (d.cnae_fiscal) _cnaeRows.push({codigo:fmtCnae(d.cnae_fiscal),codigoRaw:String(d.cnae_fiscal),descricao:d.cnae_fiscal_descricao||'—'});
+    (d.cnaes_secundarios||[]).forEach(cn => _cnaeRows.push({codigo:fmtCnae(cn.codigo),codigoRaw:String(cn.codigo),descricao:cn.descricao||'—'}));
     container.dataset.loaded = '1';
-    if (!rows.length) { container.innerHTML = '<div style="color:#C4D0E8;font-size:12px">Nenhum CNAE retornado</div>'; return; }
-
-    const cad2 = todos.find(c => c.id === detId);
-    const principalAtual = cad2?.cnae_principal_codigo || (d.cnae_fiscal ? String(d.cnae_fiscal) : '');
-
-    const renderCnaes = (principal) => {
-      container.innerHTML = rows.map((cn, i) => {
-        const isPrincipal = cn.codigoRaw === principal || (!principal && i === 0);
-        return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;${i<rows.length-1?'border-bottom:1px solid #F3F4F6':''}">
-          <span style="font-family:monospace;font-size:12px;color:#1B3FAB;background:#EEF3FF;padding:3px 8px;border-radius:6px;white-space:nowrap;flex-shrink:0">${cn.codigo}</span>
-          <span style="font-size:12px;color:#374151;flex:1;line-height:1.5">${cn.descricao}</span>
-          ${isPrincipal
-            ? '<span style="font-size:9px;font-weight:700;background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:20px;flex-shrink:0;margin-top:2px">Principal</span>'
-            : `<button onclick="definirCnaePrincipal('${cn.codigoRaw}','${cn.descricao.replace(/'/g,"\\'")}',${JSON.stringify(rows)})" style="font-size:10px;font-weight:600;background:#EEF3FF;color:#1B3FAB;border:1.5px solid #C7D7FF;border-radius:20px;padding:2px 10px;cursor:pointer;flex-shrink:0;margin-top:2px;font-family:inherit">Definir como Principal</button>`
-          }
-        </div>`;
-      }).join('');
-    };
-    renderCnaes(principalAtual);
-    container._rows = rows;
+    if (!_cnaeRows.length) { container.innerHTML = '<div style="color:#C4D0E8;font-size:12px">Nenhum CNAE retornado</div>'; return; }
+    const principalAtual = cad?.cnae_principal_codigo || (d.cnae_fiscal ? String(d.cnae_fiscal) : '');
+    _renderCnaes(principalAtual);
   } catch(e) {
     container.innerHTML = `<div style="display:flex;align-items:center;gap:6px;color:#DC2626;font-size:12px"><i class="ti ti-alert-circle" style="font-size:14px"></i> Erro: ${e.message}</div>`;
   }
 }
 
-async function definirCnaePrincipal(codigo, descricao, rows) {
+async function definirCnaePrincipal(idx) {
+  const cn = _cnaeRows[idx];
+  if (!cn) return;
   try {
     const r = await fetch(`${API}/api/cadastros/${detId}`, {
       method: 'PATCH',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({ atividade: descricao, cnae_principal_codigo: codigo })
+      body: JSON.stringify({ atividade: cn.descricao, cnae_principal_codigo: cn.codigoRaw })
     });
     const j = await r.json();
     if (!j.ok) { showToast('Erro ao salvar CNAE','err'); return; }
-    const idx = todos.findIndex(x => x.id === detId);
-    if (idx > -1) { todos[idx].atividade = descricao; todos[idx].cnae_principal_codigo = codigo; }
-    const container = document.getElementById('cnaes-container');
-    if (container) {
-      const fmtCnae = code => { const s = String(code).replace(/\D/g,'').padStart(7,'0'); return s.replace(/(\d{4})(\d{1})(\d{2})/,'$1-$2/$3'); };
-      container.innerHTML = rows.map((cn, i) => {
-        const isPrincipal = cn.codigoRaw === codigo;
-        return `<div style="display:flex;align-items:flex-start;gap:10px;padding:10px 0;${i<rows.length-1?'border-bottom:1px solid #F3F4F6':''}">
-          <span style="font-family:monospace;font-size:12px;color:#1B3FAB;background:#EEF3FF;padding:3px 8px;border-radius:6px;white-space:nowrap;flex-shrink:0">${cn.codigo||fmtCnae(cn.codigoRaw)}</span>
-          <span style="font-size:12px;color:#374151;flex:1;line-height:1.5">${cn.descricao}</span>
-          ${isPrincipal
-            ? '<span style="font-size:9px;font-weight:700;background:#DCFCE7;color:#166534;padding:2px 8px;border-radius:20px;flex-shrink:0;margin-top:2px">Principal</span>'
-            : `<button onclick="definirCnaePrincipal('${cn.codigoRaw}','${cn.descricao.replace(/'/g,"\\'")}',${JSON.stringify(rows)})" style="font-size:10px;font-weight:600;background:#EEF3FF;color:#1B3FAB;border:1.5px solid #C7D7FF;border-radius:20px;padding:2px 10px;cursor:pointer;flex-shrink:0;margin-top:2px;font-family:inherit">Definir como Principal</button>`
-          }
-        </div>`;
-      }).join('');
-    }
+    const i = todos.findIndex(x => x.id === detId);
+    if (i > -1) { todos[i].atividade = cn.descricao; todos[i].cnae_principal_codigo = cn.codigoRaw; }
+    _renderCnaes(cn.codigoRaw);
     showToast('CNAE principal atualizado','ok');
   } catch(e) { showToast('Erro de conexão','err'); }
 }
