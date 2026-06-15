@@ -91,9 +91,12 @@ body{display:flex;min-height:100vh;background:var(--bg);overflow-x:hidden;margin
 
 /* ── TABLE ── */
 .table-wrap{background:var(--white);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
-.table-head{display:grid;grid-template-columns:2fr 130px 1.3fr 1.1fr 1fr 1fr 80px;padding:10px 20px;background:var(--bg);border-bottom:1px solid var(--bd)}
+.table-head{display:grid;grid-template-columns:44px 2fr 130px 1.3fr 1.1fr 1fr 1fr 80px;padding:10px 20px;background:var(--bg);border-bottom:1px solid var(--bd)}
 .th{font-size:10px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-transform:uppercase;display:flex;align-items:center;gap:5px}
-.t-row{display:grid;grid-template-columns:2fr 130px 1.3fr 1.1fr 1fr 1fr 80px;padding:13px 20px;border-bottom:1px solid #F3F4F6;align-items:center;cursor:pointer;transition:background .15s}
+.t-row{display:grid;grid-template-columns:44px 2fr 130px 1.3fr 1.1fr 1fr 1fr 80px;padding:13px 20px;border-bottom:1px solid #F3F4F6;align-items:center;cursor:pointer;transition:background .15s}
+.row-chk{width:16px;height:16px;cursor:pointer;accent-color:#1B3FAB;flex-shrink:0}
+.t-row.sel{background:#EEF3FF}
+.bulk-bar{display:flex;align-items:center;gap:10px;padding:9px 20px;background:#FFF7ED;border-bottom:1.5px solid #FED7AA;font-size:12px;font-weight:600;color:#92400E}
 .t-row>div{min-width:0}
 .t-row:last-child{border-bottom:none}
 .t-row:hover{background:#F8FAFF}

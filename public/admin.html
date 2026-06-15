@@ -244,6 +244,7 @@
     <!-- TABLE -->
     <div class="table-wrap">
       <div class="table-head">
+        <div class="th"><input type="checkbox" class="row-chk" id="chk-all" onclick="toggleTodos(this.checked)" title="Selecionar todos"></div>
         <div class="th sort on" id="th-cliente" onclick="sortBy('cliente')"><i class="ti ti-building"></i> Cliente <i class="ti ti-arrows-sort sort-ico"></i></div>
         <div class="th"><i class="ti ti-tag"></i> Tipo</div>
         <div class="th sort"    id="th-vendedor" onclick="sortBy('vendedor')"><i class="ti ti-user"></i> Vendedor <i class="ti ti-arrows-sort sort-ico"></i></div>
@@ -251,6 +252,12 @@
         <div class="th sort on" id="th-data"     onclick="sortBy('data')"><i class="ti ti-calendar"></i> Data <i class="ti ti-sort-descending sort-ico" style="opacity:1;color:var(--blue)"></i></div>
         <div class="th sort"    id="th-status"   onclick="sortBy('status')"><i class="ti ti-flag"></i> Status <i class="ti ti-arrows-sort sort-ico"></i></div>
         <div class="th"></div>
+      </div>
+      <div class="bulk-bar" id="bulk-bar" style="display:none">
+        <i class="ti ti-checkbox"></i>
+        <span id="bulk-count">0 selecionados</span>
+        <button class="btn btn-sm" style="background:#FEF2F2;border:1px solid #FECACA;color:#DC2626;margin-left:4px" onclick="excluirSelecionados()"><i class="ti ti-trash"></i> Excluir selecionados</button>
+        <button class="btn btn-ghost btn-sm" onclick="limparSelecao()">Cancelar</button>
       </div>
       <div id="table-body"><div class="loading-state"><i class="ti ti-loader-2"></i><h3>Carregando...</h3></div></div>
       <div class="pager" id="pager" style="display:none">
@@ -266,6 +273,53 @@
 const POR_PAGINA = 20;
 let filtro = 'todos', todos = [], detId = null, paginaAtual = 1, filtroOp = '';
 let sortCol = 'data', sortDir = 'desc';
+let selecionados = new Set();
+
+function toggleSel(id, checked) {
+  if (checked) selecionados.add(id); else selecionados.delete(id);
+  document.getElementById('chk-'+id)?.closest('.t-row')?.classList.toggle('sel', checked);
+  atualizarBulkBar();
+}
+function toggleTodos(checked) {
+  const pagina = getLista().slice((paginaAtual-1)*POR_PAGINA, paginaAtual*POR_PAGINA);
+  pagina.forEach(c => {
+    if (checked) selecionados.add(c.id); else selecionados.delete(c.id);
+    const chk = document.getElementById('chk-'+c.id);
+    if (chk) { chk.checked = checked; chk.closest('.t-row')?.classList.toggle('sel', checked); }
+  });
+  atualizarBulkBar();
+}
+function limparSelecao() {
+  selecionados.clear();
+  document.querySelectorAll('.row-chk').forEach(c => c.checked = false);
+  document.querySelectorAll('.t-row.sel').forEach(r => r.classList.remove('sel'));
+  const ca = document.getElementById('chk-all');
+  if (ca) ca.checked = false;
+  atualizarBulkBar();
+}
+function atualizarBulkBar() {
+  const n = selecionados.size;
+  document.getElementById('bulk-bar').style.display = n > 0 ? 'flex' : 'none';
+  document.getElementById('bulk-count').textContent = `${n} selecionado${n!==1?'s':''}`;
+}
+async function excluirSelecionados() {
+  const n = selecionados.size;
+  if (!n) return;
+  if (!confirm(`Excluir ${n} solicitaç${n===1?'ão':'ões'}?\n\nEsta ação não pode ser desfeita.`)) return;
+  const ids = [...selecionados];
+  let erros = 0;
+  for (const id of ids) {
+    try {
+      const r = await fetch(`${API}/api/cadastros/${id}`,{method:'DELETE'});
+      const j = await r.json();
+      if (j.ok) todos = todos.filter(x => x.id !== id); else erros++;
+    } catch { erros++; }
+  }
+  selecionados.clear();
+  atualizarStats(); renderTabela();
+  if (erros) showToast(`${erros} erro(s) ao excluir`,'err');
+  else showToast(`${n} solicitaç${n===1?'ão':'ões'} excluída${n===1?'':'s'}`,'ok');
+}
 
 window.addEventListener('DOMContentLoaded', () => {
   preencherFiltros();
@@ -409,7 +463,8 @@ function renderTabela() {
     const color    = teamData ? teamData.color : '#9DAEC4';
     const bg       = teamData ? teamData.bg    : '#F3F4F6';
     const d        = new Date(c.created_at||Date.now());
-    return `<div class="t-row" onclick="abrirDetalhe('${c.id}')">
+    return `<div class="t-row${selecionados.has(c.id)?' sel':''}" onclick="abrirDetalhe('${c.id}')">
+      <div onclick="event.stopPropagation()"><input type="checkbox" class="row-chk" id="chk-${c.id}" ${selecionados.has(c.id)?'checked':''} onclick="toggleSel('${c.id}',this.checked)"></div>
       <div class="t-company">
         <div class="t-av" style="background:${color}">${ini}</div>
         <div style="min-width:0">
