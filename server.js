@@ -8,7 +8,7 @@ const multer  = require('multer');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
-const SINTEGRA_TOKEN = process.env.SINTEGRA_TOKEN || 'D3C7702E-74C3-42B8-BF40-F2FF6B5565DA';
+const SINTEGRA_TOKEN = process.env.SINTEGRA_TOKEN || '5A67C190-F9D3-4B94-8079-0A70DA008B17';
 
 // ─── DB ───────────────────────────────────────────────────────────────────────
 const DB_DIR  = path.join(__dirname, 'data');
