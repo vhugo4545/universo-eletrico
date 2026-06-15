@@ -853,30 +853,31 @@ async function buscarCNPJ(cnpj) {
   }
 
   setF('ie','loading-st','Buscando IE no SINTEGRA...');
+  const _ieEl = document.getElementById('inp-ie');
   try {
-    const r2=await fetch(`${API}/api/sintegra/${document.getElementById('inp-cnpj').value.replace(/\D/g,'')}`);
-    const j2=await r2.json();
-    if(!j2.ok) throw new Error(j2.error||'Resposta não ok');
-    const s=j2.data;
-    const ie=s.inscricao_estadual||'';
-    const sit=s.situacao_ie_desc||s.situacao_ie||s.situacao_cnpj||'';
-    if (j2.fromCache) {
+    const ctrl = new AbortController();
+    const _stTimer = setTimeout(() => ctrl.abort(), 15000);
+    const r2 = await fetch(`${API}/api/sintegra/${document.getElementById('inp-cnpj').value.replace(/\D/g,'')}`, {signal:ctrl.signal});
+    clearTimeout(_stTimer);
+    const j2 = await r2.json();
+    const s = (j2.ok && j2.data && typeof j2.data === 'object') ? j2.data : {};
+    const ie  = s.inscricao_estadual || '';
+    const sit = s.situacao_ie_desc || s.situacao_ie || s.situacao_cnpj || '';
+    if (j2.fromCache)
       console.log(`%c💾 CACHE  %cSINTEGRA → IE: ${ie||'não encontrada'} | ${sit||'—'}`, 'font-weight:bold;color:#16A34A', 'color:#374151');
-    } else {
+    else
       console.log(`%c🌐 API    %cSINTEGRA → IE: ${ie||'não encontrada'} | ${sit||'—'}`, 'font-weight:bold;color:#D97706', 'color:#374151');
-    }
     if(s.numero){const n=document.getElementById('inp-num');if(n&&!n.value){n.value=s.numero;setF('num','ok','');}}
-    if(ie){const ieEl=document.getElementById('inp-ie');if(ieEl){ieEl.value=ie;ieEl.disabled=false;}document.getElementById('row-ie').className='irow st-f';setF('ie','ok','SINTEGRA ✓');}
-    else{const ieEl=document.getElementById('inp-ie');if(ieEl){ieEl.disabled=false;ieEl.placeholder='Preencha manualmente';}setF('ie','','Não encontrado no SINTEGRA');}
+    if(ie){if(_ieEl){_ieEl.value=ie;_ieEl.disabled=false;}document.getElementById('row-ie').className='irow st-f';setF('ie','ok','SINTEGRA ✓');}
+    else{if(_ieEl){_ieEl.disabled=false;_ieEl.placeholder='Preencha manualmente';}setF('ie','','Não encontrado no SINTEGRA');}
     document.getElementById('stb-ie').textContent='IE: '+(ie||'Não encontrada');
     document.getElementById('stb-sit').textContent=sit||'Dados do SINTEGRA';
     document.getElementById('stbanner').classList.add('show');
     if(ie) setF('cnpj','ok','Receita Federal ✓  SINTEGRA ✓');
   } catch(e){
     console.error('%c❌ ERRO   %cSINTEGRA:', 'font-weight:bold;color:#DC2626', 'color:#374151', e.message);
-    const ieEl=document.getElementById('inp-ie');
-    if(ieEl){ieEl.disabled=false;ieEl.placeholder='Preencha manualmente';}
-    setF('ie','','Erro no SINTEGRA');
+    if(_ieEl){_ieEl.disabled=false;_ieEl.placeholder='Preencha manualmente';}
+    setF('ie','','SINTEGRA indisponível — preencha manualmente');
   }
 }
 

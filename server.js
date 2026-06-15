@@ -245,17 +245,28 @@ app.get('/api/sintegra/:cnpj', async (req, res) => {
   }
 
   console.log(`[SINTEGRA ${cnpj}] 🌐 consultando SINTEGRA...`);
+  const EMPTY = { inscricao_estadual: null, situacao_ie: null, situacao_ie_desc: null, situacao_cnpj: null };
   try {
     const url = `https://sintegraws.com.br/api/v1/execute-api.php?token=${SINTEGRA_TOKEN}&cnpj=${cnpj}&plugin=ST`;
-    const { data } = await axios.get(url, { timeout:10000 });
+    const { data } = await axios.get(url, { timeout:12000 });
+    // se a resposta não for um objeto válido (ex: HTML de erro, token expirado), ignora
+    if (!data || typeof data !== 'object' || Array.isArray(data)) {
+      console.warn(`[SINTEGRA ${cnpj}] resposta inválida (não é objeto) — retornando vazio`);
+      return res.json({ ok:true, data: EMPTY, fromCache: false });
+    }
+    // se a API retornou erro explícito (ex: token inválido)
+    if (data.RETURN === 'ERROR' || data.status === 'ERROR' || data.error) {
+      console.warn(`[SINTEGRA ${cnpj}] erro da API: ${JSON.stringify(data)} — retornando vazio`);
+      return res.json({ ok:true, data: EMPTY, fromCache: false });
+    }
     const ie  = data.inscricao_estadual || '';
     const sit = data.situacao_ie_desc || data.situacao_ie || data.situacao_cnpj || '';
     console.log(`[SINTEGRA ${cnpj}] salvo no cache → IE: ${ie||'não encontrada'} | ${sit||'—'}`);
     setCacheEntry(cnpj, 'sintegra', data);
     res.json({ ok:true, data });
   } catch(e) {
-    console.warn(`[SINTEGRA ${cnpj}] indisponível (${e.response?.status||'timeout'}): ${e.message} — retornando vazio`);
-    res.json({ ok:true, data: { inscricao_estadual: null, situacao_ie: null, situacao_ie_desc: null, situacao_cnpj: null }, fromCache: false });
+    console.warn(`[SINTEGRA ${cnpj}] indisponível (${e.response?.status||e.code||'timeout'}): ${e.message} — retornando vazio`);
+    res.json({ ok:true, data: EMPTY, fromCache: false });
   }
 });
 
