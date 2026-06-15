@@ -350,6 +350,12 @@ window.addEventListener('DOMContentLoaded', () => {
   }
   document.getElementById('link-acomp').href = `acompanhamento.html?v=${vendSlug}&t=${vendTeam}`;
   carregarDados();
+  const novo = params.get('novo');
+  if (novo === 'pix' || novo === 'cartao') {
+    abrirModal();
+    selectTipo(novo);
+    irParaForm();
+  }
 });
 
 // ── api ───────────────────────────────────────────────────────────────

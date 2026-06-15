@@ -76,6 +76,7 @@ app.get('/api/cadastros', (req, res) => {
   let lista = lerDB();
   if (req.query.vendedor) lista = lista.filter(c => c.vendedor_slug === req.query.vendedor);
   if (req.query.status)   lista = lista.filter(c => c.status === req.query.status);
+  if (req.query.cnpj)     lista = lista.filter(c => (c.cnpj||'').replace(/\D/g,'') === req.query.cnpj.replace(/\D/g,''));
   lista.sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
   console.log(`[GET /api/cadastros] vendedor=${req.query.vendedor||'*'} status=${req.query.status||'*'} → ${lista.length} registros`);
   res.json({ ok:true, data:lista, total:lista.length });
@@ -139,6 +140,10 @@ app.post('/api/cadastros', (req, res) => {
     email_financeiro:   '',
     telefone_financeiro:'',
     historico:          [],
+    tipo_solicitacao:        b.tipo_solicitacao        || '',
+    valor_solicitado_credito: b.valor_solicitado_credito || '',
+    num_orcamento:      b.num_orcamento      || '',
+    num_cliente:        b.num_cliente        || '',
   };
   lista.push(novo);
   salvarDB(lista);
@@ -249,8 +254,43 @@ app.get('/api/sintegra/:cnpj', async (req, res) => {
     setCacheEntry(cnpj, 'sintegra', data);
     res.json({ ok:true, data });
   } catch(e) {
-    console.error(`[SINTEGRA ${cnpj}] erro ${e.response?.status||500}:`, e.message);
-    res.status(e.response?.status||500).json({ ok:false, error: e.response?.status === 404 ? 'CNPJ não encontrado no SINTEGRA' : 'Erro ao consultar SINTEGRA' });
+    console.warn(`[SINTEGRA ${cnpj}] indisponível (${e.response?.status||'timeout'}): ${e.message} — retornando vazio`);
+    res.json({ ok:true, data: { inscricao_estadual: null, situacao_ie: null, situacao_ie_desc: null, situacao_cnpj: null }, fromCache: false });
+  }
+});
+
+// ─── ANÁLISE DE CRÉDITO (CPF.CNPJ — Score Serasa) ────────────────────────────
+app.get('/api/credito/cnpj/:cnpj', async (req, res) => {
+  const TOKEN = process.env.CPFCNPJ_TOKEN || '5ae973d7a997af13f0aaf2bf60e65803';
+  const cnpj  = req.params.cnpj.replace(/\D/g, '');
+  if (!cnpj || cnpj.length !== 14) return res.status(400).json({ ok: false, error: 'CNPJ inválido' });
+
+  const entrada = getCacheEntry(cnpj);
+  if (entrada?.credito) {
+    console.log(`[CREDITO ${cnpj}] ✅ cache hit`);
+    return res.json({ ok: true, data: entrada.credito, fromCache: true });
+  }
+
+  try {
+    console.log(`[CREDITO ${cnpj}] 🌐 consultando CPF.CNPJ (pacotes 6+12)...`);
+    const BASE = `https://api.cpfcnpj.com.br/${TOKEN}`;
+    const [rCadastro, rSerasa] = await Promise.all([
+      axios.get(`${BASE}/6/${cnpj}`,  { timeout: 12000 }),
+      axios.get(`${BASE}/12/${cnpj}`, { timeout: 12000 }),
+    ]);
+    const data = {
+      ...rCadastro.data,
+      risco: rSerasa.data?.risco || null,
+    };
+    setCacheEntry(cnpj, 'credito', data);
+    console.log(`[CREDITO ${cnpj}] ✅ ${data.razao} | risco: ${data.risco?.descricao || '—'}`);
+    res.json({ ok: true, data, teste: TOKEN === '5ae973d7a997af13f0aaf2bf60e65803' });
+  } catch(e) {
+    console.error(`[CREDITO ${cnpj}] erro:`, e.response?.data || e.message);
+    res.status(e.response?.status || 500).json({
+      ok: false,
+      error: e.response?.data?.message || e.response?.data?.error || e.message
+    });
   }
 });
 

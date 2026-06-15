@@ -25,7 +25,7 @@
 .stat-lbl{font-size:10px;font-weight:600;color:#9DAEC4;letter-spacing:.5px;text-transform:uppercase;margin-top:4px}
 
 /* toolbar */
-.toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.toolbar{display:flex;flex-direction:column;gap:10px;margin-bottom:12px}
 .search-box{display:flex;align-items:center;border:1.5px solid #EAF0FB;border-radius:11px;background:#fff;overflow:hidden;transition:border-color .2s;flex:1;max-width:340px}
 .search-box:focus-within{border-color:#1B3FAB;box-shadow:0 0 0 3px rgba(27,63,171,.07)}
 .search-box-ico{width:40px;display:flex;align-items:center;justify-content:center;color:#C4D0E8;font-size:15px;flex-shrink:0}
@@ -38,9 +38,9 @@
 
 /* table */
 .table-wrap{background:#fff;border-radius:16px;border:1px solid #EAF0FB;overflow:hidden}
-.table-head{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 90px;padding:10px 20px;background:#F8FAFF;border-bottom:1px solid #EAF0FB}
+.table-head{display:grid;grid-template-columns:2fr 130px 1.5fr 1fr 1fr 90px;padding:10px 20px;background:#F8FAFF;border-bottom:1px solid #EAF0FB}
 .th{font-size:10px;font-weight:700;color:#9DAEC4;letter-spacing:.6px;text-transform:uppercase}
-.t-row{display:grid;grid-template-columns:2fr 1.5fr 1fr 1fr 90px;padding:14px 20px;border-bottom:1px solid #F3F4F6;align-items:center;cursor:pointer;transition:background .15s}
+.t-row{display:grid;grid-template-columns:2fr 130px 1.5fr 1fr 1fr 90px;padding:14px 20px;border-bottom:1px solid #F3F4F6;align-items:center;cursor:pointer;transition:background .15s}
 .t-row:last-child{border-bottom:none}
 .t-row:hover{background:#F8FAFF}
 .t-company{display:flex;align-items:center;gap:10px}
@@ -144,6 +144,43 @@
 .anexo-meta{font-size:10px;color:#9CA3AF;margin-top:1px}
 .tab-cnt{display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;border-radius:20px;font-size:9px;font-weight:700;background:#1B3FAB;color:#fff;margin-left:4px;line-height:1}
 
+.links-panel{position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1.5px solid #E0E8FF;border-radius:14px;box-shadow:0 8px 30px rgba(27,63,171,.14);padding:14px;width:330px;z-index:500;display:none;flex-direction:column;gap:10px}
+.links-panel.on{display:flex}
+.links-panel-title{font-size:10px;font-weight:700;color:#8A9BB5;letter-spacing:.6px;text-transform:uppercase;padding-bottom:8px;border-bottom:1px solid #EAF0FB;display:flex;align-items:center;gap:6px}
+.link-item-lbl{font-size:10px;font-weight:600;color:#9DAEC4;text-transform:uppercase;letter-spacing:.4px;margin-bottom:4px}
+.link-item-row{display:flex;align-items:center;gap:6px;background:#F0F4FF;border:1px solid #E0E8FF;border-radius:8px;padding:7px 10px}
+.link-item-url{font-size:11px;font-family:monospace;color:#1B3FAB;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* ── NOVO CADASTRO PANEL ── */
+.novo-cad-panel{position:absolute;top:calc(100% + 8px);right:0;background:#fff;border:1.5px solid #E0E8FF;border-radius:14px;box-shadow:0 8px 30px rgba(27,63,171,.14);padding:10px;width:280px;z-index:500;display:none;flex-direction:column;gap:6px}
+.novo-cad-panel.on{display:flex}
+.novo-cad-title{font-size:10px;font-weight:700;color:#8A9BB5;letter-spacing:.6px;text-transform:uppercase;padding:2px 6px 8px;border-bottom:1px solid #EAF0FB;display:flex;align-items:center;gap:6px}
+.novo-cad-sep{display:flex;align-items:center;gap:8px;padding:8px 6px 4px;margin-top:2px}.novo-cad-sep::before,.novo-cad-sep::after{content:'';flex:1;height:1px;background:#EAF0FB}.novo-cad-sep span{font-size:10px;font-weight:700;color:#9DAEC4;letter-spacing:.5px;text-transform:uppercase;white-space:nowrap}
+.cad-btns{display:flex;gap:4px;flex-shrink:0;margin-left:4px}
+.cad-copy-btn{width:28px;height:28px;border-radius:7px;border:1px solid #E0E8FF;background:#F8FAFF;color:#9DAEC4;display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:all .15s;flex-shrink:0}
+.cad-copy-btn:hover{background:#EEF3FF;color:#1B3FAB;border-color:#C7D7FF}
+.novo-cad-opt{display:flex;align-items:center;gap:12px;padding:10px 10px;border-radius:10px;cursor:pointer;text-decoration:none;color:#111827;transition:background .15s;border:1.5px solid transparent}
+.novo-cad-opt:hover{background:#F0F4FF;border-color:#C7D7FF}
+.novo-cad-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.novo-cad-lbl{font-size:13px;font-weight:700;color:#111827;line-height:1.2}
+.novo-cad-sub{font-size:11px;color:#9DAEC4;margin-top:2px}
+
+.vend-sel-wrap{position:relative}
+.vend-chip-btn{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;background:#EEF3FF;border-radius:20px;font-size:12px;font-weight:600;color:#1B3FAB;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .15s}
+.vend-chip-btn:hover{background:#E0E8FF}
+.vend-sel-panel{position:absolute;top:calc(100% + 8px);left:0;background:#fff;border:1.5px solid #E0E8FF;border-radius:14px;box-shadow:0 8px 30px rgba(27,63,171,.14);width:260px;z-index:600;display:none;flex-direction:column;overflow:hidden}
+.vend-sel-panel.on{display:flex}
+.vend-sel-search{border:none;border-bottom:1.5px solid #EAF0FB;padding:10px 14px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;color:#111827;background:#FAFBFF}
+.vend-sel-list{max-height:220px;overflow-y:auto;display:flex;flex-direction:column}
+.vend-sel-team{font-size:9px;font-weight:700;color:#B0BCE8;letter-spacing:.6px;text-transform:uppercase;padding:8px 14px 2px}
+.vend-sel-item{display:flex;align-items:center;gap:9px;padding:8px 14px;cursor:pointer;transition:background .15s;font-size:12px;font-weight:600;color:#374151;border:none;background:transparent;width:100%;text-align:left;font-family:'Plus Jakarta Sans',sans-serif}
+.vend-sel-item:hover{background:#F0F4FF;color:#1B3FAB}
+
+/* inline editable fields inside view tabs */
+.det-inline-input{width:100%;border:1.5px solid transparent;border-radius:8px;padding:4px 8px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:#111827;background:transparent;outline:none;transition:border-color .2s,background .2s;box-sizing:border-box;margin-top:auto}
+.det-inline-input:hover{border-color:#EAF0FB;background:#F8FAFF}
+.det-inline-input:focus{border-color:#1B3FAB;background:#fff;box-shadow:0 0 0 3px rgba(27,63,171,.07)}
+.det-inline-input::placeholder{color:#C4D0E8;font-weight:400}
+
 @media(max-width:700px){
   .stats-grid{grid-template-columns:1fr 1fr}
   .table-head{display:none}
@@ -168,6 +205,7 @@
       </button>
       <div id="modal-title" style="font-size:15px;font-weight:700;color:#111827;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:0 8px"></div>
       <span id="modal-status-badge" class="status-badge" style="flex-shrink:0"></span>
+      <span id="modal-tipo-badge" style="flex-shrink:0"></span>
       <div id="modal-status-actions" style="display:flex;gap:8px;flex-shrink:0"></div>
       <button class="btn btn-ghost btn-sm" id="btn-edit" onclick="entrarEditMode()" style="display:none;flex-shrink:0">
         <i class="ti ti-edit"></i> Editar
@@ -205,8 +243,34 @@
       <div class="eg2">
         <div class="ef"><label class="ef-lbl">E-mail do Responsável</label>
           <input class="einput" id="ed-email-resp" type="email" placeholder="responsavel@empresa.com"></div>
-        <div class="ef"><label class="ef-lbl">Cond. Pagamento <span class="badge-cond">Só você pode editar</span></label>
-          <input class="einput cond-field" id="ed-cond" type="text" placeholder="Ex: 30/60/90 dias"></div>
+      </div>
+    </div>
+
+    <!-- Condições Comerciais -->
+    <div class="edit-sect">
+      <div class="edit-sect-title"><i class="ti ti-cash"></i> Condições Comerciais</div>
+      <div class="eg2">
+        <div class="ef"><label class="ef-lbl">Cond. de Pagamento</label>
+          <input class="einput" id="ed-cond" type="text" placeholder="Ex: 30/60/90 dias"></div>
+        <div class="ef"><label class="ef-lbl">Forma de Pagamento</label>
+          <select class="einput" id="ed-fpagto">
+            <option value="">— Selecione —</option>
+            <option value="ANT">ANT — Antecipado</option>
+            <option value="BK">BK — Cobrança Bancária</option>
+            <option value="BNDS">BNDS — BNDES</option>
+            <option value="BNF">BNF — Bonificação</option>
+            <option value="CAPR">CAPR — Contra Apresentação</option>
+            <option value="CCAD">CCAD — Construcard</option>
+            <option value="CCRE">CCRE — Carta de Crédito</option>
+            <option value="CH">CH — Cheque em Trânsito</option>
+            <option value="CRTC">CRTC — Cartão de Crédito</option>
+            <option value="CTOT">CTOT — Cartão Transferência</option>
+            <option value="DBTO">DBTO — Cartão de Débito</option>
+            <option value="DEP">DEP — Depósito em Conta Corrente</option>
+            <option value="DINH">DINH — Dinheiro</option>
+            <option value="DNE">DNE — Dinheiro Entrega</option>
+            <option value="SENT">SENT — Simples Entrega</option>
+          </select></div>
       </div>
     </div>
 
@@ -251,14 +315,8 @@
     <!-- E-mails -->
     <div class="edit-sect">
       <div class="edit-sect-title"><i class="ti ti-mail"></i> E-mails</div>
-      <div class="eg3">
-        <div class="ef"><label class="ef-lbl">E-mail para NF-e</label>
-          <input class="einput" id="ed-enfe" type="email" placeholder="nfe@empresa.com"></div>
-        <div class="ef"><label class="ef-lbl">E-mail Portal</label>
-          <input class="einput" id="ed-eport" type="email" placeholder="portal@empresa.com"></div>
-        <div class="ef"><label class="ef-lbl">E-mail de Acesso</label>
-          <input class="einput" id="ed-email-acesso" type="email" placeholder="login@empresa.com"></div>
-      </div>
+      <div class="ef"><label class="ef-lbl">E-mail para NF-e</label>
+        <input class="einput" id="ed-enfe" type="email" placeholder="nfe@empresa.com"></div>
     </div>
 
     <!-- Pessoas Autorizadas -->
@@ -311,11 +369,6 @@
       </div>
     </div>
 
-    <!-- Observações -->
-    <div class="edit-sect">
-      <div class="edit-sect-title"><i class="ti ti-notes"></i> Observações</div>
-      <textarea id="ed-obs" placeholder="Informações adicionais..." style="width:100%;min-height:72px;border:1.5px solid #EAF0FB;border-radius:10px;padding:10px 12px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;color:#111827;resize:vertical;outline:none;background:#FAFBFF;transition:border-color .2s;box-sizing:border-box" onfocus="this.style.borderColor='#1B3FAB'" onblur="this.style.borderColor='#EAF0FB'"></textarea>
-    </div>
   </div>
 
   <!-- FOOTER EDIT -->
@@ -328,11 +381,104 @@
 </div>
 
 <div class="topbar">
-  <a class="logo" href="/"><div class="logo-bolt"><i class="ti ti-bolt"></i></div><div><div class="logo-top">Universo</div><div class="logo-bot">Elétrico</div></div></a>
+  <div class="logo"><div class="logo-bolt"><i class="ti ti-bolt"></i></div><div><div class="logo-top">Universo</div><div class="logo-bot">Elétrico</div></div></div>
   <div style="display:flex;align-items:center;gap:10px">
-    <div id="vend-chip"></div>
-    <a class="btn btn-ghost btn-sm" id="link-pag" href="/pagamento.html"><i class="ti ti-cash"></i> Pagamentos</a>
-    <a class="btn btn-primary btn-sm" id="link-form" href="/formulario.html"><i class="ti ti-plus"></i> Novo cadastro</a>
+    <div class="vend-sel-wrap">
+      <button class="vend-chip-btn" id="vend-chip" onclick="toggleVendSel()">
+        <div class="chip-av" id="vend-av" style="background:#9CA3AF;width:22px;height:22px;font-size:9px">?</div>
+        <span id="vend-name">Selecionar vendedor</span>
+        <i class="ti ti-chevron-down" style="font-size:10px;opacity:.6"></i>
+      </button>
+      <div class="vend-sel-panel" id="vend-sel-panel">
+        <input class="vend-sel-search" id="vend-sel-inp" placeholder="Buscar vendedor..." oninput="filtrarVendSel(this.value)">
+        <div class="vend-sel-list" id="vend-sel-list"></div>
+      </div>
+    </div>
+    <div style="position:relative">
+      <a class="btn btn-ghost btn-sm" id="link-pag-nav" href="/pagamento.html"><i class="ti ti-cash"></i> Pagamentos</a>
+      <button class="btn btn-ghost btn-sm" id="btn-links" onclick="toggleLinksPanel()"><i class="ti ti-link"></i> Copiar links</button>
+      <div class="links-panel" id="links-panel">
+        <div class="links-panel-title"><i class="ti ti-link"></i> Links do Consultor</div>
+        <div>
+          <div class="link-item-lbl">Formulário de Cadastro</div>
+          <div class="link-item-row">
+            <span class="link-item-url" id="lp-form-url"></span>
+            <button class="btn btn-copy btn-sm" id="lp-copy-form" onclick="copyLinkPanel('lp-form-url','lp-copy-form')" title="Copiar"><i class="ti ti-copy"></i></button>
+          </div>
+        </div>
+        <div>
+          <div class="link-item-lbl">Portal do Consultor</div>
+          <div class="link-item-row">
+            <span class="link-item-url" id="lp-acomp-url"></span>
+            <button class="btn btn-copy btn-sm" id="lp-copy-acomp" onclick="copyLinkPanel('lp-acomp-url','lp-copy-acomp')" title="Copiar"><i class="ti ti-copy"></i></button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="position:relative">
+      <button class="btn btn-primary btn-sm" id="btn-novo-cad" onclick="toggleNovoCadPanel()">
+        <i class="ti ti-plus"></i> Novo cadastro <i class="ti ti-chevron-down" style="font-size:10px;margin-left:2px;opacity:.8"></i>
+      </button>
+      <div class="novo-cad-panel" id="novo-cad-panel">
+        <div class="novo-cad-title"><i class="ti ti-plus"></i> Tipo de solicitação</div>
+        <a class="novo-cad-opt" id="link-form" href="/formulario.html">
+          <div class="novo-cad-ico" style="background:#EEF3FF;color:#1B3FAB"><i class="ti ti-building-store"></i></div>
+          <div style="flex:1;min-width:0">
+            <div class="novo-cad-lbl">Novo Cadastro</div>
+            <div class="novo-cad-sub">Cadastro completo de cliente</div>
+          </div>
+          <div class="cad-btns">
+            <button class="cad-copy-btn" onclick="copiarLink(event,'link-form')" title="Copiar link"><i class="ti ti-copy"></i></button>
+            <button class="cad-copy-btn" onclick="abrirNovaAba(event,'link-form')" title="Abrir em nova aba"><i class="ti ti-external-link"></i></button>
+          </div>
+        </a>
+        <a class="novo-cad-opt" id="link-form-credito" href="/formulario.html?tipo=atualizacao-credito">
+          <div class="novo-cad-ico" style="background:#FEF3C7;color:#D97706"><i class="ti ti-coin"></i></div>
+          <div style="flex:1;min-width:0">
+            <div class="novo-cad-lbl">Atualização de Crédito</div>
+            <div class="novo-cad-sub">Solicitar atualização de limite</div>
+          </div>
+          <div class="cad-btns">
+            <button class="cad-copy-btn" onclick="copiarLink(event,'link-form-credito')" title="Copiar link"><i class="ti ti-copy"></i></button>
+            <button class="cad-copy-btn" onclick="abrirNovaAba(event,'link-form-credito')" title="Abrir em nova aba"><i class="ti ti-external-link"></i></button>
+          </div>
+        </a>
+        <a class="novo-cad-opt" id="link-form-sem-orc" href="/formulario.html?tipo=sem-orcamento">
+          <div class="novo-cad-ico" style="background:#F0FDF4;color:#16A34A"><i class="ti ti-file-off"></i></div>
+          <div style="flex:1;min-width:0">
+            <div class="novo-cad-lbl">Cadastro sem Orçamento</div>
+            <div class="novo-cad-sub">Registrar sem vínculo de orçamento</div>
+          </div>
+          <div class="cad-btns">
+            <button class="cad-copy-btn" onclick="copiarLink(event,'link-form-sem-orc')" title="Copiar link"><i class="ti ti-copy"></i></button>
+            <button class="cad-copy-btn" onclick="abrirNovaAba(event,'link-form-sem-orc')" title="Abrir em nova aba"><i class="ti ti-external-link"></i></button>
+          </div>
+        </a>
+        <div class="novo-cad-sep"><span>Financeiro</span></div>
+        <a class="novo-cad-opt" id="link-pix" href="/pagamento.html?novo=pix">
+          <div class="novo-cad-ico" style="background:#DCFCE7;color:#16A34A"><i class="ti ti-qrcode"></i></div>
+          <div style="flex:1;min-width:0">
+            <div class="novo-cad-lbl">Enviar Comprovante PIX</div>
+            <div class="novo-cad-sub">Enviar comprovante de pagamento PIX</div>
+          </div>
+          <div class="cad-btns">
+            <button class="cad-copy-btn" onclick="copiarLink(event,'link-pix')" title="Copiar link"><i class="ti ti-copy"></i></button>
+            <button class="cad-copy-btn" onclick="abrirNovaAba(event,'link-pix')" title="Abrir em nova aba"><i class="ti ti-external-link"></i></button>
+          </div>
+        </a>
+        <a class="novo-cad-opt" id="link-comprovante" href="/pagamento.html?novo=cartao">
+          <div class="novo-cad-ico" style="background:#F5F3FF;color:#7C3AED"><i class="ti ti-credit-card"></i></div>
+          <div style="flex:1;min-width:0">
+            <div class="novo-cad-lbl">Solicitar Link Cartão</div>
+            <div class="novo-cad-sub">Financeiro gera link de pagamento</div>
+          </div>
+          <div class="cad-btns">
+            <button class="cad-copy-btn" onclick="copiarLink(event,'link-comprovante')" title="Copiar link"><i class="ti ti-copy"></i></button>
+            <button class="cad-copy-btn" onclick="abrirNovaAba(event,'link-comprovante')" title="Abrir em nova aba"><i class="ti ti-external-link"></i></button>
+          </div>
+        </a>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -386,8 +532,8 @@
       <button class="pill on" id="pill-todos"         onclick="setFiltro('todos')">Todos</button>
       <button class="pill"    id="pill-preenchido"   onclick="setFiltro('preenchido')">Preenchido</button>
       <button class="pill"    id="pill-lib-cadastro" onclick="setFiltro('lib-cadastro')">Lib. Cadastro</button>
+      <button class="pill"    id="pill-lib-sistema"  onclick="setFiltro('lib-sistema')">Aprov. Crédito</button>
       <button class="pill"    id="pill-lib-fiscal"   onclick="setFiltro('lib-fiscal')">Lib. Fiscal</button>
-      <button class="pill"    id="pill-lib-sistema"  onclick="setFiltro('lib-sistema')">Lib. Sistema</button>
       <button class="pill"    id="pill-cadastrado"   onclick="setFiltro('cadastrado')">Cadastrado</button>
       <button class="pill"    id="pill-revisao"      onclick="setFiltro('revisao')">Em Revisão</button>
     </div>
@@ -396,6 +542,7 @@
   <div class="table-wrap">
     <div class="table-head">
       <div class="th sort on" id="th-cliente" onclick="sortBy('cliente')">Cliente <i class="ti ti-arrows-sort sort-ico"></i></div>
+      <div class="th">Tipo</div>
       <div class="th sort" id="th-vendedor" onclick="sortBy('vendedor')">Vendedor <i class="ti ti-arrows-sort sort-ico"></i></div>
       <div class="th sort on" id="th-data" onclick="sortBy('data')">Data <i class="ti ti-sort-descending sort-ico" style="opacity:1;color:#1B3FAB"></i></div>
       <div class="th sort" id="th-status" onclick="sortBy('status')">Status <i class="ti ti-arrows-sort sort-ico"></i></div>
@@ -408,6 +555,111 @@
 <script src="shared.js"></script>
 <script>
 let vendSlug = '', filtro = 'todos', detId = null, todos = [];
+
+function toggleVendSel() {
+  const p = document.getElementById('vend-sel-panel');
+  p.classList.toggle('on');
+  if (p.classList.contains('on')) {
+    const inp = document.getElementById('vend-sel-inp');
+    inp.value = '';
+    filtrarVendSel('');
+    inp.focus();
+  }
+}
+
+function filtrarVendSel(q) {
+  const ql = q.toLowerCase();
+  const filtered = PESSOAS.filter(p => p.name.toLowerCase().includes(ql));
+  const byTeam = {};
+  filtered.forEach(p => { if (!byTeam[p.team]) byTeam[p.team] = []; byTeam[p.team].push(p); });
+  document.getElementById('vend-sel-list').innerHTML = Object.entries(byTeam).map(([tid, people]) => {
+    const t = getTeam(tid);
+    return `<div class="vend-sel-team">${t.name}</div>` + people.map(p => `
+      <button class="vend-sel-item" onclick="selecionarVend('${slugify(p.name)}')">
+        <div class="chip-av" style="background:${t.color};width:22px;height:22px;font-size:9px;flex-shrink:0">${p.ini}</div>
+        ${p.name}
+      </button>`).join('');
+  }).join('');
+}
+
+function atualizarLinksPanel(v, t) {
+  document.getElementById('link-form').href          = `formulario.html?v=${v}&t=${t}`;
+  document.getElementById('link-form-credito').href  = `formulario.html?v=${v}&t=${t}&tipo=atualizacao-credito`;
+  document.getElementById('link-form-sem-orc').href  = `formulario.html?v=${v}&t=${t}&tipo=sem-orcamento`;
+  document.getElementById('link-pix').href           = `pagamento.html?v=${v}&t=${t}&novo=pix`;
+  document.getElementById('link-comprovante').href   = `pagamento.html?v=${v}&t=${t}&novo=cartao`;
+  document.getElementById('link-pag-nav').href       = `pagamento.html?v=${v}&t=${t}`;
+}
+
+function selecionarVend(sl) {
+  const p = getPessoa(sl);
+  if (!p) return;
+  const tm = getTeam(p.team);
+  vendSlug = sl;
+  document.getElementById('vend-av').style.background = tm.color;
+  document.getElementById('vend-av').textContent = p.ini;
+  document.getElementById('vend-name').textContent = p.name;
+  document.getElementById('lp-form-url').textContent  = formLink(p);
+  document.getElementById('lp-acomp-url').textContent = acompLink(p);
+  document.getElementById('vend-sel-panel').classList.remove('on');
+  atualizarLinksPanel(sl, p.team);
+  carregarDados();
+}
+
+function toggleNovoCadPanel() {
+  document.getElementById('novo-cad-panel').classList.toggle('on');
+}
+
+function copiarLink(e, id) {
+  e.preventDefault();
+  e.stopPropagation();
+  const el = document.getElementById(id);
+  const url = el.href;
+  const btn = e.currentTarget;
+  const ok = () => {
+    btn.innerHTML = '<i class="ti ti-check"></i>';
+    btn.style.cssText = 'color:#16A34A;border-color:#86EFAC;background:#F0FDF4';
+    setTimeout(() => { btn.innerHTML = '<i class="ti ti-copy"></i>'; btn.style.cssText = ''; }, 1500);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(url).then(ok).catch(() => copiarFallback(url, btn, ok));
+  } else {
+    copiarFallback(url, btn, ok);
+  }
+}
+
+function copiarFallback(url, btn, ok) {
+  const ta = document.createElement('textarea');
+  ta.value = url; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try { document.execCommand('copy'); ok(); } catch { showToast('Erro ao copiar link', 'err'); }
+  document.body.removeChild(ta);
+}
+
+function abrirNovaAba(e, id) {
+  e.preventDefault();
+  e.stopPropagation();
+  window.open(document.getElementById(id).href, '_blank');
+}
+
+function toggleLinksPanel() {
+  document.getElementById('links-panel').classList.toggle('on');
+}
+function copyLinkPanel(urlId, btnId) {
+  const url = document.getElementById(urlId)?.textContent || '';
+  navigator.clipboard.writeText(url).then(() => {
+    const b = document.getElementById(btnId);
+    if (b) { b.innerHTML = '<i class="ti ti-check"></i>'; b.classList.add('ok'); setTimeout(() => { b.innerHTML = '<i class="ti ti-copy"></i>'; b.classList.remove('ok'); }, 2000); }
+  });
+}
+document.addEventListener('click', e => {
+  if (!e.target.closest('#btn-links') && !e.target.closest('#links-panel'))
+    document.getElementById('links-panel')?.classList.remove('on');
+  if (!e.target.closest('#vend-chip') && !e.target.closest('#vend-sel-panel'))
+    document.getElementById('vend-sel-panel')?.classList.remove('on');
+  if (!e.target.closest('#btn-novo-cad') && !e.target.closest('#novo-cad-panel'))
+    document.getElementById('novo-cad-panel')?.classList.remove('on');
+});
 let dadosAbertos = null;
 let edCnt = 0, edBCnt = 0, edRCnt = 0;
 let sortCol = 'data', sortDir = 'desc';
@@ -422,11 +674,18 @@ window.addEventListener('DOMContentLoaded', () => {
     const nome = pessoa ? pessoa.name : v.split('-').map(w=>w[0].toUpperCase()+w.slice(1)).join(' ');
     document.getElementById('hero-title').textContent = 'Minhas Solicitações';
     document.getElementById('hero-sub').textContent   = 'Cadastros de ' + nome;
-    document.getElementById('link-form').href = `formulario.html?v=${v}&t=${t}`;
-    document.getElementById('link-pag').href  = `pagamento.html?v=${v}&t=${t}`;
+    document.getElementById('link-form').href         = `formulario.html?v=${v}&t=${t}`;
+    document.getElementById('link-form-credito').href  = `formulario.html?v=${v}&t=${t}&tipo=atualizacao-credito`;
+    document.getElementById('link-form-sem-orc').href  = `formulario.html?v=${v}&t=${t}&tipo=sem-orcamento`;
+    document.getElementById('link-pix').href           = `pagamento.html?v=${v}&t=${t}&novo=pix`;
+    document.getElementById('link-comprovante').href   = `pagamento.html?v=${v}&t=${t}&novo=cartao`;
+    document.getElementById('link-pag-nav').href       = `pagamento.html?v=${v}&t=${t}`;
+    document.getElementById('lp-form-url').textContent  = formLink(pessoa||{name:v,team:t});
+    document.getElementById('lp-acomp-url').textContent = acompLink(pessoa||{name:v,team:t});
     if (pessoa && tm) {
-      document.getElementById('vend-chip').innerHTML =
-        `<div class="chip"><div class="chip-av" style="background:${tm.color}">${pessoa.ini}</div>${pessoa.name}</div>`;
+      document.getElementById('vend-av').style.background = tm.color;
+      document.getElementById('vend-av').textContent = pessoa.ini;
+      document.getElementById('vend-name').textContent = pessoa.name;
     }
   }
   carregarDados();
@@ -515,7 +774,7 @@ function renderTabela() {
   );
 
   // sort
-  const STATUS_ORDER = {preenchido:0,'lib-cadastro':1,'lib-fiscal':2,'lib-sistema':3,cadastrado:4,revisao:5};
+  const STATUS_ORDER = {preenchido:0,'lib-cadastro':1,'lib-sistema':2,'lib-fiscal':3,cadastrado:4,revisao:5};
   lista = [...lista].sort((a,b) => {
     let va, vb;
     if (sortCol==='data') {
@@ -544,7 +803,7 @@ function renderTabela() {
     return;
   }
 
-  const SL = {preenchido:'Preenchido','lib-cadastro':'Lib. Cadastro','lib-fiscal':'Lib. Fiscal','lib-sistema':'Lib. Sistema',cadastrado:'Cadastrado',revisao:'Em revisão'};
+  const SL = {preenchido:'Preenchido','lib-cadastro':'Lib. Cadastro','lib-fiscal':'Lib. Fiscal','lib-sistema':'Aprov. Crédito',cadastrado:'Cadastrado',revisao:'Em revisão'};
   document.getElementById('table-body').innerHTML = lista.map(c => {
     const ini      = (c.razao_social||c.responsavel||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
     const teamData = TEAMS.find(t=>t.name===c.equipe);
@@ -559,6 +818,7 @@ function renderTabela() {
           <div class="t-cnpj">${c.cnpj||'—'}</div>
         </div>
       </div>
+      <div>${tipoCelula(c)}</div>
       <div class="t-cell">
         <div style="font-size:12px;font-weight:600;color:#374151">${c.vendedor_nome||'—'}</div>
         ${c.equipe?`<div style="display:inline-flex;align-items:center;gap:4px;padding:1px 7px;border-radius:20px;font-size:10px;font-weight:700;background:${bg};color:${color};margin-top:2px">${c.equipe}</div>`:''}
@@ -583,6 +843,7 @@ async function abrirDetalhe(id) {
   document.getElementById('det-tabs-bar').style.display = 'none';
   document.getElementById('modal-status-badge').className = 'status-badge';
   document.getElementById('modal-status-badge').textContent = '';
+  document.getElementById('modal-tipo-badge').innerHTML = '';
   document.getElementById('modal-status-actions').innerHTML = '';
   try {
     const r = await fetch(`${API}/api/cadastros/${id}`);
@@ -591,6 +852,7 @@ async function abrirDetalhe(id) {
     const c = j.data;
     dadosAbertos = c;
     document.getElementById('modal-title').textContent = c.razao_social||c.responsavel||'Cadastro';
+    document.getElementById('modal-tipo-badge').innerHTML = tipoTag(c);
     renderStatusModal(c.status);
     document.getElementById('modal-body').innerHTML = detalheHTML(c);
     document.getElementById('det-tabs-bar').style.display = '';
@@ -625,10 +887,9 @@ function entrarEditMode() {
   document.getElementById('overlay').scrollTop = 0;
 
   // Responsável
-  document.getElementById('ed-nome').value       = c.responsavel        || '';
-  document.getElementById('ed-tel').value        = c.telefone           || '';
-  document.getElementById('ed-email-resp').value = c.email_responsavel  || '';
-  document.getElementById('ed-cond').value       = c.cond_pagamento     || '';
+  document.getElementById('ed-nome').value       = c.responsavel       || '';
+  document.getElementById('ed-tel').value        = c.telefone          || '';
+  document.getElementById('ed-email-resp').value = c.email_responsavel || '';
 
   // Empresa
   document.getElementById('ed-tel-empresa').value   = c.telefone_empresa  || '';
@@ -644,10 +905,10 @@ function entrarEditMode() {
   document.getElementById('ed-comp').value   = c.complemento || '';
   document.getElementById('ed-tel-com').value = c.telefone_comercial || '';
 
-  // E-mails
-  document.getElementById('ed-enfe').value        = c.email_nfe    || '';
-  document.getElementById('ed-eport').value       = c.email_portal || '';
-  document.getElementById('ed-email-acesso').value = c.email_acesso || '';
+  // E-mails + condições comerciais
+  document.getElementById('ed-enfe').value  = c.email_nfe      || '';
+  document.getElementById('ed-cond').value  = c.cond_pagamento || '';
+  document.getElementById('ed-fpagto').value = c.forma_pagamento || '';
 
   // Contatos
   edCnt = 0;
@@ -675,8 +936,6 @@ function entrarEditMode() {
       .forEach(b => b.classList.toggle('on', b.dataset.val === val && val !== ''));
   });
 
-  // Observações
-  document.getElementById('ed-obs').value = c.observacoes || '';
 }
 
 function sairEditMode(reabrir=true) {
@@ -791,6 +1050,7 @@ async function salvarEdicao() {
     telefone:              g('ed-tel'),
     email_responsavel:     g('ed-email-resp').trim(),
     cond_pagamento:        g('ed-cond').trim(),
+    forma_pagamento:       g('ed-fpagto'),
     telefone_empresa:      g('ed-tel-empresa'),
     email_empresa:         g('ed-email-empresa').trim(),
     cep:                   g('ed-cep'),
@@ -802,12 +1062,9 @@ async function salvarEdicao() {
     complemento:           g('ed-comp'),
     telefone_comercial:    g('ed-tel-com'),
     email_nfe:             g('ed-enfe').trim(),
-    email_portal:          g('ed-eport').trim(),
-    email_acesso:          g('ed-email-acesso').trim(),
     consumidor_final:      g('ed-cons-final'),
     finalidade_mercadoria: g('ed-finalidade'),
     contribuinte:          g('ed-contribuinte'),
-    observacoes:           g('ed-obs').trim(),
     contatos, bancos, referencias_comerciais,
   };
 
@@ -820,9 +1077,12 @@ async function salvarEdicao() {
     if (j.ok) {
       dadosAbertos = j.data;
       const idx = todos.findIndex(c=>c.id===detId);
-      if (idx>-1) todos[idx] = j.data;
+      if (idx>-1) { todos[idx] = j.data; atualizarStats(); renderTabela(); }
       showToast('Alterações salvas!','ok');
       sairEditMode(true);
+      renderStatusModal(dadosAbertos.status);
+      const proximo = getAutoAvancar(dadosAbertos);
+      if (proximo) atualizarStatus(proximo);
     } else {
       showToast('Erro ao salvar: '+(j.error||'tente novamente'),'err');
     }
@@ -849,7 +1109,7 @@ function anexoHTML(a, cadId) {
       <div class="anexo-nome">${a.nome}</div>
       <div class="anexo-meta">${size} · ${date}</div>
     </div>
-    <a href="${url}" target="_blank" class="btn btn-ghost btn-sm" title="Visualizar"><i class="ti ti-eye"></i></a>
+    <button class="btn btn-ghost btn-sm" title="Visualizar" onclick="openPreview('${url}','${a.nome}','${ext}')"><i class="ti ti-eye"></i></button>
     <a href="${url}" download="${a.nome}" class="btn btn-ghost btn-sm" title="Baixar"><i class="ti ti-download"></i></a>
     <button class="btn btn-sm" style="background:#FEF2F2;border:1px solid #FECACA;color:#DC2626;flex-shrink:0" onclick="removerAnexo('${a.id}')" title="Remover"><i class="ti ti-trash"></i></button>
   </div>`;
@@ -933,24 +1193,61 @@ function switchDetTab(tab) {
 }
 
 function renderStatusModal(status) {
-  const SL = {preenchido:'Preenchido','lib-cadastro':'Lib. Cadastro','lib-fiscal':'Lib. Fiscal','lib-sistema':'Lib. Sistema',cadastrado:'Cadastrado',revisao:'Em revisão'};
+  const SL = {preenchido:'Preenchido','lib-cadastro':'Lib. Cadastro','lib-fiscal':'Lib. Fiscal','lib-sistema':'Aprov. Crédito',cadastrado:'Cadastrado',revisao:'Em revisão'};
   const badge = document.getElementById('modal-status-badge');
   badge.className = 'status-badge '+status;
   badge.textContent = SL[status]||status;
   renderStatusActions(status);
 }
 
+function getCamposFaltando(c) {
+  const regras = STAGE_RULES['lib-cadastro'];
+  if (!regras) return [];
+  return regras.campos.filter(r => {
+    const val = c?.[r.campo];
+    if (r.tipo === 'bool') return val !== true;
+    return !val || String(val).trim() === '';
+  });
+}
+
 function renderStatusActions(status) {
   const actions = document.getElementById('modal-status-actions');
   if (!actions) return;
   if (status === 'pendente' || status === 'preenchido' || status === 'revisao') {
-    actions.innerHTML = `<button class="btn btn-primary btn-sm" id="btn-liberar" onclick="atualizarStatus('lib-cadastro')">
-      <i class="ti ti-send"></i> Liberar para Cadastro</button>`;
+    const faltando = getCamposFaltando(dadosAbertos);
+    if (faltando.length > 0) {
+      actions.innerHTML = `<button class="btn btn-ghost btn-sm" onclick="mostrarChecklist(dadosAbertos)" title="Ver o que está faltando">
+        <i class="ti ti-list-check"></i> O que falta?</button>`;
+    } else {
+      actions.innerHTML = '';
+    }
   } else if (status === 'lib-cadastro') {
     actions.innerHTML = `<button class="btn btn-ghost btn-sm" onclick="atualizarStatus('preenchido')" title="Recolher solicitação">
       <i class="ti ti-arrow-back-up"></i> Recolher</button>`;
   } else {
     actions.innerHTML = '';
+  }
+}
+
+async function salvarCampoInline(campo, valor, el) {
+  if (!detId) return;
+  try {
+    const r = await fetch(`${API}/api/cadastros/${detId}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ [campo]: valor.trim() }),
+    });
+    const j = await r.json();
+    if (j.ok) {
+      dadosAbertos = j.data;
+      const idx = todos.findIndex(c => c.id === detId);
+      if (idx > -1) Object.assign(todos[idx], { [campo]: valor.trim() });
+      if (el) { el.style.borderColor = '#16A34A'; setTimeout(() => el.style.borderColor = '', 1200); }
+    } else {
+      showToast(j.error || 'Erro ao salvar', 'err');
+    }
+  } catch(e) {
+    showToast('Erro de conexão', 'err');
   }
 }
 
@@ -975,10 +1272,11 @@ async function atualizarStatus(novo) {
     dadosAbertos = j.data;
     const idx = todos.findIndex(c=>c.id===detId);
     if (idx>-1) { todos[idx].status = novo; atualizarStats(); renderTabela(); }
+    refreshPipeline(dadosAbertos);
 
     // ── Animação do badge ──────────────────────────────────────
     const badge = document.getElementById('modal-status-badge');
-    const SL = {pendente:'Pendente',preenchido:'Preenchido','lib-cadastro':'Lib. Cadastro','lib-fiscal':'Lib. Fiscal','lib-sistema':'Lib. Sistema',cadastrado:'Cadastrado',revisao:'Em revisão'};
+    const SL = {pendente:'Pendente',preenchido:'Preenchido','lib-cadastro':'Lib. Cadastro','lib-fiscal':'Lib. Fiscal','lib-sistema':'Aprov. Crédito',cadastrado:'Cadastrado',revisao:'Em revisão'};
 
     // Fase 1 – sai
     badge.style.transition = 'opacity .15s, transform .15s';
@@ -1006,6 +1304,12 @@ async function atualizarStatus(novo) {
 function detalheHTML(c) {
   const f = (label, val, mono) => val
     ? `<div class="det-f"><div class="det-lbl">${label}</div><div class="det-val${mono?' mono':''}">${val}</div></div>` : '';
+  const fr = (label, val, mono) => val
+    ? `<div class="det-f"><div class="det-lbl">${label}</div><div class="det-val${mono?' mono':''}">${val}</div></div>`
+    : `<div class="det-f" style="background:#FFF1F2;border:1.5px solid #FECACA;border-radius:8px;padding:6px 10px">
+         <div class="det-lbl" style="color:#DC2626">${label}</div>
+         <div style="font-size:11px;color:#DC2626;display:flex;align-items:center;gap:4px"><i class="ti ti-alert-circle" style="font-size:12px"></i> Não preenchido</div>
+       </div>`;
 
   const fiscalBadge = v => {
     if (v==='sim')              return `<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;background:#DCFCE7;border:1px solid #86EFAC;color:#166534;font-size:12px;font-weight:600"><i class="ti ti-check" style="font-size:11px"></i>Sim</span>`;
@@ -1016,14 +1320,28 @@ function detalheHTML(c) {
   };
 
   return `
+    ${buildPipeline(c.status)}
     <!-- ── CLIENTE ── -->
     <div class="det-panel" id="panel-cliente">
       <div class="det-sect">
+        <div class="det-sect-title"><i class="ti ti-hash"></i> Identificação</div>
+        <div class="det-grid">
+          <div class="det-f">
+            <div class="det-lbl">Nº do Orçamento</div>
+            <input class="det-inline-input" value="${(c.num_orcamento||'').replace(/"/g,'&quot;')}" placeholder="Ex: 12345" onblur="salvarCampoInline('num_orcamento',this.value,this)">
+          </div>
+          <div class="det-f">
+            <div class="det-lbl">Nº do Cliente</div>
+            <input class="det-inline-input" value="${(c.num_cliente||'').replace(/"/g,'&quot;')}" placeholder="Ex: 98765" onblur="salvarCampoInline('num_cliente',this.value,this)">
+          </div>
+        </div>
+      </div>
+      <div class="det-sect">
         <div class="det-sect-title"><i class="ti ti-building-store"></i> Empresa</div>
         <div class="det-grid">
-          ${f('Razão Social',c.razao_social)}
+          ${fr('Razão Social',c.razao_social)}
           ${f('Nome Fantasia',c.nome_fantasia)}
-          ${f('CNPJ',c.cnpj,true)}
+          ${fr('CNPJ',c.cnpj,true)}
           ${f('Insc. Estadual',c.insc_estadual,true)}
           ${f('Atividade',c.atividade)}
           ${f('Telefone da Empresa',c.telefone_empresa)}
@@ -1033,9 +1351,10 @@ function detalheHTML(c) {
       <div class="det-sect">
         <div class="det-sect-title"><i class="ti ti-user"></i> Responsável</div>
         <div class="det-grid">
-          ${f('Nome',c.responsavel)}
-          ${f('Telefone',c.telefone)}
+          ${fr('Nome',c.responsavel)}
+          ${fr('Telefone',c.telefone)}
           ${f('E-mail',c.email_responsavel)}
+          ${fr('Cond. de Pagamento',c.cond_pagamento)}
           ${f('Vendedor',c.vendedor_nome)}
           ${f('Equipe',c.equipe)}
         </div>
@@ -1056,19 +1375,18 @@ function detalheHTML(c) {
 
     <!-- ── ENDEREÇO ── -->
     <div class="det-panel" id="panel-endereco">
-      ${c.logradouro||c.cep ? `
-        <div class="det-sect">
-          <div class="det-sect-title"><i class="ti ti-map-pin"></i> Endereço Comercial</div>
-          <div class="det-grid">
-            ${f('Logradouro',c.logradouro+(c.numero?' Nº '+c.numero:''))}
-            ${f('Complemento',c.complemento)}
-            ${f('Bairro',c.bairro)}
-            ${f('Cidade / UF',(c.cidade||'')+(c.uf?' — '+c.uf:''))}
-            ${f('CEP',c.cep,true)}
-            ${f('Telefone Comercial',c.telefone_comercial)}
-          </div>
-        </div>` :
-        `<div class="empty-state" style="padding:40px 20px"><i class="ti ti-map-pin"></i><p>Endereço não informado</p></div>`}
+      <div class="det-sect">
+        <div class="det-sect-title"><i class="ti ti-map-pin"></i> Endereço Comercial</div>
+        <div class="det-grid">
+          ${fr('Logradouro',c.logradouro?(c.logradouro+(c.numero?' Nº '+c.numero:'')):'')}
+          ${f('Complemento',c.complemento)}
+          ${f('Bairro',c.bairro)}
+          ${fr('Cidade',c.cidade)}
+          ${f('UF',c.uf)}
+          ${fr('CEP',c.cep,true)}
+          ${f('Telefone Comercial',c.telefone_comercial)}
+        </div>
+      </div>
       ${c.endereco_entrega?.logradouro ? `
         <div class="det-sect">
           <div class="det-sect-title"><i class="ti ti-truck-delivery"></i> Endereço de Entrega</div>
@@ -1083,25 +1401,23 @@ function detalheHTML(c) {
 
     <!-- ── E-MAILS ── -->
     <div class="det-panel" id="panel-emails">
-      ${c.email_nfe||c.email_portal||c.email_acesso ? `
+      ${c.email_nfe ? `
         <div class="det-sect">
           <div class="det-sect-title"><i class="ti ti-mail"></i> E-mails Cadastrados</div>
-          <div class="det-grid">
-            ${f('NF-e',c.email_nfe)}
-            ${f('Portal',c.email_portal)}
-            ${f('Acesso',c.email_acesso)}
-          </div>
+          <div class="det-grid">${f('NF-e',c.email_nfe)}</div>
         </div>` :
         `<div class="empty-state" style="padding:40px 20px"><i class="ti ti-mail"></i><p>Nenhum e-mail cadastrado</p></div>`}
     </div>
 
     <!-- ── FINANCEIRO ── -->
     <div class="det-panel" id="panel-financeiro">
-      ${c.cond_pagamento ? `
-        <div class="det-sect">
-          <div class="det-sect-title"><i class="ti ti-credit-card"></i> Condição de Pagamento</div>
-          <div class="det-grid">${f('Condição',c.cond_pagamento)}</div>
-        </div>` : ''}
+      <div class="det-sect">
+        <div class="det-sect-title"><i class="ti ti-cash"></i> Condições Comerciais</div>
+        <div class="det-grid">
+          ${fr('Cond. de Pagamento',c.cond_pagamento)}
+          ${f('Forma de Pagamento',c.forma_pagamento)}
+        </div>
+      </div>
       ${c.bancos?.length ? `
         <div class="det-sect">
           <div class="det-sect-title"><i class="ti ti-building-bank"></i> Dados Bancários (${c.bancos.length})</div>
@@ -1112,11 +1428,11 @@ function detalheHTML(c) {
       ${c.referencias_comerciais?.length ? `
         <div class="det-sect">
           <div class="det-sect-title"><i class="ti ti-building-community"></i> Referências Comerciais (${c.referencias_comerciais.length})</div>
-          ${c.referencias_comerciais.map(r=>`<div class="det-grid" style="padding:10px 16px;border-bottom:1px solid #EAF0FB">${
-            f('Empresa',r.empresa)+f('Telefone',r.telefone)
-          }</div>`).join('')}
+          ${c.referencias_comerciais.map(r=>`<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #F3F4F6">
+            <div class="det-grid">${f('Empresa',r.empresa)}${f('Telefone',r.telefone)}</div>
+          </div>`).join('')}
         </div>` : ''}
-      ${!c.cond_pagamento&&!c.bancos?.length&&!c.referencias_comerciais?.length ?
+      ${!c.cond_pagamento&&!c.forma_pagamento&&!c.bancos?.length&&!c.referencias_comerciais?.length ?
         `<div class="empty-state" style="padding:40px 20px"><i class="ti ti-cash"></i><p>Nenhum dado financeiro cadastrado</p></div>` : ''}
     </div>
 

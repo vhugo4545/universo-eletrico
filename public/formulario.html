@@ -55,6 +55,14 @@
 .tipo-btn-title{font-size:15px;font-weight:700;color:#111827}
 .tipo-btn-sub{font-size:11px;color:#8A9BB5}
 
+/* step transition animations */
+@keyframes stepIn     {from{opacity:0;transform:translateX(24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes stepInBack {from{opacity:0;transform:translateX(-24px)}to{opacity:1;transform:translateX(0)}}
+@keyframes dotPop     {0%{transform:scale(.65)}60%{transform:scale(1.18)}100%{transform:scale(1)}}
+.step-screen.on            {animation:stepIn     .38s cubic-bezier(.16,1,.3,1) both}
+.step-screen.on.going-back {animation:stepInBack .38s cubic-bezier(.16,1,.3,1) both}
+.step-dot.active           {animation:dotPop .38s cubic-bezier(.16,1,.3,1)}
+
 /* option buttons */
 .opt-group{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
 .opt-btn{
@@ -153,7 +161,7 @@
             <input class="finput" id="inp-tel-empresa" type="tel" placeholder="(31) 0000-0000" maxlength="16">
             <div class="istat" id="st-tel-empresa"></div></div>
           <div class="fmsg" id="msg-tel-empresa"></div></div>
-        <div class="field"><div class="field-lbl">E-mail da Empresa <span class="badge-a">Auto</span></div>
+        <div class="field"><div class="field-lbl">E-mail da Empresa</div>
           <div class="irow" id="row-email-empresa"><div class="iico"><i class="ti ti-mail"></i></div>
             <input class="finput" id="inp-email-empresa" type="email" placeholder="contato@empresa.com">
             <div class="istat" id="st-email-empresa"></div></div>
@@ -183,11 +191,13 @@
           <div class="fmsg" id="msg-tel"></div></div>
       </div>
       <div class="g2" style="margin-bottom:12px">
-        <div class="field"><div class="field-lbl">E-mail do Responsável <span class="badge-o">Opcional</span></div>
+        <div class="field"><div class="field-lbl">E-mail do Responsável</div>
           <div class="irow" id="row-email-resp"><div class="iico"><i class="ti ti-mail"></i></div>
             <input class="finput" id="inp-email-resp" type="email" placeholder="responsavel@empresa.com">
             <div class="istat" id="st-email-resp"></div></div>
           <div class="fmsg" id="msg-email-resp"></div></div>
+      </div>
+      <div class="g2" style="margin-bottom:12px">
         <div class="field"><div class="field-lbl">Vendedor <span class="badge-a">Auto</span></div>
           <div class="irow auto-f"><div class="iico"><i class="ti ti-id-badge"></i></div>
             <input class="finput" id="inp-vend" type="text" placeholder="—" readonly></div></div>
@@ -282,23 +292,11 @@
 
     <div class="card">
       <div class="card-title"><i class="ti ti-mail"></i> E-mails</div>
-      <div class="g2" style="margin-bottom:12px">
-        <div class="field"><div class="field-lbl">E-mail para NFe</div>
-          <div class="irow" id="row-enfe"><div class="iico"><i class="ti ti-mail"></i></div>
-            <input class="finput" id="inp-enfe" type="email" placeholder="nfe@empresa.com">
-            <div class="istat" id="st-enfe"></div></div>
-          <div class="fmsg" id="msg-enfe"></div></div>
-        <div class="field"><div class="field-lbl">E-mail para portal</div>
-          <div class="irow" id="row-eport"><div class="iico"><i class="ti ti-mail"></i></div>
-            <input class="finput" id="inp-eport" type="email" placeholder="acesso@empresa.com">
-            <div class="istat" id="st-eport"></div></div>
-          <div class="fmsg" id="msg-eport"></div></div>
-      </div>
-      <div class="field"><div class="field-lbl">E-mail de Acesso ao Sistema <span class="badge-o">Opcional</span></div>
-        <div class="irow" id="row-email-acesso"><div class="iico"><i class="ti ti-login"></i></div>
-          <input class="finput" id="inp-email-acesso" type="email" placeholder="login@empresa.com">
-          <div class="istat" id="st-email-acesso"></div></div>
-        <div class="fmsg" id="msg-email-acesso"></div></div>
+      <div class="field"><div class="field-lbl">E-mail para NF-e / Financeiro</div>
+        <div class="irow" id="row-enfe"><div class="iico"><i class="ti ti-mail"></i></div>
+          <input class="finput" id="inp-enfe" type="email" placeholder="nfe@empresa.com">
+          <div class="istat" id="st-enfe"></div></div>
+        <div class="fmsg" id="msg-enfe"></div></div>
     </div>
 
     <div class="card">
@@ -323,14 +321,6 @@
       </div>
       <div id="refs-rows"></div>
       <button class="add-btn" onclick="addRef()"><i class="ti ti-plus" style="font-size:13px"></i> Adicionar referência</button>
-    </div>
-
-    <div class="card">
-      <div class="card-title"><i class="ti ti-notes"></i> Observações</div>
-      <div class="irow" style="height:auto;align-items:flex-start">
-        <div class="iico" style="padding-top:12px"><i class="ti ti-notes"></i></div>
-        <textarea id="inp-obs" placeholder="Informações adicionais..." style="flex:1;min-height:72px;border:none;outline:none;background:transparent;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px;color:#111827;padding:12px 4px 10px 0;resize:vertical;line-height:1.5"></textarea>
-      </div>
     </div>
 
     <div class="card" id="card-fiscal">
@@ -381,13 +371,81 @@
       <div class="suc-sub">Suas informações foram recebidas com sucesso.<br>Em breve entraremos em contato.</div>
     </div>
   </div>
+
+  <!-- ── ATUALIZAÇÃO DE CRÉDITO ── -->
+  <div id="tela-credito" style="display:none">
+    <div class="card" style="margin-top:16px">
+      <div class="card-title"><i class="ti ti-coin"></i> Atualização de Crédito</div>
+
+      <!-- busca pelo CNPJ -->
+      <div class="field" style="margin-bottom:16px">
+        <div class="field-lbl">CNPJ do cliente</div>
+        <div class="irow" id="row-cr-cnpj">
+          <div class="iico"><i class="ti ti-building-store"></i></div>
+          <input class="finput" id="inp-cr-cnpj" type="text" placeholder="00.000.000/0001-00" maxlength="18" autocomplete="off">
+          <div class="istat" id="st-cr-cnpj"></div>
+        </div>
+        <div class="fmsg" id="msg-cr-cnpj">Digite o CNPJ para carregar o cadastro existente</div>
+      </div>
+
+      <!-- card com dados do cliente encontrado -->
+      <div id="cr-cliente-found" style="display:none;margin-bottom:20px">
+        <div style="background:#F0F4FF;border:1.5px solid #C7D7FF;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px">
+          <div style="width:40px;height:40px;border-radius:50%;background:#1B3FAB;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;flex-shrink:0" id="cr-av">—</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:700;color:#111827" id="cr-nome">—</div>
+            <div style="font-size:11px;color:#6B8ADE;font-family:monospace;margin-top:2px" id="cr-cnpj-disp">—</div>
+            <div style="font-size:11px;color:#8A9BB5;margin-top:1px" id="cr-resp">—</div>
+          </div>
+          <i class="ti ti-circle-check" style="font-size:22px;color:#16A34A;flex-shrink:0"></i>
+        </div>
+      </div>
+
+      <!-- valor solicitado (aparece só após encontrar o cliente) -->
+      <div id="cr-valor-wrap" style="display:none">
+        <div class="field" style="margin-bottom:20px">
+          <div class="field-lbl">Valor de Crédito Solicitado <span class="badge-a" style="background:#FEF3C7;color:#D97706;border-color:#FDE68A">Obrigatório</span></div>
+          <div class="irow" id="row-cr-valor">
+            <div class="iico"><i class="ti ti-currency-real"></i></div>
+            <input class="finput" id="inp-cr-valor" type="text" placeholder="R$ 0,00" oninput="maskMoeda(this)">
+            <div class="istat" id="st-cr-valor"></div>
+          </div>
+          <div class="fmsg" id="msg-cr-valor">Informe o limite de crédito solicitado</div>
+        </div>
+
+        <div class="step-footer">
+          <span class="foot-note"><i class="ti ti-lock"></i> Dados do cadastro carregados automaticamente</span>
+          <button class="btn btn-primary btn-submit" id="btn-cr-submit" onclick="submitCredito()">
+            <span class="btn-txt"><i class="ti ti-send"></i> Enviar solicitação</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- mensagem: CNPJ não encontrado -->
+      <div id="cr-not-found" style="display:none">
+        <div style="background:#FFF1F2;border:1.5px solid #FECACA;border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:10px;color:#DC2626;font-size:13px;font-weight:600">
+          <i class="ti ti-alert-circle" style="font-size:18px;flex-shrink:0"></i>
+          Nenhum cadastro encontrado para este CNPJ. Verifique ou realize um novo cadastro.
+        </div>
+      </div>
+    </div>
+
+    <!-- sucesso crédito -->
+    <div id="cr-success" style="display:none">
+      <div class="suc-page">
+        <div class="suc-ring" style="background:#FEF3C7"><i class="ti ti-coin" style="color:#D97706"></i></div>
+        <div class="suc-title">Solicitação enviada!</div>
+        <div class="suc-sub">A solicitação de atualização de crédito foi registrada com sucesso.</div>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script src="shared.js"></script>
 <script>
 let vend = null, vendSlug = '';
 let ccnt = 0, bcnt = 0, rcnt = 0, cnpjTimer = null, cepTimer = null, dcepTimer = null;
-let tipoCliente = null;
+let tipoCliente = null, prevStep = 0;
 
 const maskCPF = v => { v=v.replace(/\D/g,'').slice(0,11); if(v.length>9)return v.replace(/(\d{3})(\d{3})(\d{3})(\d+)/,'$1.$2.$3-$4'); if(v.length>6)return v.replace(/(\d{3})(\d{3})(\d+)/,'$1.$2.$3'); if(v.length>3)return v.replace(/(\d{3})(\d+)/,'$1.$2'); return v; };
 function validarCPF(c){c=c.replace(/\D/g,'');if(c.length!==11||/^(\d)\1+$/.test(c))return false;let s=0,r,i;for(i=0;i<9;i++)s+=parseInt(c[i])*(10-i);r=s%11<2?0:11-s%11;if(r!==parseInt(c[9]))return false;s=0;for(i=0;i<10;i++)s+=parseInt(c[i])*(11-i);r=s%11<2?0:11-s%11;return r===parseInt(c[10]);}
@@ -425,15 +483,140 @@ window.addEventListener('DOMContentLoaded', () => {
         `<div class="chip"><div class="chip-av" style="background:${tm.color}">${vend.ini}</div>${vend.name} — ${tm.name}</div>`;
     }
   }
+
+  const tipo = p.get('tipo');
+  if (tipo === 'atualizacao-credito') {
+    // oculta fluxo normal, exibe tela de crédito
+    document.getElementById('tipo-select').style.display    = 'none';
+    document.getElementById('progress-bar').style.display   = 'none';
+    document.getElementById('tela-credito').style.display   = 'block';
+    document.title = 'Atualização de Crédito — Universo Elétrico';
+
+    // bind do CNPJ de busca
+    let crTimer = null;
+    document.getElementById('inp-cr-cnpj').addEventListener('input', function() {
+      this.value = maskCNPJ(this.value);
+      const d = this.value.replace(/\D/g,'');
+      crResetCliente();
+      if (d.length < 14) {
+        setCrF('', d ? 'Digitando...' : 'Digite o CNPJ para carregar o cadastro existente');
+        return;
+      }
+      if (!validarCNPJ(d)) { setCrF('err', 'CNPJ inválido'); return; }
+      setCrF('loading', 'Buscando cadastro...');
+      clearTimeout(crTimer);
+      crTimer = setTimeout(() => buscarCadastroCredito(d), 600);
+    });
+    return; // não inicializa o formulário normal
+  }
+
   bindEvents();
   addContact();
   addBank();
 });
 
+/* ── ATUALIZAÇÃO DE CRÉDITO ─────────────────────────────────────── */
+let cadCredito = null;
+
+function setCrF(state, msg) {
+  const row = document.getElementById('row-cr-cnpj');
+  const st  = document.getElementById('st-cr-cnpj');
+  const m   = document.getElementById('msg-cr-cnpj');
+  if (row) { let c='irow'; if(state==='ok') c+=' valid'; else if(state==='err') c+=' invalid'; row.className=c; }
+  if (st)  { if(state==='ok'){st.className='istat ok';st.innerHTML='<i class="ti ti-check"></i>';}else if(state==='err'){st.className='istat err';st.innerHTML='<i class="ti ti-x"></i>';}else if(state==='loading'){st.className='istat spin';st.innerHTML='<i class="ti ti-loader-2"></i>';}else{st.className='istat';st.innerHTML='';} }
+  if (m)   { m.textContent = msg||''; m.className = 'fmsg'+(state==='err'?' err':state==='ok'?' ok':''); }
+}
+
+function crResetCliente() {
+  cadCredito = null;
+  document.getElementById('cr-cliente-found').style.display = 'none';
+  document.getElementById('cr-valor-wrap').style.display    = 'none';
+  document.getElementById('cr-not-found').style.display     = 'none';
+}
+
+async function buscarCadastroCredito(cnpj) {
+  try {
+    const r = await fetch(`${API}/api/cadastros?cnpj=${cnpj}`);
+    const j = await r.json();
+    const lista = (j.data||[]).filter(c => c.status === 'cadastrado' || c.status === 'lib-sistema' || c.status === 'lib-cadastro' || c.status === 'lib-fiscal' || c.status === 'preenchido');
+    // pega o mais recente com status cadastrado, senão qualquer um
+    const cad = (j.data||[]).sort((a,b) => {
+      const ord = {cadastrado:0,'lib-fiscal':1,'lib-sistema':2,'lib-cadastro':3,preenchido:4};
+      return (ord[a.status]??9) - (ord[b.status]??9);
+    })[0];
+    if (!cad) { setCrF('err', 'Nenhum cadastro encontrado'); document.getElementById('cr-not-found').style.display='block'; return; }
+    cadCredito = cad;
+    setCrF('ok', 'Cadastro encontrado ✓');
+    const ini = (cad.razao_social||cad.responsavel||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+    document.getElementById('cr-av').textContent       = ini;
+    document.getElementById('cr-nome').textContent     = cad.razao_social || cad.responsavel || '—';
+    document.getElementById('cr-cnpj-disp').textContent = cad.cnpj || '—';
+    document.getElementById('cr-resp').textContent     = cad.responsavel ? `Resp.: ${cad.responsavel}` : '';
+    document.getElementById('cr-cliente-found').style.display = 'flex';
+    document.getElementById('cr-valor-wrap').style.display    = 'block';
+    document.getElementById('cr-not-found').style.display     = 'none';
+    document.getElementById('inp-cr-valor').focus();
+  } catch(e) {
+    setCrF('err', 'Erro ao buscar cadastro');
+  }
+}
+
+function maskMoeda(el) {
+  let v = el.value.replace(/\D/g,'');
+  if (!v) { el.value = ''; return; }
+  v = (parseInt(v,10)/100).toFixed(2);
+  el.value = 'R$ ' + v.replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+async function submitCredito() {
+  if (!cadCredito) return;
+  const valorRaw = document.getElementById('inp-cr-valor').value.trim();
+  if (!valorRaw) {
+    document.getElementById('row-cr-valor').className = 'irow invalid';
+    document.getElementById('msg-cr-valor').textContent = 'Informe o valor solicitado';
+    document.getElementById('msg-cr-valor').className = 'fmsg err';
+    return;
+  }
+  const btn = document.getElementById('btn-cr-submit');
+  btn.classList.add('loading');
+  const payload = {
+    ...cadCredito,
+    id: undefined,
+    created_at: undefined,
+    updated_at: undefined,
+    status: 'preenchido',
+    tipo_solicitacao: 'atualizacao-credito',
+    valor_solicitado_credito: valorRaw,
+    vendedor_slug: vendSlug || cadCredito.vendedor_slug,
+    vendedor_nome: vend ? vend.name : cadCredito.vendedor_nome,
+    equipe: vend ? getTeam(vend.team).name : cadCredito.equipe,
+  };
+  try {
+    const r = await fetch(`${API}/api/cadastros`, {
+      method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)
+    });
+    const j = await r.json();
+    btn.classList.remove('loading');
+    if (j.ok) {
+      document.getElementById('tela-credito').querySelector('.card').style.display = 'none';
+      document.getElementById('cr-success').style.display = 'block';
+    } else {
+      showToast(j.error||'Erro ao enviar', 'err');
+    }
+  } catch(e) {
+    btn.classList.remove('loading');
+    showToast('Erro de conexão', 'err');
+  }
+}
+
 /* ── STEPS ─────────────────────────────────────────────────────── */
 function showStep(n) {
-  document.querySelectorAll('.step-screen').forEach(s => s.classList.remove('on'));
-  document.getElementById('step'+n).classList.add('on');
+  const goingBack = prevStep > 0 && n < prevStep;
+  document.querySelectorAll('.step-screen').forEach(s => s.classList.remove('on', 'going-back'));
+  const el = document.getElementById('step'+n);
+  el.classList.add('on');
+  if (goingBack) el.classList.add('going-back');
+  prevStep = n;
   window.scrollTo({top:0,behavior:'smooth'});
   [1,2].forEach(i => {
     const dot = document.getElementById('dot'+i);
@@ -457,8 +640,12 @@ function nextStep(from) {
       const cnpj = document.getElementById('inp-cnpj').value.replace(/\D/g,'');
       if (!validarCNPJ(cnpj)) { setF('cnpj','err','CNPJ inválido'); ok=false; }
     }
+    const emailResp = document.getElementById('inp-email-resp').value.trim();
+    const emailEmp  = document.getElementById('inp-email-empresa').value.trim();
     if (nome.length<3) { setF('nome','err','Preencha o nome completo'); ok=false; }
     if (tel.length<10) { setF('tel','err','Telefone inválido'); ok=false; }
+    if (!validEmail(emailResp)) { setF('email-resp','err','E-mail obrigatório'); ok=false; }
+    if (!validEmail(emailEmp))  { setF('email-empresa','err','E-mail obrigatório'); ok=false; }
     if (!ok) return;
     showStep(2);
   } else if (from===2) {
@@ -507,15 +694,14 @@ async function submitForm() {
     insc_estadual: g('ie'), atividade: g('ativ'),
     telefone_empresa: g('tel-empresa'), email_empresa: g('email-empresa'),
     responsavel: g('nome'), telefone: g('tel'), email_responsavel: g('email-resp'),
-    cond_pagamento: '',
     cep: g('cep'), logradouro: g('end'), numero: g('num'),
     complemento: g('comp'), bairro: g('bairro'), cidade: g('cidade'), uf: g('uf'),
     telefone_comercial: g('tel-com'),
     endereco_entrega,
-    email_nfe: g('enfe'), email_portal: g('eport'), email_acesso: g('email-acesso'),
+    email_nfe: g('enfe'), email_financeiro: g('enfe'),
     vendedor_slug: vendSlug, vendedor_nome: vend?vend.name:'',
     equipe: vend?getTeam(vend.team).name:'',
-    contatos, bancos, referencias_comerciais, observacoes: g('obs'),
+    contatos, bancos, referencias_comerciais,
     consumidor_final:      document.getElementById('inp-cons-final').value,
     finalidade_mercadoria: document.getElementById('inp-finalidade').value,
     contribuinte:          document.getElementById('inp-contribuinte').value,
@@ -559,7 +745,7 @@ function resetForm() {
   document.getElementById('progress-bar').style.display = 'none';
   document.getElementById('tipo-select').style.display = 'block';
   ['cnpj','razao','fantasia','ie','ativ','tel-empresa','email-empresa','nome','tel','email-resp',
-   'cep','num','end','comp','bairro','cidade','uf','tel-com','enfe','eport','email-acesso','obs'].forEach(id => {
+   'cep','num','end','comp','bairro','cidade','uf','tel-com','enfe','obs'].forEach(id => {
     const el = document.getElementById('inp-'+id);
     if (el) { el.value=''; if(['razao','fantasia','ativ','ie','bairro','cidade','uf'].includes(id)) el.disabled=true; }
     const row = document.getElementById('row-'+id);
@@ -633,8 +819,7 @@ function bindEvents() {
   document.getElementById('inp-num').addEventListener('input',function(){setF('num',this.value.trim()?'ok':'','');});
   document.getElementById('inp-dnum').addEventListener('input',function(){setF('dnum',this.value.trim()?'ok':'','');});
   document.getElementById('inp-email-resp').addEventListener('input',function(){const v=this.value.trim();setF('email-resp',!v?'':validEmail(v)?'ok':'err',validEmail(v)||!v?'':'E-mail inválido');});
-  document.getElementById('inp-email-acesso').addEventListener('input',function(){const v=this.value.trim();setF('email-acesso',!v?'':validEmail(v)?'ok':'err',validEmail(v)||!v?'':'E-mail inválido');});
-  ['enfe','eport'].forEach(id=>{document.getElementById('inp-'+id).addEventListener('input',function(){const v=this.value.trim();setF(id,!v?'':validEmail(v)?'ok':'err',validEmail(v)||!v?'':'E-mail inválido');});});
+  document.getElementById('inp-enfe').addEventListener('input',function(){const v=this.value.trim();setF('enfe',!v?'':validEmail(v)?'ok':'err',validEmail(v)||!v?'':'E-mail inválido');});
 }
 
 /* ── API CALLS ──────────────────────────────────────────────────── */
