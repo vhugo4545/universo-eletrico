@@ -483,6 +483,8 @@ app.get('/api/pagamentos/:id/comprovante/:arquivo', (req, res) => {
   res.sendFile(file);
 });
 
+app.get('/api/ping', (req, res) => res.json({ ok: true, ts: Date.now() }));
+
 app.listen(PORT, () => {
   const totalCNPJs = Object.keys(lerCache()).length;
   console.log(`✅  http://localhost:${PORT}`);
