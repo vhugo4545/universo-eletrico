@@ -498,7 +498,7 @@ app.get('/api/ping', (req, res) => res.json({ ok: true, ts: Date.now() }));
 const wa = require('./whatsapp');
 
 app.get('/api/whatsapp/status', (req, res) => {
-  res.json({ ok: true, status: wa.getStatus(), qr: wa.getQR() });
+  res.json({ ok: true, status: wa.getStatus(), qr: wa.getQR(), numero: wa.getNumero() });
 });
 
 app.post('/api/whatsapp/connect', async (req, res) => {

@@ -709,10 +709,15 @@ async function enviarLinkWhatsApp() {
     if (!j.ok) throw new Error(j.error || 'Erro ao salvar rascunho');
     _rascunhoId   = j.id;
     _rascunhoLink = j.link;
-    // monta link direto para abrir WhatsApp no número informado
-    const tel = document.getElementById('inp-tel')?.value.replace(/\D/g,'') || '';
-    const num = tel.startsWith('55') ? tel : '55' + tel;
-    document.getElementById('btn-abrir-wa').href = `https://wa.me/${num}`;
+    // busca o número do servidor para abrir a conversa correta no WhatsApp
+    try {
+      const ws = await fetch(`${API}/api/whatsapp/status`);
+      const wj = await ws.json();
+      const num = wj.numero || '';
+      document.getElementById('btn-abrir-wa').href = num ? `https://wa.me/${num}` : 'https://wa.me/';
+    } catch(e) {
+      document.getElementById('btn-abrir-wa').href = 'https://wa.me/';
+    }
     document.querySelectorAll('.step-screen').forEach(s => s.classList.remove('on'));
     document.getElementById('step-link').classList.add('on');
   } catch(e) {

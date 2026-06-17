@@ -128,8 +128,9 @@ function disconnect() {
 
 function getStatus() { return status; }
 function getQR()     { return qrDataURL; }
+function getNumero() { return sock?.user?.id?.split(':')[0] || null; }
 
 // Inicia conexão automaticamente
 connect().catch(e => console.error('[WhatsApp] Erro na inicialização:', e.message));
 
-module.exports = { connect, disconnect, sendMessage, getStatus, getQR };
+module.exports = { connect, disconnect, sendMessage, getStatus, getQR, getNumero };
