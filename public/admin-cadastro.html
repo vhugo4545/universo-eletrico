@@ -45,7 +45,7 @@
 .ajm-div{border-top:1px dashed #E8EEF7;margin:16px 0}
 .ajm-anexos-title{font-size:10px;font-weight:700;color:#EA580C;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
 .ajm-anexo-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
-.ajm-anexo-inp{flex:1;height:36px;border:1.5px solid #E8EEF7;border-radius:8px;padding:0 10px;font-size:13px;font-family:inherit;color:#111827}
+.ajm-anexo-inp{flex:1;height:36px;border:1.5px solid #E8EEF7;border-radius:8px;padding:0 10px;font-size:13px;font-family:inherit;color:#111827;cursor:pointer;background:#fff}
 .ajm-anexo-inp:focus{outline:none;border-color:#1B3FAB}
 .ajm-anexo-rm{width:34px;height:34px;border:1px solid #FECACA;background:#FEF2F2;color:#DC2626;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
 .ajm-add-anexo{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#EA580C;cursor:pointer;font-weight:600;margin-top:2px}
@@ -1021,14 +1021,32 @@ function ajmToggleSec(si, el) {
   el.textContent = all ? 'Selecionar tudo' : 'Desmarcar tudo';
 }
 
+const TIPOS_DOC = [
+  'ALVARÁ DE FUNCIONAMENTO','APOSTILA','ATA','ATESTADO','AUTORIZAÇÃO DE FATURAMENTO',
+  'BOLETO BANCÁRIO','CARTA','CARTÃO CNPJ','CERTIDÃO','CERTIDÃO DE PROTESTOS',
+  'CERTIFICADO DIGITAL','CIRCULAR','COMPROVANTE DE ENDEREÇO','CONTRATO','CONTRATO SOCIAL',
+  'CONVÊNIO','DECISÃO','DECLARAÇÃO','DESPACHO','DETERMINAÇÃO DE SERVIÇO',
+  'DOCUMENTO COMPROBATÓRIO','DOCUMENTO DE ARRECADAÇÃO (DAM/DAR/DARF)','DOCUMENTO DE IDENTIDADE',
+  'EDITAL','E-MAIL','FAX','FICHA CADASTRAL','GRU - GUIA DE RECOLHIMENTO DA UNIÃO',
+  'GUIA DE DEPÓSITO JUDICIAL','GUIA DE ENCAMINHAMENTO DE CORRESPONDÊNCIA POSTAL',
+  'GUIA DE REMESSA DE DOCUMENTOS OU PROCESSOS','INFORMAÇÃO. INSTRUÇÃO DE SERVIÇO',
+  'MEMORANDO','NORMA DE SERVIÇO','OFÍCIO','ORDEM DE COMPRA','PARECER','PORTARIA',
+  'PROCESSO','PROTOCOLO DE INTENÇÕES','REFERÊNCIAS BANCÁRIAS','REFERÊNCIAS COMERCIAIS',
+  'REGIMENTO','REGULAMENTO','RELAÇÃO ANUAL DE INFORMAÇÕES SOCIAIS','RELATÓRIO',
+  'RELATÓRIO DE REUNIÃO','REQUERIMENTO','RESOLUÇÃO','SERASA','SINTEGRA','TELEGRAMA',
+];
+
 function _ajmAddAnexoComNome(nome) {
   const id = Math.random().toString(36).slice(2,8);
-  _ajmAnexosList.push({id, nome});
+  _ajmAnexosList.push({id, nome: nome || ''});
   const list = document.getElementById('ajm-anexos-list');
   const row = document.createElement('div');
   row.className='ajm-anexo-row'; row.id=`ajm-ar-${id}`;
-  row.innerHTML=`<input class="ajm-anexo-inp" value="${_ajmEsc(nome)}" placeholder="Nome do documento (ex: Contrato Social...)" oninput="ajmUpdateAnexo('${id}',this.value)">
-    <button class="ajm-anexo-rm" onclick="ajmRemoveAnexo('${id}')" title="Remover"><i class="ti ti-trash"></i></button>`;
+  const opts = TIPOS_DOC.map(t=>`<option value="${_ajmEsc(t)}"${t===nome?' selected':''}>${_ajmEsc(t)}</option>`).join('');
+  row.innerHTML=`<select class="ajm-anexo-inp" onchange="ajmUpdateAnexo('${id}',this.value)">
+    <option value="">— Selecione o tipo de documento —</option>${opts}
+  </select>
+  <button class="ajm-anexo-rm" onclick="ajmRemoveAnexo('${id}')" title="Remover"><i class="ti ti-trash"></i></button>`;
   list.appendChild(row);
 }
 function ajmAddAnexo() { _ajmAddAnexoComNome(''); }
