@@ -8,56 +8,109 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#F3F6FB;font-family:'Plus Jakarta Sans',system-ui,sans-serif;min-height:100vh;color:#111827}
-.page{max-width:660px;margin:0 auto;padding:32px 16px 80px}
-.logo-bar{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.page{max-width:660px;margin:0 auto;padding:28px 16px 80px}
+.logo-bar{display:flex;align-items:center;gap:10px;margin-bottom:24px}
 .logo-bolt{width:38px;height:38px;background:#1B3FAB;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;flex-shrink:0}
 .logo-name{font-size:16px;font-weight:700;color:#111827}
 .logo-sub{font-size:11px;color:#9DAEC4}
+
+/* step indicator */
+.steps{display:flex;align-items:center;gap:0;margin-bottom:24px}
+.step-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;transition:all .2s}
+.step-dot.active{background:#1B3FAB;color:#fff}
+.step-dot.done{background:#16A34A;color:#fff}
+.step-dot.idle{background:#E8EEF7;color:#9DAEC4}
+.step-lbl{font-size:11px;font-weight:600;margin-left:6px;color:#9DAEC4;transition:color .2s}
+.step-lbl.active{color:#1B3FAB}
+.step-lbl.done{color:#16A34A}
+.step-sep{flex:1;height:2px;background:#E8EEF7;margin:0 8px}
+
 /* alert */
-.alert{background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:14px;padding:16px 18px;margin-bottom:22px}
-.alert-head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#C2410C;margin-bottom:6px}
+.alert{background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:14px;padding:16px 18px;margin-bottom:20px}
+.alert-head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#C2410C;margin-bottom:5px}
 .alert-msg{font-size:13px;color:#92400E;line-height:1.6;white-space:pre-wrap}
+
 /* card */
-.card{background:#fff;border:1px solid #E8EEF7;border-radius:16px;padding:20px 20px;margin-bottom:14px}
+.card{background:#fff;border:1px solid #E8EEF7;border-radius:16px;padding:20px;margin-bottom:14px}
 .card-title{font-size:10px;font-weight:700;color:#1B3FAB;text-transform:uppercase;letter-spacing:.7px;margin-bottom:16px;display:flex;align-items:center;gap:6px}
-.frow{margin-bottom:13px}
+.frow{margin-bottom:14px}
 .frow:last-child{margin-bottom:0}
-.flbl{font-size:11px;font-weight:700;color:#9DAEC4;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.flbl{font-size:11px;font-weight:700;color:#9DAEC4;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px;display:flex;align-items:center;gap:6px}
+.modo-tag{font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;text-transform:uppercase;letter-spacing:.3px}
+.modo-tag.ajustar{background:#FFF7ED;color:#EA580C;border:1px solid #FED7AA}
+.modo-tag.acrescentar{background:#EEF3FF;color:#1B3FAB;border:1px solid #C7D7F9}
+.current-val-box{background:#F8FAFF;border:1px solid #E8EEF7;border-radius:8px;padding:8px 10px;margin-bottom:6px;font-size:12px;color:#6B7280;line-height:1.5}
+.current-val-lbl{font-size:9px;font-weight:700;color:#C4D0E8;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px}
 .finput{width:100%;height:42px;border:1.5px solid #E8EEF7;border-radius:10px;padding:0 12px;font-size:15px;font-family:inherit;color:#111827;background:#F8FAFF;transition:border .15s}
 .finput:focus{outline:none;border-color:#1B3FAB;background:#fff}
-/* file upload */
-.file-zone{border:2px dashed #D1D9E8;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border .15s;background:#F8FAFF;position:relative}
-.file-zone:hover,.file-zone.over{border-color:#1B3FAB;background:#EEF3FF}
-.file-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.file-zone-ico{font-size:28px;color:#9DAEC4;display:block;margin-bottom:6px}
-.file-zone-lbl{font-size:13px;font-weight:600;color:#374151}
-.file-zone-sub{font-size:11px;color:#9DAEC4;margin-top:3px}
-.file-chosen{display:none;margin-top:10px;background:#EEF3FF;border-radius:8px;padding:8px 12px;font-size:12px;color:#1B3FAB;font-weight:600;align-items:center;gap:6px}
-/* comment */
 textarea.finput{height:80px;padding:10px 12px;resize:vertical;font-size:14px}
-/* submit btn */
-.btn-submit{width:100%;height:52px;background:#1B3FAB;border:none;border-radius:14px;color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;transition:background .15s}
-.btn-submit:hover{background:#1534A0}
-.btn-submit:disabled{background:#9DAEC4;cursor:not-allowed}
-/* success */
-.suc-page{display:none;flex-direction:column;align-items:center;text-align:center;padding:80px 24px}
+
+/* file upload */
+.file-zone{border:2px dashed #D1D9E8;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border .15s,background .15s;background:#F8FAFF;position:relative}
+.file-zone:hover,.file-zone.over{border-color:#1B3FAB;background:#EEF3FF}
+.file-zone.chosen{border-color:#16A34A;background:#F0FDF4}
+.file-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.file-zone-ico{font-size:26px;color:#9DAEC4;display:block;margin-bottom:5px;transition:color .15s}
+.file-zone.chosen .file-zone-ico{color:#16A34A}
+.file-zone-lbl{font-size:13px;font-weight:600;color:#374151}
+.file-chosen-name{font-size:12px;color:#16A34A;font-weight:600;margin-top:4px;display:none}
+.file-zone.chosen .file-chosen-name{display:block}
+.file-zone.chosen .file-zone-lbl{display:none}
+
+/* step footer */
+.step-footer{display:flex;gap:10px;margin-top:20px}
+.btn-back{flex:1;height:48px;border:1.5px solid #E8EEF7;background:#fff;border-radius:12px;font-family:inherit;font-size:14px;font-weight:600;color:#6B7280;cursor:pointer;transition:background .15s}
+.btn-back:hover{background:#F8FAFF}
+.btn-next{flex:2;height:48px;background:#1B3FAB;border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
+.btn-next:hover{background:#1534A0}
+.btn-next:disabled{background:#9DAEC4;cursor:not-allowed}
+.btn-confirm{flex:2;height:48px;background:#16A34A;border:none;border-radius:12px;color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s}
+.btn-confirm:hover{background:#15803D}
+.btn-confirm:disabled{background:#9DAEC4;cursor:not-allowed}
+
+/* confirmation step */
+.confirm-sec{margin-bottom:18px}
+.confirm-sec-title{font-size:10px;font-weight:700;color:#1B3FAB;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+.confirm-row{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:#F8FAFF;border-radius:8px;margin-bottom:4px}
+.confirm-field{font-size:12px;font-weight:700;color:#374151;flex:0 0 140px}
+.confirm-arrow{font-size:11px;color:#C4D0E8;flex-shrink:0;margin-top:1px}
+.confirm-val{font-size:12px;color:#111827;flex:1;line-height:1.5;word-break:break-word}
+.confirm-val.dim{color:#9DAEC4;font-style:italic}
+.confirm-file-row{display:flex;align-items:center;gap:8px;padding:8px 10px;background:#F0FDF4;border-radius:8px;margin-bottom:4px;border:1px solid #BBF7D0}
+.confirm-file-name{font-size:12px;color:#16A34A;font-weight:600}
+.confirm-file-miss{font-size:12px;color:#9DAEC4;font-style:italic}
+.confirm-obs-box{background:#F8FAFF;border-radius:8px;padding:10px 12px;font-size:13px;color:#374151;line-height:1.6;white-space:pre-wrap}
+
+/* success / error screens */
+.suc-page,.err-page{display:none;flex-direction:column;align-items:center;text-align:center;padding:80px 24px;min-height:100vh}
 .suc-ico{width:72px;height:72px;background:#DCFCE7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;color:#16A34A;margin:0 auto 20px}
 .suc-title{font-size:20px;font-weight:700;margin-bottom:8px}
 .suc-sub{font-size:14px;color:#6B7280;line-height:1.6}
-/* error */
-.err-page{display:none;flex-direction:column;align-items:center;text-align:center;padding:100px 24px}
 .err-ico{font-size:52px;color:#DC2626;margin-bottom:16px}
 .err-title{font-size:18px;font-weight:700;margin-bottom:8px}
 .err-sub{font-size:13px;color:#6B7280}
-@media(max-width:600px){.page{padding:20px 12px 80px}}
+
+@media(max-width:600px){
+  .page{padding:20px 12px 80px}
+  .confirm-field{flex:0 0 110px}
+}
 </style>
 </head>
 <body>
 
-<div class="page" id="main-page" style="display:none">
+<!-- ── STEP 1: FORM ───────────────────────────────────────────────── -->
+<div class="page" id="step1" style="display:none">
   <div class="logo-bar">
     <div class="logo-bolt"><i class="ti ti-bolt"></i></div>
     <div><div class="logo-name">Universo Elétrico</div><div class="logo-sub">Revisão de Cadastro</div></div>
+  </div>
+
+  <div class="steps">
+    <div class="step-dot active" id="sd1">1</div>
+    <span class="step-lbl active" id="sl1">Preencher</span>
+    <div class="step-sep"></div>
+    <div class="step-dot idle" id="sd2">2</div>
+    <span class="step-lbl idle" id="sl2">Confirmar</span>
   </div>
 
   <div class="alert" id="alert-box" style="display:none">
@@ -67,19 +120,49 @@ textarea.finput{height:80px;padding:10px 12px;resize:vertical;font-size:14px}
 
   <div id="campos-container"></div>
 
-  <div class="card" id="card-comentario">
+  <div class="card">
     <div class="card-title"><i class="ti ti-message-2"></i> Comentário para o Cadastro</div>
     <div class="frow">
-      <div class="flbl">Observação sobre as correções (opcional)</div>
-      <textarea class="finput" id="f-comentario" placeholder="Ex: Atualizei o e-mail e corrigi o endereço conforme solicitado..."></textarea>
+      <textarea class="finput" id="f-comentario" placeholder="Descreva as alterações feitas ou deixe uma observação (opcional)..."></textarea>
     </div>
   </div>
 
-  <button class="btn-submit" id="btn-enviar" onclick="enviarAjuste()">
-    <i class="ti ti-send"></i> Enviar para o Cadastro
-  </button>
+  <div class="step-footer">
+    <button class="btn-next" onclick="ajusteRevisar()">
+      Revisar antes de enviar <i class="ti ti-arrow-right"></i>
+    </button>
+  </div>
 </div>
 
+<!-- ── STEP 2: CONFIRMATION ──────────────────────────────────────── -->
+<div class="page" id="step2" style="display:none">
+  <div class="logo-bar">
+    <div class="logo-bolt"><i class="ti ti-bolt"></i></div>
+    <div><div class="logo-name">Universo Elétrico</div><div class="logo-sub">Confirmar Ajuste</div></div>
+  </div>
+
+  <div class="steps">
+    <div class="step-dot done"><i class="ti ti-check" style="font-size:13px"></i></div>
+    <span class="step-lbl done">Preenchido</span>
+    <div class="step-sep"></div>
+    <div class="step-dot active">2</div>
+    <span class="step-lbl active">Confirmar</span>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-eye"></i> Revise antes de enviar</div>
+    <div id="confirm-body"></div>
+  </div>
+
+  <div class="step-footer">
+    <button class="btn-back" onclick="ajusteVoltar()">← Voltar e Editar</button>
+    <button class="btn-confirm" id="btn-confirm" onclick="enviarAjuste()">
+      <i class="ti ti-send"></i> Confirmar e Enviar
+    </button>
+  </div>
+</div>
+
+<!-- ── SUCCESS ────────────────────────────────────────────────────── -->
 <div class="suc-page" id="suc-page">
   <div class="logo-bar" style="margin-bottom:40px">
     <div class="logo-bolt"><i class="ti ti-bolt"></i></div>
@@ -87,9 +170,10 @@ textarea.finput{height:80px;padding:10px 12px;resize:vertical;font-size:14px}
   </div>
   <div class="suc-ico"><i class="ti ti-check"></i></div>
   <div class="suc-title">Ajuste enviado!</div>
-  <div class="suc-sub">O setor de Cadastro foi notificado e irá revisar as informações.<br>Obrigado!</div>
+  <div class="suc-sub">O setor de Cadastro foi notificado<br>e irá revisar as informações. Obrigado!</div>
 </div>
 
+<!-- ── ERROR ─────────────────────────────────────────────────────── -->
 <div class="err-page" id="err-page">
   <i class="ti ti-link-off err-ico"></i>
   <div class="err-title">Link inválido ou expirado</div>
@@ -97,95 +181,114 @@ textarea.finput{height:80px;padding:10px 12px;resize:vertical;font-size:14px}
 </div>
 
 <script>
-const API = window.location.hostname==='localhost' ? 'http://localhost:3000' : '';
+const API = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
 let TOKEN = '';
-let _dadosCadastro = {};
-let _camposSolicitados = [];
-let _anexosSolicitados = [];
+let _data = {};
+let _campos = [];
+let _anexos = [];
 
-// Mapeamento de tipo de input por campo
 const TIPO_INPUT = {
   email_responsavel:'email', email_empresa:'email', email_nfe:'email',
   telefone:'tel', telefone_empresa:'tel',
 };
+const SEC_ICON = {
+  'Comprador / Responsável':'ti-user',
+  'Dados da Empresa':'ti-building',
+  'Endereço':'ti-map-pin',
+  'Fiscal':'ti-file-invoice',
+  'Financeiro':'ti-cash',
+};
+
+function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 (async function init() {
   TOKEN = new URLSearchParams(window.location.search).get('token') || '';
-  if (!TOKEN) { mostrarErro(); return; }
+  if (!TOKEN) { show('err-page'); return; }
   try {
     const r = await fetch(`${API}/api/ajuste/${TOKEN}`);
     const j = await r.json();
-    if (!j.ok) { mostrarErro(); return; }
-    _dadosCadastro    = j.data;
-    _camposSolicitados = j.data.campos_solicitados || [];
-    _anexosSolicitados = j.data.anexos_solicitados || [];
-    renderFormulario();
-    document.getElementById('main-page').style.display = 'block';
-  } catch(e) { mostrarErro(); }
+    if (!j.ok) { show('err-page'); return; }
+    _data   = j.data;
+    _campos = j.data.campos_solicitados || [];
+    _anexos = j.data.anexos_solicitados || [];
+    buildForm();
+    show('step1');
+  } catch(e) { show('err-page'); }
 })();
 
-function renderFormulario() {
-  const d = _dadosCadastro;
+function show(id) {
+  ['step1','step2','suc-page','err-page'].forEach(x => {
+    const el = document.getElementById(x);
+    if (el) el.style.display = (x === id) ? (id.includes('page') ? 'flex' : 'block') : 'none';
+  });
+}
 
-  // Alerta de mensagem
-  if (d.ajuste_mensagem) {
+function buildForm() {
+  // Alert
+  if (_data.ajuste_mensagem) {
     document.getElementById('alert-box').style.display = 'block';
-    document.getElementById('alert-msg-text').textContent = d.ajuste_mensagem;
+    document.getElementById('alert-msg-text').textContent = _data.ajuste_mensagem;
   }
 
-  // Agrupar campos por seção
+  // Group campos by section
   const secMap = {};
-  _camposSolicitados.forEach(f => {
-    const sec = f.sec || 'Outros';
-    if (!secMap[sec]) secMap[sec] = [];
-    secMap[sec].push(f);
+  _campos.forEach(f => {
+    const s = f.sec || 'Outros';
+    (secMap[s] = secMap[s]||[]).push(f);
   });
 
   const container = document.getElementById('campos-container');
-  const secIcons = {
-    'Comprador / Responsável':'ti-user',
-    'Dados da Empresa':'ti-building',
-    'Endereço':'ti-map-pin',
-    'Fiscal':'ti-file-invoice',
-    'Financeiro':'ti-cash',
-    'Outros':'ti-adjustments',
-  };
+  container.innerHTML = '';
 
   Object.entries(secMap).forEach(([sec, fields]) => {
     const card = document.createElement('div');
     card.className = 'card';
-    const ico = secIcons[sec] || 'ti-adjustments';
-    let html = `<div class="card-title"><i class="ti ${ico}"></i> ${sec}</div>`;
+    const ico = SEC_ICON[sec] || 'ti-adjustments';
+    let html = `<div class="card-title"><i class="ti ${ico}"></i> ${esc(sec)}</div>`;
+
     fields.forEach(f => {
-      const tipo = TIPO_INPUT[f.key] || 'text';
-      const val  = d[f.key] != null ? String(d[f.key]) : '';
+      const tipo  = TIPO_INPUT[f.key] || 'text';
+      const curr  = _data[f.key] != null ? String(_data[f.key]) : '';
+      const modo  = f.modo || 'ajustar';
+      const modoLabel = modo === 'acrescentar' ? 'Acrescentar mais' : 'Ajustar';
+
       html += `<div class="frow">
-        <div class="flbl">${f.label}</div>
-        <input class="finput" id="f-${f.key}" type="${tipo}" value="${escHtml(val)}" placeholder="${f.label}">
-      </div>`;
+        <div class="flbl">${esc(f.label)} <span class="modo-tag ${modo}">${modoLabel}</span></div>`;
+
+      if (modo === 'acrescentar') {
+        html += `<div class="current-val-box">
+          <div class="current-val-lbl">Valor atual</div>
+          ${esc(curr) || '<em style="color:#C4D0E8">Não preenchido</em>'}
+        </div>
+        <input class="finput" id="f-${f.key}" type="${tipo}" placeholder="Adicionar mais informação...">`;
+      } else {
+        html += `<input class="finput" id="f-${f.key}" type="${tipo}" value="${esc(curr)}" placeholder="${esc(f.label)}">`;
+      }
+
+      html += `</div>`;
     });
+
     card.innerHTML = html;
     container.appendChild(card);
   });
 
-  // Anexos solicitados
-  if (_anexosSolicitados.length > 0) {
+  // Attachment uploads
+  if (_anexos.length > 0) {
     const card = document.createElement('div');
     card.className = 'card';
     let html = `<div class="card-title"><i class="ti ti-paperclip"></i> Documentos Solicitados</div>`;
-    _anexosSolicitados.forEach((a, i) => {
+    _anexos.forEach((a, i) => {
       html += `<div class="frow">
-        <div class="flbl">${escHtml(a.nome)}</div>
+        <div class="flbl">${esc(a.nome)}</div>
         <div class="file-zone" id="fz-${i}"
-          ondragover="this.classList.add('over');event.preventDefault()"
+          ondragover="event.preventDefault();this.classList.add('over')"
           ondragleave="this.classList.remove('over')"
-          ondrop="ajusteFileDrop(event,${i})">
-          <input type="file" id="file-${i}" onchange="ajusteFileChange(this,${i})" accept="*/*">
+          ondrop="fileDrop(event,${i})">
+          <input type="file" id="file-${i}" onchange="fileChosen(this,${i})">
           <i class="ti ti-upload file-zone-ico"></i>
-          <div class="file-zone-lbl">Clique ou arraste o arquivo</div>
-          <div class="file-zone-sub">${escHtml(a.nome)}</div>
+          <div class="file-zone-lbl">Clique ou arraste • ${esc(a.nome)}</div>
+          <div class="file-chosen-name" id="fcn-${i}"></div>
         </div>
-        <div class="file-chosen" id="fc-${i}"><i class="ti ti-file"></i><span id="fc-name-${i}"></span></div>
       </div>`;
     });
     card.innerHTML = html;
@@ -193,38 +296,91 @@ function renderFormulario() {
   }
 }
 
-function ajusteFileChange(input, i) {
-  const f = input.files[0];
-  if (!f) return;
-  document.getElementById(`fc-name-${i}`).textContent = f.name;
-  document.getElementById(`fc-${i}`).style.display = 'flex';
-  document.getElementById(`fz-${i}`).style.borderColor = '#16A34A';
+function fileChosen(inp, i) {
+  const f = inp.files[0]; if (!f) return;
+  const zone = document.getElementById(`fz-${i}`);
+  zone.classList.remove('over'); zone.classList.add('chosen');
+  document.getElementById(`fcn-${i}`).textContent = f.name;
 }
-
-function ajusteFileDrop(e, i) {
+function fileDrop(e, i) {
   e.preventDefault();
   document.getElementById(`fz-${i}`).classList.remove('over');
-  const f = e.dataTransfer.files[0];
-  if (!f) return;
+  const f = e.dataTransfer.files[0]; if (!f) return;
   const inp = document.getElementById(`file-${i}`);
   const dt = new DataTransfer(); dt.items.add(f); inp.files = dt.files;
-  ajusteFileChange(inp, i);
+  fileChosen(inp, i);
 }
 
+function ajusteRevisar() {
+  // Build confirmation body
+  const secMap = {};
+  _campos.forEach(f => { const s=f.sec||'Outros'; (secMap[s]=secMap[s]||[]).push(f); });
+
+  let html = '';
+
+  Object.entries(secMap).forEach(([sec, fields]) => {
+    html += `<div class="confirm-sec"><div class="confirm-sec-title">${esc(sec)}</div>`;
+    fields.forEach(f => {
+      const el  = document.getElementById(`f-${f.key}`);
+      const val = el ? el.value.trim() : '';
+      const modo = f.modo || 'ajustar';
+      const curr = _data[f.key] != null ? String(_data[f.key]) : '';
+
+      if (modo === 'acrescentar') {
+        html += `<div class="confirm-row">
+          <div class="confirm-field">${esc(f.label)}</div>
+          <div class="confirm-arrow"><i class="ti ti-plus"></i></div>
+          <div class="confirm-val ${val?'':'dim'}">${val ? esc(val) : 'Nada adicionado'}</div>
+        </div>`;
+      } else {
+        html += `<div class="confirm-row">
+          <div class="confirm-field">${esc(f.label)}</div>
+          <div class="confirm-arrow">→</div>
+          <div class="confirm-val ${val?'':'dim'}">${val ? esc(val) : 'Campo vazio'}</div>
+        </div>`;
+      }
+    });
+    html += `</div>`;
+  });
+
+  if (_anexos.length) {
+    html += `<div class="confirm-sec"><div class="confirm-sec-title">Documentos</div>`;
+    _anexos.forEach((a, i) => {
+      const inp  = document.getElementById(`file-${i}`);
+      const nome = inp?.files[0]?.name;
+      html += nome
+        ? `<div class="confirm-file-row"><i class="ti ti-file" style="color:#16A34A"></i><span class="confirm-file-name">${esc(a.nome)}: ${esc(nome)}</span></div>`
+        : `<div class="confirm-file-row" style="background:#F8FAFF;border-color:#E8EEF7"><i class="ti ti-file" style="color:#C4D0E8"></i><span class="confirm-file-miss">${esc(a.nome)}: não enviado</span></div>`;
+    });
+    html += `</div>`;
+  }
+
+  const comentario = document.getElementById('f-comentario')?.value?.trim();
+  if (comentario) {
+    html += `<div class="confirm-sec"><div class="confirm-sec-title">Comentário</div>
+      <div class="confirm-obs-box">${esc(comentario)}</div></div>`;
+  }
+
+  document.getElementById('confirm-body').innerHTML = html;
+  show('step2');
+}
+
+function ajusteVoltar() { show('step1'); }
+
 async function enviarAjuste() {
-  const btn = document.getElementById('btn-enviar');
+  const btn = document.getElementById('btn-confirm');
   btn.disabled = true;
   btn.innerHTML = '<i class="ti ti-loader"></i> Enviando...';
 
   const fd = new FormData();
   fd.append('comentario_vendedor', document.getElementById('f-comentario')?.value?.trim() || '');
 
-  _camposSolicitados.forEach(f => {
+  _campos.forEach(f => {
     const el = document.getElementById(`f-${f.key}`);
     if (el) fd.append(f.key, el.value.trim());
   });
 
-  _anexosSolicitados.forEach((a, i) => {
+  _anexos.forEach((a, i) => {
     const inp = document.getElementById(`file-${i}`);
     if (inp?.files[0]) {
       fd.append(`file_${i}`, inp.files[0]);
@@ -236,26 +392,17 @@ async function enviarAjuste() {
     const r = await fetch(`${API}/api/ajuste/${TOKEN}`, { method:'POST', body:fd });
     const j = await r.json();
     if (j.ok) {
-      document.getElementById('main-page').style.display = 'none';
-      document.getElementById('suc-page').style.display = 'flex';
+      show('suc-page');
     } else {
       alert('Erro ao enviar: ' + (j.error || 'tente novamente'));
       btn.disabled = false;
-      btn.innerHTML = '<i class="ti ti-send"></i> Enviar para o Cadastro';
+      btn.innerHTML = '<i class="ti ti-send"></i> Confirmar e Enviar';
     }
   } catch(e) {
     alert('Erro de conexão. Verifique sua internet e tente novamente.');
     btn.disabled = false;
-    btn.innerHTML = '<i class="ti ti-send"></i> Enviar para o Cadastro';
+    btn.innerHTML = '<i class="ti ti-send"></i> Confirmar e Enviar';
   }
-}
-
-function mostrarErro() {
-  document.getElementById('err-page').style.display = 'flex';
-}
-
-function escHtml(s) {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
 </body>

@@ -614,6 +614,14 @@ app.post('/api/cadastros/:id/solicitar-ajuste', async (req, res) => {
   db[idx].anexos_solicitados = anexos;
   db[idx].status             = 'ajuste-solicitado';
   db[idx].updated_at         = new Date().toISOString();
+  db[idx].log_ajustes = [...(db[idx].log_ajustes || []), {
+    tipo: 'ajuste-solicitado',
+    em: db[idx].updated_at,
+    campos: campos.map(f => ({ label: f.label, modo: f.modo || 'ajustar' })),
+    anexos: anexos.map(a => a.nome),
+    mensagem,
+    link,
+  }];
   salvarDB(db);
 
   const c        = db[idx];
@@ -647,16 +655,39 @@ app.post('/api/ajuste/:token', uploadMem.any(), async (req, res) => {
 
   const body = req.body;
   const comentario_vendedor = body.comentario_vendedor || '';
-  const campos = { ...body };
-  ['id','created_at','status','ajuste_token','ajuste_mensagem','campos_solicitados','anexos_solicitados','comentario_vendedor']
-    .forEach(k => delete campos[k]);
-  Object.keys(campos).filter(k => k.startsWith('file_label_')).forEach(k => delete campos[k]);
+  const camposSol = db[idx].campos_solicitados || [];
+  const PROTECTED = new Set(['id','created_at','status','ajuste_token','ajuste_mensagem',
+    'campos_solicitados','anexos_solicitados','comentario_vendedor','log_ajustes']);
+  const handledKeys = new Set();
 
-  Object.assign(db[idx], campos);
+  // Apply each campo respecting its mode (ajustar = replace, acrescentar = append)
+  camposSol.forEach(f => {
+    if (body[f.key] === undefined) return;
+    handledKeys.add(f.key);
+    const val = String(body[f.key]).trim();
+    if (f.modo === 'acrescentar' && val) {
+      db[idx][f.key] = db[idx][f.key] ? `${db[idx][f.key]}\n${val}` : val;
+    } else {
+      db[idx][f.key] = val;
+    }
+  });
+  // Any remaining non-protected fields sent
+  Object.entries(body).forEach(([k, v]) => {
+    if (PROTECTED.has(k) || handledKeys.has(k) || k.startsWith('file_label_')) return;
+    db[idx][k] = v;
+  });
+
   db[idx].comentario_vendedor = comentario_vendedor;
   db[idx].status              = 'preenchido';
   db[idx].ajuste_token        = null;
   db[idx].updated_at          = new Date().toISOString();
+  db[idx].log_ajustes = [...(db[idx].log_ajustes || []), {
+    tipo: 'resposta-vendedor',
+    em: db[idx].updated_at,
+    campos_respondidos: camposSol.map(f => f.label),
+    arquivos_enviados: (req.files || []).map(f => f.originalname),
+    comentario: comentario_vendedor,
+  }];
 
   if (req.files && req.files.length > 0) {
     const dir = path.join(UPLOADS_DIR, db[idx].id);

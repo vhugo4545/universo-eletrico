@@ -59,6 +59,41 @@
 .ajm-send{flex:2;height:40px;background:#1B3FAB;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
 .ajm-send:hover{background:#1534A0}
 .ajm-send:disabled{background:#9DAEC4;cursor:not-allowed}
+
+/* mode toggle per field */
+.ajm-field-wrap{border-radius:8px;overflow:hidden}
+.ajm-mode-row{display:none;align-items:center;gap:8px;padding:4px 8px 6px 34px;background:#F8FAFF}
+.ajm-mode-opt{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#374151;cursor:pointer;padding:3px 10px;border:1.5px solid #E8EEF7;border-radius:20px;transition:all .1s}
+.ajm-mode-opt:has(input:checked){border-color:#1B3FAB;background:#EEF3FF;color:#1B3FAB;font-weight:600}
+.ajm-mode-opt input{width:12px;height:12px;accent-color:#1B3FAB;cursor:pointer}
+
+/* confirmation step */
+.ajm-confirm-info{font-size:12px;color:#9DAEC4;margin-bottom:14px;padding:10px;background:#F8FAFF;border-radius:8px;text-align:center}
+.ajm-confirm-sec{margin-bottom:16px}
+.ajm-confirm-title{font-size:10px;font-weight:700;color:#1B3FAB;text-transform:uppercase;letter-spacing:.7px;margin-bottom:8px}
+.ajm-confirm-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:#F8FAFF;margin-bottom:4px}
+.ajm-confirm-lbl{font-size:12px;font-weight:600;color:#374151;flex:0 0 150px}
+.ajm-confirm-curr{font-size:11px;color:#9DAEC4;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:monospace}
+.ajm-confirm-mode{font-size:11px;font-weight:700;flex-shrink:0}
+.ajm-confirm-mode.ajustar{color:#EA580C}
+.ajm-confirm-mode.acrescentar{color:#1B3FAB}
+.ajm-confirm-obs{font-size:13px;color:#374151;padding:8px 10px;background:#F8FAFF;border-radius:8px;line-height:1.5;white-space:pre-wrap}
+
+/* log de ajustes no registro */
+.log-list{display:flex;flex-direction:column;gap:10px}
+.log-item{border:1px solid #E8EEF7;border-radius:10px;padding:12px 14px}
+.log-req{border-left:3px solid #EA580C}
+.log-resp{border-left:3px solid #16A34A}
+.log-item-head{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.log-badge{font-size:10px;font-weight:700;border-radius:20px;padding:2px 8px}
+.log-badge-req{background:#FFF7ED;color:#EA580C}
+.log-badge-resp{background:#DCFCE7;color:#16A34A}
+.log-date{font-size:10px;color:#9DAEC4;margin-left:auto}
+.log-msg{font-size:12px;color:#374151;font-style:italic;margin-bottom:6px;padding:5px 8px;background:#F8FAFF;border-radius:6px}
+.log-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.log-campo-tag{font-size:10px;padding:2px 8px;border-radius:20px;background:#F3F6FB;color:#374151;border:1px solid #E8EEF7}
+.log-campo-tag.ajustar{background:#FFF7ED;color:#EA580C;border-color:#FED7AA}
+.log-campo-tag.acrescentar{background:#EEF3FF;color:#1B3FAB;border-color:#C7D7F9}
 </style>
 </head>
 <body>
@@ -799,13 +834,13 @@ const CAMPOS_AJUSTE = [
     {key:'email_responsavel', label:'E-mail do responsável'},
   ]},
   { sec:'Dados da Empresa', fields:[
-    {key:'razao_social',    label:'Razão Social'},
-    {key:'nome_fantasia',   label:'Nome Fantasia'},
-    {key:'cnpj',            label:'CNPJ / CPF'},
-    {key:'email_empresa',   label:'E-mail da empresa'},
-    {key:'email_nfe',       label:'E-mail para NF-e'},
-    {key:'telefone_empresa',label:'Telefone comercial'},
-    {key:'site',            label:'Site'},
+    {key:'razao_social',     label:'Razão Social'},
+    {key:'nome_fantasia',    label:'Nome Fantasia'},
+    {key:'cnpj',             label:'CNPJ / CPF'},
+    {key:'email_empresa',    label:'E-mail da empresa'},
+    {key:'email_nfe',        label:'E-mail para NF-e'},
+    {key:'telefone_empresa', label:'Telefone comercial'},
+    {key:'site',             label:'Site'},
   ]},
   { sec:'Endereço', fields:[
     {key:'cep',         label:'CEP'},
@@ -830,15 +865,30 @@ const CAMPOS_AJUSTE = [
   ]},
 ];
 
-let _ajmAnexos = [];
+// State
+let _ajmCadastro   = null;
+let _ajmAnexosList = []; // [{id,nome}]
+let _ajmStep       = 1;
+let _ajmCampos     = [];
+let _ajmAnexosFinal = [];
+let _ajmMensagem   = '';
+
+function _ajmEsc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 function abrirSolicitarAjuste() {
   if (!detId) return;
   const c = todos.find(x=>x.id===detId);
   if (!c) return;
-  _ajmAnexos = [];
+  _ajmCadastro = c;
+  _ajmAnexosList = [];
+  _ajmStep = 1;
   document.getElementById('ajm-sub').textContent = c.razao_social||c.nome_fantasia||c.responsavel||'Cliente';
+  _ajmBuildStep1();
+  document.getElementById('ajm-ov').classList.add('open');
+}
 
+function _ajmBuildStep1(restore) {
+  const c = _ajmCadastro;
   let html = '';
   CAMPOS_AJUSTE.forEach((sec, si) => {
     html += `<div class="ajm-sec">
@@ -847,82 +897,157 @@ function abrirSolicitarAjuste() {
         <span class="ajm-sec-all" onclick="ajmToggleSec(${si},this)">Selecionar tudo</span>
       </div>`;
     sec.fields.forEach(f => {
-      const val = (c[f.key] != null ? String(c[f.key]) : '').slice(0,45) || '—';
-      html += `<label class="ajm-field">
-        <input type="checkbox" class="ajm-chk" data-key="${f.key}" data-label="${f.label.replace(/"/g,'&quot;')}" data-sec="${si}">
-        <span class="ajm-field-lbl">${f.label}</span>
-        <span class="ajm-field-val">${val}</span>
-      </label>`;
+      const val = _ajmEsc((c[f.key] != null ? String(c[f.key]) : '').slice(0,50) || '—');
+      html += `<div class="ajm-field-wrap">
+        <label class="ajm-field">
+          <input type="checkbox" class="ajm-chk" data-key="${f.key}" data-label="${_ajmEsc(f.label)}" data-sec="${si}" onchange="ajmToggleMode(this,'${f.key}')">
+          <span class="ajm-field-lbl">${f.label}</span>
+          <span class="ajm-field-val">${val}</span>
+        </label>
+        <div class="ajm-mode-row" id="ajm-mode-${f.key}">
+          <label class="ajm-mode-opt"><input type="radio" name="ajm-modo-${f.key}" value="ajustar" checked> Ajustar</label>
+          <label class="ajm-mode-opt"><input type="radio" name="ajm-modo-${f.key}" value="acrescentar"> Acrescentar mais</label>
+        </div>
+      </div>`;
     });
     html += `</div>`;
   });
-
   html += `<div class="ajm-div"></div>
-  <div class="ajm-anexos-title"><i class="ti ti-paperclip"></i> Documentos / Anexos solicitados</div>
-  <div id="ajm-anexos-list"></div>
-  <span class="ajm-add-anexo" onclick="ajmAddAnexo()"><i class="ti ti-circle-plus"></i> Adicionar documento</span>
-  <div class="ajm-msg-lbl">Observação (opcional)</div>
-  <textarea class="ajm-msg-inp" id="ajm-msg" placeholder="Ex: Corrija o CNPJ e envie o contrato social atualizado..."></textarea>`;
-
+    <div class="ajm-anexos-title"><i class="ti ti-paperclip"></i> Documentos / Anexos solicitados</div>
+    <div id="ajm-anexos-list"></div>
+    <span class="ajm-add-anexo" onclick="ajmAddAnexo()"><i class="ti ti-circle-plus"></i> Adicionar documento</span>
+    <div class="ajm-msg-lbl">Observação (opcional)</div>
+    <textarea class="ajm-msg-inp" id="ajm-msg" placeholder="Ex: Corrija o CNPJ e envie o contrato social atualizado..."></textarea>`;
   document.getElementById('ajm-body').innerHTML = html;
-  document.getElementById('ajm-send').disabled = false;
-  document.getElementById('ajm-send').innerHTML = '<i class="ti ti-brand-whatsapp"></i> Enviar via WhatsApp';
-  document.getElementById('ajm-ov').classList.add('open');
+
+  // Restore from previous step 2 "voltar"
+  if (restore) {
+    restore.campos.forEach(f => {
+      const chk = document.querySelector(`.ajm-chk[data-key="${f.key}"]`);
+      if (!chk) return;
+      chk.checked = true;
+      ajmToggleMode(chk, f.key);
+      const r = document.querySelector(`input[name="ajm-modo-${f.key}"][value="${f.modo}"]`);
+      if (r) r.checked = true;
+    });
+    _ajmAnexosList = [];
+    restore.anexos.forEach(nome => _ajmAddAnexoComNome(nome));
+    const msg = document.getElementById('ajm-msg');
+    if (msg) msg.value = restore.mensagem || '';
+  }
+
+  const btn = document.getElementById('ajm-send');
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-arrow-right"></i> Revisar →';
+  btn.onclick = ajmProximo;
+  const cancel = document.querySelector('.ajm-cancel');
+  cancel.textContent = 'Cancelar';
+  cancel.onclick = ajmFechar;
+}
+
+function _ajmBuildStep2() {
+  const c = _ajmCadastro;
+  const MODO_LBL = {ajustar:'Ajustar', acrescentar:'Acrescentar mais'};
+  let html = `<div class="ajm-confirm-info"><i class="ti ti-eye" style="margin-right:5px"></i>Confira o que será enviado ao vendedor antes de confirmar.</div>`;
+
+  if (_ajmCampos.length) {
+    html += `<div class="ajm-confirm-sec"><div class="ajm-confirm-title">Campos para corrigir</div>`;
+    _ajmCampos.forEach(f => {
+      const curr = _ajmEsc((c[f.key] != null ? String(c[f.key]) : '—').slice(0,55));
+      html += `<div class="ajm-confirm-row">
+        <div class="ajm-confirm-lbl">${_ajmEsc(f.label)}</div>
+        <div class="ajm-confirm-curr">${curr}</div>
+        <div class="ajm-confirm-mode ${f.modo}">${MODO_LBL[f.modo]||f.modo}</div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  if (_ajmAnexosFinal.length) {
+    html += `<div class="ajm-confirm-sec"><div class="ajm-confirm-title">Documentos solicitados</div>`;
+    _ajmAnexosFinal.forEach(a => {
+      html += `<div class="ajm-confirm-row"><i class="ti ti-paperclip" style="color:#9DAEC4;margin-right:6px;flex-shrink:0"></i><span>${_ajmEsc(a.nome)}</span></div>`;
+    });
+    html += `</div>`;
+  }
+  if (_ajmMensagem) {
+    html += `<div class="ajm-confirm-sec"><div class="ajm-confirm-title">Observação</div>
+      <div class="ajm-confirm-obs">${_ajmEsc(_ajmMensagem)}</div></div>`;
+  }
+  document.getElementById('ajm-body').innerHTML = html;
+
+  const btn = document.getElementById('ajm-send');
+  btn.disabled = false;
+  btn.innerHTML = '<i class="ti ti-brand-whatsapp"></i> Confirmar e Enviar';
+  btn.onclick = ajmEnviar;
+  const cancel = document.querySelector('.ajm-cancel');
+  cancel.textContent = '← Voltar e Editar';
+  cancel.onclick = () => _ajmBuildStep1({campos:_ajmCampos, anexos:_ajmAnexosFinal.map(a=>a.nome), mensagem:_ajmMensagem});
 }
 
 function ajmFechar() { document.getElementById('ajm-ov').classList.remove('open'); }
-function ajmFecharFora(e) { if (e.target === document.getElementById('ajm-ov')) ajmFechar(); }
+function ajmFecharFora(e) { if (e.target===document.getElementById('ajm-ov')) ajmFechar(); }
+
+function ajmToggleMode(chk, key) {
+  const row = document.getElementById(`ajm-mode-${key}`);
+  if (row) row.style.display = chk.checked ? 'flex' : 'none';
+}
 
 function ajmToggleSec(si, el) {
   const chks = [...document.querySelectorAll(`.ajm-chk[data-sec="${si}"]`)];
   const all = chks.every(c=>c.checked);
-  chks.forEach(c=>c.checked=!all);
+  chks.forEach(c => { c.checked=!all; ajmToggleMode(c, c.dataset.key); });
   el.textContent = all ? 'Selecionar tudo' : 'Desmarcar tudo';
 }
 
-function ajmAddAnexo() {
-  const idx = _ajmAnexos.length;
-  _ajmAnexos.push('');
+function _ajmAddAnexoComNome(nome) {
+  const id = Math.random().toString(36).slice(2,8);
+  _ajmAnexosList.push({id, nome});
   const list = document.getElementById('ajm-anexos-list');
   const row = document.createElement('div');
-  row.className = 'ajm-anexo-row'; row.id = `ajm-ar-${idx}`;
-  row.innerHTML = `<input class="ajm-anexo-inp" placeholder="Nome do documento (ex: Contrato Social, RG dos sócios...)" oninput="_ajmAnexos[${idx}]=this.value">
-    <button class="ajm-anexo-rm" onclick="document.getElementById('ajm-ar-${idx}').remove();_ajmAnexos[${idx}]=null" title="Remover"><i class="ti ti-trash"></i></button>`;
+  row.className='ajm-anexo-row'; row.id=`ajm-ar-${id}`;
+  row.innerHTML=`<input class="ajm-anexo-inp" value="${_ajmEsc(nome)}" placeholder="Nome do documento (ex: Contrato Social...)" oninput="ajmUpdateAnexo('${id}',this.value)">
+    <button class="ajm-anexo-rm" onclick="ajmRemoveAnexo('${id}')" title="Remover"><i class="ti ti-trash"></i></button>`;
   list.appendChild(row);
+}
+function ajmAddAnexo() { _ajmAddAnexoComNome(''); }
+function ajmUpdateAnexo(id,val){ const it=_ajmAnexosList.find(x=>x.id===id); if(it) it.nome=val; }
+function ajmRemoveAnexo(id){ _ajmAnexosList=_ajmAnexosList.filter(x=>x.id!==id); document.getElementById(`ajm-ar-${id}`)?.remove(); }
+
+function ajmProximo() {
+  const campos = [...document.querySelectorAll('.ajm-chk:checked')].map(el => {
+    const r = document.querySelector(`input[name="ajm-modo-${el.dataset.key}"]:checked`);
+    return { key:el.dataset.key, label:el.dataset.label, sec:CAMPOS_AJUSTE[+el.dataset.sec]?.sec||'', modo:r?.value||'ajustar' };
+  });
+  const anexos = _ajmAnexosList.filter(a=>a.nome.trim()).map(a=>({nome:a.nome.trim()}));
+  const mensagem = (document.getElementById('ajm-msg')?.value||'').trim();
+  if (!campos.length && !anexos.length) { alert('Selecione pelo menos um campo ou adicione um documento.'); return; }
+  _ajmCampos = campos; _ajmAnexosFinal = anexos; _ajmMensagem = mensagem;
+  _ajmStep = 2;
+  _ajmBuildStep2();
 }
 
 async function ajmEnviar() {
-  const campos = [...document.querySelectorAll('.ajm-chk:checked')].map(el=>({
-    key: el.dataset.key,
-    label: el.dataset.label,
-    sec: CAMPOS_AJUSTE[+el.dataset.sec]?.sec || '',
-  }));
-  const anexos = _ajmAnexos.filter(n=>n&&n.trim()).map(nome=>({nome:nome.trim()}));
-  const mensagem = (document.getElementById('ajm-msg')?.value||'').trim();
-
-  if (!campos.length && !anexos.length) {
-    alert('Selecione pelo menos um campo ou adicione um documento para solicitar ajuste.');
-    return;
-  }
-
   const btn = document.getElementById('ajm-send');
-  btn.disabled = true;
-  btn.innerHTML = '<i class="ti ti-loader"></i> Enviando...';
-
+  btn.disabled=true; btn.innerHTML='<i class="ti ti-loader"></i> Enviando...';
   try {
     const r = await fetch(`${API}/api/cadastros/${detId}/solicitar-ajuste`,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({mensagem,campos,anexos}),
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({mensagem:_ajmMensagem, campos:_ajmCampos, anexos:_ajmAnexosFinal}),
     });
     const j = await r.json();
     if (j.ok) {
       ajmFechar();
       showToast('Ajuste solicitado! Link enviado via WhatsApp.','ok');
-      const idx = todos.findIndex(x=>x.id===detId);
-      if (idx>-1){ todos[idx].status='ajuste-solicitado'; atualizarStats(); renderTabela(); }
-    } else { showToast('Erro ao solicitar ajuste: '+(j.error||''),'err'); btn.disabled=false; btn.innerHTML='<i class="ti ti-brand-whatsapp"></i> Enviar via WhatsApp'; }
-  } catch(e){ showToast('Erro de conexão','err'); btn.disabled=false; btn.innerHTML='<i class="ti ti-brand-whatsapp"></i> Enviar via WhatsApp'; }
+      const idx=todos.findIndex(x=>x.id===detId);
+      if(idx>-1){ todos[idx].status='ajuste-solicitado'; atualizarStats(); renderTabela(); }
+    } else {
+      showToast('Erro: '+(j.error||''),'err');
+      btn.disabled=false; btn.innerHTML='<i class="ti ti-brand-whatsapp"></i> Confirmar e Enviar';
+    }
+  } catch(e){
+    showToast('Erro de conexão','err');
+    btn.disabled=false; btn.innerHTML='<i class="ti ti-brand-whatsapp"></i> Confirmar e Enviar';
+  }
 }
 
 /* ── FILA ────────────────────────────────────────────────────── */
@@ -1344,6 +1469,36 @@ function detalheHTML(c) {
       ${f('CEP',e.cep,true)}</div>`;
   })();
 
+  const logAjustesHTML = !c.log_ajustes?.length ? '' : `
+    <div class="det-sect">
+      <div class="det-sect-title"><i class="ti ti-message-exclamation" style="color:#EA580C"></i> Histórico de Ajustes</div>
+      <div class="log-list">${[...c.log_ajustes].reverse().map(l => {
+        if (l.tipo === 'ajuste-solicitado') {
+          const tags = [
+            ...(l.campos||[]).map(f=>`<span class="log-campo-tag ${f.modo||'ajustar'}">${f.label}</span>`),
+            ...(l.anexos||[]).map(a=>`<span class="log-campo-tag"><i class="ti ti-paperclip"></i> ${a}</span>`),
+          ].join('');
+          return `<div class="log-item log-req">
+            <div class="log-item-head"><span class="log-badge log-badge-req">Ajuste Solicitado</span><span class="log-date">${new Date(l.em).toLocaleString('pt-BR')}</span></div>
+            ${l.mensagem?`<div class="log-msg">"${l.mensagem}"</div>`:''}
+            <div class="log-tags">${tags}</div>
+          </div>`;
+        }
+        if (l.tipo === 'resposta-vendedor') {
+          const tags = [
+            ...(l.campos_respondidos||[]).map(lbl=>`<span class="log-campo-tag">${lbl}</span>`),
+            ...(l.arquivos_enviados||[]).map(a=>`<span class="log-campo-tag"><i class="ti ti-file"></i> ${a}</span>`),
+          ].join('');
+          return `<div class="log-item log-resp">
+            <div class="log-item-head"><span class="log-badge log-badge-resp">Resposta do Vendedor</span><span class="log-date">${new Date(l.em).toLocaleString('pt-BR')}</span></div>
+            ${l.comentario?`<div class="log-msg">"${l.comentario}"</div>`:''}
+            <div class="log-tags">${tags}</div>
+          </div>`;
+        }
+        return '';
+      }).join('')}</div>
+    </div>`;
+
   const historicoHTML = !c.historico?.length ? '' : `
     <div class="det-sect">
       <div class="det-sect-title"><i class="ti ti-history"></i> Histórico de Modificações</div>
@@ -1576,6 +1731,7 @@ function detalheHTML(c) {
           ${f('Operador',c.operador_nome)}${f('Equipe',c.equipe)}
         </div>
       </div>
+      ${logAjustesHTML}
       ${historicoHTML}
     </div>`;
 }
