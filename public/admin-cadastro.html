@@ -876,6 +876,9 @@ const CAMPOS_AJUSTE = [
     {key:'telefone_financeiro',      label:'Telefone Financeiro'},
     {key:'valor_solicitado_credito', label:'Valor Solicitado de Crédito'},
   ]},
+  { sec:'Referências Comerciais', fields:[
+    {key:'referencias_comerciais', label:'Referências Comerciais', type:'refs'},
+  ]},
   { sec:'Observações', fields:[
     {key:'observacoes', label:'Observações gerais'},
   ]},
@@ -913,7 +916,10 @@ function _ajmBuildStep1(restore) {
         <span class="ajm-sec-all" onclick="ajmToggleSec(${si},this)">Selecionar tudo</span>
       </div>`;
     sec.fields.forEach(f => {
-      const val = _ajmEsc((c[f.key] != null ? String(c[f.key]) : '').slice(0,50) || '—');
+      const raw = c[f.key];
+      const val = f.type === 'refs'
+        ? (Array.isArray(raw) && raw.length ? `${raw.length} referência(s): ${raw.map(r=>r.empresa).filter(Boolean).join(', ').slice(0,40)}` : '—')
+        : _ajmEsc((raw != null ? String(raw) : '').slice(0,50) || '—');
       html += `<div class="ajm-field-wrap">
         <label class="ajm-field">
           <input type="checkbox" class="ajm-chk" data-key="${f.key}" data-label="${_ajmEsc(f.label)}" data-sec="${si}" onchange="ajmToggleMode(this,'${f.key}')">

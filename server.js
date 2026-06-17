@@ -594,7 +594,7 @@ app.get('/api/rascunho/:id', (req, res) => {
 });
 
 // ─── AJUSTE DE CADASTRO ───────────────────────────────────────────────────────
-const NUMERO_VENDEDOR_TEMP = '31993346064'; // temporário — todos os vendedores
+const NUMERO_VENDEDOR_TEMP = '3193346034'; // temporário — todos os vendedores
 
 app.post('/api/cadastros/:id/solicitar-ajuste', async (req, res) => {
   const db  = lerDB();
@@ -660,15 +660,26 @@ app.post('/api/ajuste/:token', uploadMem.any(), async (req, res) => {
     'campos_solicitados','anexos_solicitados','comentario_vendedor','log_ajustes']);
   const handledKeys = new Set();
 
+  const ARR_KEYS = new Set(['referencias_comerciais','contatos','bancos']);
+
   // Apply each campo respecting its mode (ajustar = replace, acrescentar = append)
   camposSol.forEach(f => {
     if (body[f.key] === undefined) return;
     handledKeys.add(f.key);
-    const val = String(body[f.key]).trim();
-    if (f.modo === 'acrescentar' && val) {
-      db[idx][f.key] = db[idx][f.key] ? `${db[idx][f.key]}\n${val}` : val;
+    if (ARR_KEYS.has(f.key)) {
+      let arr;
+      try { arr = JSON.parse(body[f.key]); } catch(e) { arr = []; }
+      if (!Array.isArray(arr)) arr = [];
+      db[idx][f.key] = f.modo === 'acrescentar'
+        ? [...(db[idx][f.key] || []), ...arr]
+        : arr;
     } else {
-      db[idx][f.key] = val;
+      const val = String(body[f.key]).trim();
+      if (f.modo === 'acrescentar' && val) {
+        db[idx][f.key] = db[idx][f.key] ? `${db[idx][f.key]}\n${val}` : val;
+      } else {
+        db[idx][f.key] = val;
+      }
     }
   });
   // Any remaining non-protected fields sent

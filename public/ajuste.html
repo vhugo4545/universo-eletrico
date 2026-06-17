@@ -45,6 +45,10 @@ body{background:#F3F6FB;font-family:'Plus Jakarta Sans',system-ui,sans-serif;min
 .finput:focus{outline:none;border-color:#1B3FAB;background:#fff}
 textarea.finput{height:80px;padding:10px 12px;resize:vertical;font-size:14px}
 
+/* refs dynamic list */
+.add-ref-btn{display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px dashed #A9B9D8;border-radius:10px;color:#1B3FAB;font-size:13px;font-weight:500;cursor:pointer;width:fit-content;margin-top:4px;transition:border .15s,background .15s}
+.add-ref-btn:hover{background:#EEF3FF;border-color:#1B3FAB}
+
 /* file upload */
 .file-zone{border:2px dashed #D1D9E8;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border .15s,background .15s;background:#F8FAFF;position:relative}
 .file-zone:hover,.file-zone.over{border-color:#1B3FAB;background:#EEF3FF}
@@ -186,18 +190,26 @@ let TOKEN = '';
 let _data = {};
 let _campos = [];
 let _anexos = [];
+// Tracks dynamic reference rows per array-field key: {key: [{id, empresa, telefone}]}
+const _refsState = {};
 
 const TIPO_INPUT = {
   email_responsavel:'email', email_empresa:'email', email_nfe:'email',
-  telefone:'tel', telefone_empresa:'tel',
+  email_portal:'email', email_acesso:'email', email_financeiro:'email',
+  telefone:'tel', telefone_empresa:'tel', telefone_financeiro:'tel', telefone_comercial:'tel',
 };
 const SEC_ICON = {
+  'Identificação':'ti-hash',
   'Comprador / Responsável':'ti-user',
   'Dados da Empresa':'ti-building',
+  'E-mails':'ti-mail',
   'Endereço':'ti-map-pin',
   'Fiscal':'ti-file-invoice',
   'Financeiro':'ti-cash',
+  'Referências Comerciais':'ti-building-store',
+  'Observações':'ti-notes',
 };
+const ARR_KEYS = new Set(['referencias_comerciais','contatos','bancos']);
 
 function esc(s){ return String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
@@ -223,22 +235,20 @@ function show(id) {
   });
 }
 
+/* ── BUILD FORM ───────────────────────────────────────────────── */
 function buildForm() {
-  // Alert
   if (_data.ajuste_mensagem) {
     document.getElementById('alert-box').style.display = 'block';
     document.getElementById('alert-msg-text').textContent = _data.ajuste_mensagem;
   }
 
-  // Group campos by section
   const secMap = {};
-  _campos.forEach(f => {
-    const s = f.sec || 'Outros';
-    (secMap[s] = secMap[s]||[]).push(f);
-  });
+  _campos.forEach(f => { const s = f.sec||'Outros'; (secMap[s]=secMap[s]||[]).push(f); });
 
   const container = document.getElementById('campos-container');
   container.innerHTML = '';
+
+  const refsToInit = []; // {f, currentRefs} — initialize after DOM is ready
 
   Object.entries(secMap).forEach(([sec, fields]) => {
     const card = document.createElement('div');
@@ -247,29 +257,65 @@ function buildForm() {
     let html = `<div class="card-title"><i class="ti ${ico}"></i> ${esc(sec)}</div>`;
 
     fields.forEach(f => {
-      const tipo  = TIPO_INPUT[f.key] || 'text';
-      const curr  = _data[f.key] != null ? String(_data[f.key]) : '';
-      const modo  = f.modo || 'ajustar';
+      const modo      = f.modo || 'ajustar';
       const modoLabel = modo === 'acrescentar' ? 'Acrescentar mais' : 'Ajustar';
 
-      html += `<div class="frow">
-        <div class="flbl">${esc(f.label)} <span class="modo-tag ${modo}">${modoLabel}</span></div>`;
+      if (ARR_KEYS.has(f.key)) {
+        // ── Array field (references) ──
+        const current = Array.isArray(_data[f.key]) ? _data[f.key] : [];
+        _refsState[f.key] = [];
 
-      if (modo === 'acrescentar') {
-        html += `<div class="current-val-box">
-          <div class="current-val-lbl">Valor atual</div>
-          ${esc(curr) || '<em style="color:#C4D0E8">Não preenchido</em>'}
-        </div>
-        <input class="finput" id="f-${f.key}" type="${tipo}" placeholder="Adicionar mais informação...">`;
+        html += `<div class="frow">
+          <div class="flbl">${esc(f.label)} <span class="modo-tag ${modo}">${modoLabel}</span></div>`;
+
+        if (modo === 'acrescentar' && current.length) {
+          html += `<div class="current-val-box">
+            <div class="current-val-lbl">Referências atuais (${current.length})</div>
+            ${current.map(r=>`<div style="font-size:12px;padding:2px 0"><strong>${esc(r.empresa||'—')}</strong>${r.telefone?` — ${esc(r.telefone)}`:''}</div>`).join('')}
+          </div>`;
+        }
+
+        html += `<div id="refs-list-${f.key}"></div>
+          <div class="add-ref-btn" onclick="addRef('${f.key}','','')">
+            <i class="ti ti-circle-plus"></i> Adicionar referência
+          </div>
+        </div>`;
+
+        refsToInit.push({f, currentRefs: current});
       } else {
-        html += `<input class="finput" id="f-${f.key}" type="${tipo}" value="${esc(curr)}" placeholder="${esc(f.label)}">`;
-      }
+        // ── Simple field ──
+        const tipo = TIPO_INPUT[f.key] || 'text';
+        const curr = _data[f.key] != null ? String(_data[f.key]) : '';
 
-      html += `</div>`;
+        html += `<div class="frow">
+          <div class="flbl">${esc(f.label)} <span class="modo-tag ${modo}">${modoLabel}</span></div>`;
+
+        if (modo === 'acrescentar') {
+          html += `<div class="current-val-box">
+            <div class="current-val-lbl">Valor atual</div>
+            ${esc(curr) || '<em style="color:#C4D0E8">Não preenchido</em>'}
+          </div>
+          <input class="finput" id="f-${f.key}" type="${tipo}" placeholder="Adicionar mais informação...">`;
+        } else {
+          html += `<input class="finput" id="f-${f.key}" type="${tipo}" value="${esc(curr)}" placeholder="${esc(f.label)}">`;
+        }
+        html += `</div>`;
+      }
     });
 
     card.innerHTML = html;
     container.appendChild(card);
+  });
+
+  // Init refs rows after DOM is ready
+  refsToInit.forEach(({f, currentRefs}) => {
+    const modo = f.modo || 'ajustar';
+    if (modo === 'ajustar' && currentRefs.length) {
+      // Pre-fill with existing refs so vendor can edit them
+      currentRefs.forEach(r => addRef(f.key, r.empresa||'', r.telefone||''));
+    }
+    // Always add one empty row if nothing was added
+    if (!_refsState[f.key]?.length) addRef(f.key, '', '');
   });
 
   // Attachment uploads
@@ -296,6 +342,35 @@ function buildForm() {
   }
 }
 
+/* ── REFS HELPERS ─────────────────────────────────────────────── */
+function addRef(key, empresa, telefone) {
+  if (!_refsState[key]) _refsState[key] = [];
+  const id = Math.random().toString(36).slice(2,8);
+  _refsState[key].push({id, empresa, telefone});
+  const list = document.getElementById(`refs-list-${key}`);
+  if (!list) return;
+  const row = document.createElement('div');
+  row.id = `ref-${key}-${id}`;
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:center';
+  row.innerHTML = `
+    <input class="finput" placeholder="Empresa *" value="${esc(empresa)}"
+      oninput="updateRef('${key}','${id}','empresa',this.value)" style="height:38px">
+    <input class="finput" placeholder="Telefone" type="tel" value="${esc(telefone)}"
+      oninput="updateRef('${key}','${id}','telefone',this.value)" style="height:38px">
+    <button style="width:34px;height:34px;border:1px solid #FECACA;background:#FEF2F2;color:#DC2626;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0"
+      onclick="removeRef('${key}','${id}')"><i class="ti ti-trash"></i></button>`;
+  list.appendChild(row);
+}
+function updateRef(key, id, field, val) {
+  const ref = _refsState[key]?.find(r=>r.id===id);
+  if (ref) ref[field] = val;
+}
+function removeRef(key, id) {
+  if (_refsState[key]) _refsState[key] = _refsState[key].filter(r=>r.id!==id);
+  document.getElementById(`ref-${key}-${id}`)?.remove();
+}
+
+/* ── FILE UPLOAD HELPERS ──────────────────────────────────────── */
 function fileChosen(inp, i) {
   const f = inp.files[0]; if (!f) return;
   const zone = document.getElementById(`fz-${i}`);
@@ -311,8 +386,8 @@ function fileDrop(e, i) {
   fileChosen(inp, i);
 }
 
+/* ── REVISAR (step 1 → step 2) ────────────────────────────────── */
 function ajusteRevisar() {
-  // Build confirmation body
   const secMap = {};
   _campos.forEach(f => { const s=f.sec||'Outros'; (secMap[s]=secMap[s]||[]).push(f); });
 
@@ -321,23 +396,42 @@ function ajusteRevisar() {
   Object.entries(secMap).forEach(([sec, fields]) => {
     html += `<div class="confirm-sec"><div class="confirm-sec-title">${esc(sec)}</div>`;
     fields.forEach(f => {
-      const el  = document.getElementById(`f-${f.key}`);
-      const val = el ? el.value.trim() : '';
       const modo = f.modo || 'ajustar';
-      const curr = _data[f.key] != null ? String(_data[f.key]) : '';
 
-      if (modo === 'acrescentar') {
-        html += `<div class="confirm-row">
-          <div class="confirm-field">${esc(f.label)}</div>
-          <div class="confirm-arrow"><i class="ti ti-plus"></i></div>
-          <div class="confirm-val ${val?'':'dim'}">${val ? esc(val) : 'Nada adicionado'}</div>
-        </div>`;
+      if (ARR_KEYS.has(f.key)) {
+        const refs = (_refsState[f.key] || []).filter(r => r.empresa.trim());
+        const prefix = modo === 'acrescentar' ? '<i class="ti ti-plus" style="color:#1B3FAB"></i>' : '→';
+        if (refs.length) {
+          refs.forEach(r => {
+            html += `<div class="confirm-row">
+              <div class="confirm-field">${esc(f.label)}</div>
+              <div class="confirm-arrow">${prefix}</div>
+              <div class="confirm-val">${esc(r.empresa)}${r.telefone?` — ${esc(r.telefone)}`:''}</div>
+            </div>`;
+          });
+        } else {
+          html += `<div class="confirm-row">
+            <div class="confirm-field">${esc(f.label)}</div>
+            <div class="confirm-arrow">${prefix}</div>
+            <div class="confirm-val dim">Nenhuma referência informada</div>
+          </div>`;
+        }
       } else {
-        html += `<div class="confirm-row">
-          <div class="confirm-field">${esc(f.label)}</div>
-          <div class="confirm-arrow">→</div>
-          <div class="confirm-val ${val?'':'dim'}">${val ? esc(val) : 'Campo vazio'}</div>
-        </div>`;
+        const el  = document.getElementById(`f-${f.key}`);
+        const val = el ? el.value.trim() : '';
+        if (modo === 'acrescentar') {
+          html += `<div class="confirm-row">
+            <div class="confirm-field">${esc(f.label)}</div>
+            <div class="confirm-arrow"><i class="ti ti-plus"></i></div>
+            <div class="confirm-val ${val?'':'dim'}">${val ? esc(val) : 'Nada adicionado'}</div>
+          </div>`;
+        } else {
+          html += `<div class="confirm-row">
+            <div class="confirm-field">${esc(f.label)}</div>
+            <div class="confirm-arrow">→</div>
+            <div class="confirm-val ${val?'':'dim'}">${val ? esc(val) : 'Campo vazio'}</div>
+          </div>`;
+        }
       }
     });
     html += `</div>`;
@@ -346,8 +440,7 @@ function ajusteRevisar() {
   if (_anexos.length) {
     html += `<div class="confirm-sec"><div class="confirm-sec-title">Documentos</div>`;
     _anexos.forEach((a, i) => {
-      const inp  = document.getElementById(`file-${i}`);
-      const nome = inp?.files[0]?.name;
+      const nome = document.getElementById(`file-${i}`)?.files[0]?.name;
       html += nome
         ? `<div class="confirm-file-row"><i class="ti ti-file" style="color:#16A34A"></i><span class="confirm-file-name">${esc(a.nome)}: ${esc(nome)}</span></div>`
         : `<div class="confirm-file-row" style="background:#F8FAFF;border-color:#E8EEF7"><i class="ti ti-file" style="color:#C4D0E8"></i><span class="confirm-file-miss">${esc(a.nome)}: não enviado</span></div>`;
@@ -367,6 +460,7 @@ function ajusteRevisar() {
 
 function ajusteVoltar() { show('step1'); }
 
+/* ── ENVIAR ───────────────────────────────────────────────────── */
 async function enviarAjuste() {
   const btn = document.getElementById('btn-confirm');
   btn.disabled = true;
@@ -376,8 +470,15 @@ async function enviarAjuste() {
   fd.append('comentario_vendedor', document.getElementById('f-comentario')?.value?.trim() || '');
 
   _campos.forEach(f => {
-    const el = document.getElementById(`f-${f.key}`);
-    if (el) fd.append(f.key, el.value.trim());
+    if (ARR_KEYS.has(f.key)) {
+      const refs = (_refsState[f.key] || [])
+        .filter(r => r.empresa.trim())
+        .map(r => ({empresa: r.empresa.trim(), telefone: r.telefone.trim()}));
+      fd.append(f.key, JSON.stringify(refs));
+    } else {
+      const el = document.getElementById(`f-${f.key}`);
+      if (el) fd.append(f.key, el.value.trim());
+    }
   });
 
   _anexos.forEach((a, i) => {
