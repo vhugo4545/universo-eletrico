@@ -110,6 +110,9 @@
             <div class="tipo-btn-sub">CPF · Profissional / Autônomo</div>
           </button>
         </div>
+        <button class="btn btn-ghost" id="btn-teste" style="display:none;margin-top:16px;width:100%" onclick="preencherDadosTeste()">
+          <i class="ti ti-flask"></i> Preencher com dados de teste
+        </button>
       </div>
     </div>
   </div>
@@ -136,30 +139,21 @@
         <div class="irow" id="row-cnpj"><div class="iico"><i class="ti ti-building-store"></i></div>
           <input class="finput" id="inp-cnpj" type="text" placeholder="00.000.000/0001-00" maxlength="18" autocomplete="off">
           <div class="istat" id="st-cnpj"></div></div>
-        <div class="fmsg" id="msg-cnpj">Consulta automática Receita Federal + SINTEGRA</div>
+        <div class="fmsg" id="msg-cnpj">Consulta automática Receita Federal</div>
       </div>
       <div class="cbanner" id="cbanner"><div class="cbanner-ico"><i class="ti ti-building"></i></div>
         <div style="overflow:hidden;flex:1"><div class="cb-name" id="cb-name">–</div><div class="cb-sit" id="cb-sit">–</div></div></div>
-      <div class="stbanner" id="stbanner"><div class="stbanner-ico"><i class="ti ti-receipt-tax"></i></div>
-        <div style="overflow:hidden;flex:1"><div class="stb-ie" id="stb-ie">–</div><div class="stb-sit" id="stb-sit">–</div></div></div>
       <div class="g2" style="margin-bottom:12px">
         <div class="field"><div class="field-lbl">Razão social <span class="badge-a">Auto</span></div>
           <div class="irow auto-f" id="row-razao"><div class="iico"><i class="ti ti-briefcase"></i></div>
             <input class="finput" id="inp-razao" type="text" placeholder="—" disabled></div></div>
         <div class="field"><div class="field-lbl">Nome fantasia <span class="badge-a">Auto</span></div>
-          <div class="irow auto-f"><div class="iico"><i class="ti ti-tag"></i></div>
+          <div class="irow auto-f" id="row-fantasia"><div class="iico"><i class="ti ti-tag"></i></div>
             <input class="finput" id="inp-fantasia" type="text" placeholder="—" disabled></div></div>
       </div>
-      <div class="g2" style="margin-bottom:12px">
-        <div class="field"><div class="field-lbl">Insc. Estadual <span class="badge-st">SINTEGRA</span></div>
-          <div class="irow auto-f" id="row-ie"><div class="iico"><i class="ti ti-file-certificate"></i></div>
-            <input class="finput" id="inp-ie" type="text" placeholder="Aguardando CNPJ..." disabled>
-            <div class="istat" id="st-ie"></div></div>
-          <div class="fmsg" id="msg-ie"></div></div>
-        <div class="field"><div class="field-lbl">Atividade principal <span class="badge-a">Auto</span></div>
-          <div class="irow auto-f"><div class="iico"><i class="ti ti-tools"></i></div>
-            <input class="finput" id="inp-ativ" type="text" placeholder="—" disabled></div></div>
-      </div>
+      <div class="field" style="margin-bottom:12px"><div class="field-lbl">Atividade principal <span class="badge-a">Auto</span></div>
+        <div class="irow auto-f" id="row-ativ"><div class="iico"><i class="ti ti-tools"></i></div>
+          <input class="finput" id="inp-ativ" type="text" placeholder="—" disabled></div></div>
       <div class="g2">
         <div class="field"><div class="field-lbl">Telefone da Empresa <span class="badge-a">Auto</span></div>
           <div class="irow" id="row-tel-empresa"><div class="iico"><i class="ti ti-building"></i></div>
@@ -175,7 +169,7 @@
     </div>
 
     <div class="card" id="card-responsavel">
-      <div class="card-title"><i class="ti ti-user"></i> <span id="card-responsavel-title">Responsável</span></div>
+      <div class="card-title"><i class="ti ti-user"></i> <span id="card-responsavel-title">Comprador</span></div>
       <div class="field" id="pf-cpf-field" style="display:none;margin-bottom:12px">
         <div class="field-lbl">Seu CPF</div>
         <div class="irow" id="row-cpf"><div class="iico"><i class="ti ti-id-badge-2"></i></div>
@@ -191,12 +185,12 @@
           <div class="fmsg" id="msg-nome"></div></div>
         <div class="field"><div class="field-lbl">Telefone / WhatsApp</div>
           <div class="irow" id="row-tel"><div class="iico"><i class="ti ti-phone"></i></div>
-            <input class="finput" id="inp-tel" type="tel" placeholder="(31) 9 0000-0000" maxlength="16">
+            <input class="finput" id="inp-tel" type="tel" placeholder="(31) 9 0000-0000" maxlength="17">
             <div class="istat" id="st-tel"></div></div>
           <div class="fmsg" id="msg-tel"></div></div>
       </div>
       <div class="g2" style="margin-bottom:12px">
-        <div class="field"><div class="field-lbl">E-mail do Responsável</div>
+        <div class="field"><div class="field-lbl">E-mail do Comprador</div>
           <div class="irow" id="row-email-resp"><div class="iico"><i class="ti ti-mail"></i></div>
             <input class="finput" id="inp-email-resp" type="email" placeholder="responsavel@empresa.com">
             <div class="istat" id="st-email-resp"></div></div>
@@ -233,15 +227,15 @@
             <div class="istat" id="st-num"></div></div>
           <div class="fmsg" id="msg-num"></div></div>
         <div class="field"><div class="field-lbl">UF <span class="badge-a">Auto</span></div>
-          <div class="irow auto-f"><div class="iico"><i class="ti ti-map"></i></div>
+          <div class="irow auto-f" id="row-uf"><div class="iico"><i class="ti ti-map"></i></div>
             <input class="finput" id="inp-uf" type="text" placeholder="—" disabled></div></div>
       </div>
       <div class="field" style="margin-bottom:12px"><div class="field-lbl">Logradouro <span class="badge-a">Auto</span></div>
-        <div class="irow auto-f"><div class="iico"><i class="ti ti-road"></i></div>
+        <div class="irow auto-f" id="row-end"><div class="iico"><i class="ti ti-road"></i></div>
           <input class="finput" id="inp-end" type="text" placeholder="—"></div></div>
       <div class="g3" style="margin-bottom:12px">
-        <div class="field"><div class="field-lbl">Complemento <span class="badge-o">Opcional</span></div>
-          <div class="irow"><div class="iico"><i class="ti ti-home"></i></div>
+        <div class="field"><div class="field-lbl">Complemento <span class="badge-a" style="background:#FEF3C7;color:#D97706;border-color:#FDE68A">Obrigatório</span></div>
+          <div class="irow" id="row-comp"><div class="iico"><i class="ti ti-home"></i></div>
             <input class="finput" id="inp-comp" type="text" placeholder="Sala, Andar..."></div></div>
         <div class="field"><div class="field-lbl">Bairro <span class="badge-a">Auto</span></div>
           <div class="irow auto-f" id="row-bairro"><div class="iico"><i class="ti ti-building-community"></i></div>
@@ -250,7 +244,7 @@
           <div class="irow auto-f" id="row-cidade"><div class="iico"><i class="ti ti-building"></i></div>
             <input class="finput" id="inp-cidade" type="text" placeholder="—" disabled></div></div>
       </div>
-      <div class="field"><div class="field-lbl">Telefone Comercial <span class="badge-o">Opcional</span></div>
+      <div class="field"><div class="field-lbl">Telefone Comercial <span class="badge-a" style="background:#FEF3C7;color:#D97706;border-color:#FDE68A">Obrigatório</span></div>
         <div class="irow" id="row-tel-com"><div class="iico"><i class="ti ti-phone"></i></div>
           <input class="finput" id="inp-tel-com" type="tel" placeholder="(31) 0000-0000" maxlength="16">
           <div class="istat" id="st-tel-com"></div></div>
@@ -258,7 +252,7 @@
     </div>
 
     <div class="card">
-      <div class="card-title"><i class="ti ti-truck-delivery"></i> Endereço de Entrega</div>
+      <div class="card-title"><i class="ti ti-truck-delivery"></i> Endereço de Cobrança</div>
       <label style="display:flex;align-items:center;gap:8px;cursor:pointer;margin-bottom:14px;font-size:13px;font-weight:600;color:#374151">
         <input type="checkbox" id="chk-mesmo-end" checked onchange="toggleEndEntrega()" style="width:16px;height:16px;accent-color:#1B3FAB">
         Mesmo que o endereço comercial
@@ -313,11 +307,7 @@
       <button class="add-btn" onclick="addContact()"><i class="ti ti-plus" style="font-size:13px"></i> Adicionar contato</button>
     </div>
 
-    <div class="card">
-      <div class="card-title"><i class="ti ti-building-bank"></i> Dados Bancários</div>
-      <div id="banks-rows"></div>
-      <button class="add-btn" onclick="addBank()"><i class="ti ti-plus" style="font-size:13px"></i> Adicionar banco</button>
-    </div>
+    <div id="banks-rows" style="display:none"></div>
 
     <div class="card">
       <div class="card-title"><i class="ti ti-building-community"></i> Referências Comerciais</div>
@@ -365,6 +355,17 @@
       <button class="btn btn-primary btn-submit" id="btn2" onclick="nextStep(2)">
         <span class="btn-txt">Finalizar Cadastro</span><i class="ti ti-check btn-ico"></i>
       </button>
+    </div>
+  </div>
+
+  <!-- LINK ENVIADO -->
+  <div class="step-screen" id="step-link">
+    <div class="suc-page">
+      <div class="suc-ring" style="background:#25D366"><i class="ti ti-brand-whatsapp"></i></div>
+      <div class="suc-title">Link enviado!</div>
+      <div class="suc-sub">Enviamos o link de continuação por WhatsApp.<br>Abra a mensagem no celular para preencher a segunda etapa.</div>
+      <div id="link-copy-box" style="margin-top:20px;background:#F8FAFF;border:1px solid #C7D7FF;border-radius:10px;padding:14px 16px;word-break:break-all;font-size:12px;color:#1B3FAB;font-family:monospace"></div>
+      <button class="btn btn-ghost" style="margin-top:14px" onclick="copiarLink()"><i class="ti ti-copy"></i> Copiar link</button>
     </div>
   </div>
 
@@ -467,7 +468,7 @@ function selectTipo(tipo) {
     document.getElementById('card-fiscal').style.display = 'none';
   } else {
     document.getElementById('card-empresa').style.display = 'block';
-    document.getElementById('card-responsavel-title').textContent = 'Responsável';
+    document.getElementById('card-responsavel-title').textContent = 'Comprador';
     document.getElementById('pf-cpf-field').style.display = 'none';
     document.getElementById('lbl1').textContent = 'Empresa';
     document.getElementById('card-fiscal').style.display = 'block';
@@ -501,6 +502,7 @@ wakeServer();
 window.addEventListener('DOMContentLoaded', () => {
   const p = new URLSearchParams(window.location.search);
   const v = p.get('v'), t = p.get('t')||'';
+  if (p.get('test') === '1') document.getElementById('btn-teste').style.display = 'block';
   if (v) {
     vend = getPessoa(v);
     if (vend) {
@@ -510,6 +512,12 @@ window.addEventListener('DOMContentLoaded', () => {
       document.getElementById('vend-chip').innerHTML =
         `<div class="chip"><div class="chip-av" style="background:${tm.color}">${vend.ini}</div>${vend.name} — ${tm.name}</div>`;
     }
+  }
+
+  const continua = p.get('continua');
+  if (continua) {
+    carregarRascunho(continua);
+    return;
   }
 
   const tipo = p.get('tipo');
@@ -540,7 +548,6 @@ window.addEventListener('DOMContentLoaded', () => {
 
   bindEvents();
   addContact();
-  addBank();
 });
 
 /* ── ATUALIZAÇÃO DE CRÉDITO ─────────────────────────────────────── */
@@ -566,10 +573,10 @@ async function buscarCadastroCredito(cnpj) {
   try {
     const r = await fetch(`${API}/api/cadastros?cnpj=${cnpj}`);
     const j = await r.json();
-    const lista = (j.data||[]).filter(c => c.status === 'cadastrado' || c.status === 'lib-sistema' || c.status === 'lib-cadastro' || c.status === 'lib-fiscal' || c.status === 'preenchido');
+    const lista = (j.data||[]).filter(c => c.status === 'cadastrado' || c.status === 'cred-val-1' || c.status === 'cred-val-2' || c.status === 'lib-cadastro' || c.status === 'lib-fiscal' || c.status === 'preenchido');
     // pega o mais recente com status cadastrado, senão qualquer um
     const cad = (j.data||[]).sort((a,b) => {
-      const ord = {cadastrado:0,'lib-fiscal':1,'lib-sistema':2,'lib-cadastro':3,preenchido:4};
+      const ord = {cadastrado:0,'lib-fiscal':1,'cred-val-2':2,'cred-val-1':3,'lib-cadastro':4,preenchido:5};
       return (ord[a.status]??9) - (ord[b.status]??9);
     })[0];
     if (!cad) { setCrF('err', 'Nenhum cadastro encontrado'); document.getElementById('cr-not-found').style.display='block'; return; }
@@ -656,7 +663,123 @@ function showStep(n) {
   });
 }
 
-function nextStep(from) {
+/* ── RASCUNHO / LINK WHATSAPP ────────────────────────────────────── */
+let _rascunhoId   = null;
+let _rascunhoLink = null;
+
+function coletarStep1() {
+  const d = {};
+  if (tipoCliente === 'pj') {
+    d.cnpj             = document.getElementById('inp-cnpj')?.value.trim() || '';
+    d.razao_social     = document.getElementById('inp-razao')?.value.trim() || '';
+    d.nome_fantasia    = document.getElementById('inp-fantasia')?.value.trim() || '';
+    d.atividade        = document.getElementById('inp-ativ')?.value.trim() || '';
+    d.telefone_empresa = document.getElementById('inp-tel-empresa')?.value.trim() || '';
+    d.email_empresa    = document.getElementById('inp-email-empresa')?.value.trim() || '';
+  } else {
+    d.cpf = document.getElementById('inp-cpf')?.value.trim() || '';
+  }
+  d.responsavel       = document.getElementById('inp-nome')?.value.trim() || '';
+  d.telefone          = document.getElementById('inp-tel')?.value.trim() || '';
+  d.email_responsavel = document.getElementById('inp-email-resp')?.value.trim() || '';
+  d.vendedor_slug     = vendSlug || '';
+  d.tipo_cliente      = tipoCliente || 'pj';
+  // endereço pré-preenchido pelo CNPJ
+  d.cep       = document.getElementById('inp-cep')?.value.trim() || '';
+  d.numero    = document.getElementById('inp-num')?.value.trim() || '';
+  d.logradouro= document.getElementById('inp-end')?.value.trim() || '';
+  d.bairro    = document.getElementById('inp-bairro')?.value.trim() || '';
+  d.cidade    = document.getElementById('inp-cidade')?.value.trim() || '';
+  d.uf        = document.getElementById('inp-uf')?.value.trim() || '';
+  return d;
+}
+
+async function enviarLinkWhatsApp() {
+  const btn = document.getElementById('btn1');
+  btn.classList.add('loading');
+  try {
+    const r = await fetch(`${API}/api/rascunho`, {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(coletarStep1())
+    });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error || 'Erro ao salvar rascunho');
+    _rascunhoId   = j.id;
+    _rascunhoLink = j.link;
+    document.getElementById('link-copy-box').textContent = j.link;
+    document.querySelectorAll('.step-screen').forEach(s => s.classList.remove('on'));
+    document.getElementById('step-link').classList.add('on');
+  } catch(e) {
+    showToast('Erro ao enviar link: ' + e.message, 'err');
+    showStep(2);
+  } finally {
+    btn.classList.remove('loading');
+  }
+}
+
+function continuarAqui() {
+  showStep(2);
+}
+
+function copiarLink() {
+  if (!_rascunhoLink) return;
+  navigator.clipboard.writeText(_rascunhoLink).then(() => showToast('Link copiado!', 'ok'));
+}
+
+async function carregarRascunho(id) {
+  try {
+    const r = await fetch(`${API}/api/rascunho/${id}`);
+    const j = await r.json();
+    if (!j.ok) { showToast('Link inválido ou expirado', 'err'); return; }
+    const d = j.data;
+    _rascunhoId = id;
+
+    // inicializa o tipo (mostra progress bar, configura cards, chama showStep(1))
+    selectTipo(d.tipo_cliente || 'pj');
+
+    // preenche campos do step 1
+    const set = (elId, val) => { const el = document.getElementById(elId); if (el && val) el.value = val; };
+    set('inp-cnpj',          d.cnpj);
+    set('inp-razao',         d.razao_social);
+    set('inp-fantasia',      d.nome_fantasia);
+    set('inp-ativ',          d.atividade);
+    set('inp-tel-empresa',   d.telefone_empresa);
+    set('inp-email-empresa', d.email_empresa);
+    set('inp-cpf',           d.cpf);
+    set('inp-nome',          d.responsavel);
+    set('inp-tel',           d.telefone);
+    set('inp-email-resp',    d.email_responsavel);
+    // endereço vindo do CNPJ — pré-preenche step 2
+    if (d.cep) {
+      const cepEl = document.getElementById('inp-cep');
+      if (cepEl) { cepEl.value = d.cep; setF('cep','ok',''); }
+    }
+    const setEnd = (fid, val) => {
+      const el = document.getElementById('inp-'+fid);
+      const rw = document.getElementById('row-'+fid);
+      if (el && val) { el.value = val; el.disabled = false; }
+      if (rw && val)  rw.className = 'irow valid';
+    };
+    setEnd('end',    d.logradouro);
+    setEnd('num',    d.numero);
+    setEnd('bairro', d.bairro);
+    setEnd('cidade', d.cidade);
+    setEnd('uf',     d.uf);
+
+    // avança para step 2 marcando step 1 como concluído
+    document.getElementById('dot1').className  = 'step-dot done';
+    document.getElementById('lbl1').className  = 'step-lbl done';
+    document.getElementById('dot2').className  = 'step-dot active';
+    document.getElementById('lbl2').className  = 'step-lbl active';
+    showStep(2);
+  } catch(e) {
+    console.error('[Rascunho] erro ao carregar:', e.message);
+    showToast('Erro ao carregar cadastro', 'err');
+  }
+}
+
+/* ──────────────────────────────────────────────────────────────── */
+async function nextStep(from) {
   if (from===1) {
     const nome = document.getElementById('inp-nome').value.trim();
     const tel  = document.getElementById('inp-tel').value.replace(/\D/g,'');
@@ -667,21 +790,44 @@ function nextStep(from) {
     } else {
       const cnpj = document.getElementById('inp-cnpj').value.replace(/\D/g,'');
       if (!validarCNPJ(cnpj)) { setF('cnpj','err','CNPJ inválido'); ok=false; }
+      const razao    = document.getElementById('inp-razao').value.trim();
+      const fantasia = document.getElementById('inp-fantasia').value.trim();
+      const ativ     = document.getElementById('inp-ativ').value.trim();
+      const telEmp   = document.getElementById('inp-tel-empresa').value.replace(/\D/g,'');
+      const emailEmp = document.getElementById('inp-email-empresa').value.trim();
+      if (!razao)                { setF('razao','err','Informe a razão social'); ok=false; }
+      if (!fantasia)              { setF('fantasia','err','Informe o nome fantasia'); ok=false; }
+      if (!ativ)                  { setF('ativ','err','Informe a atividade principal'); ok=false; }
+      if (telEmp.length<10)       { setF('tel-empresa','err','Telefone inválido'); ok=false; }
+      if (!validEmail(emailEmp))  { setF('email-empresa','err','E-mail obrigatório'); ok=false; }
     }
     const emailResp = document.getElementById('inp-email-resp').value.trim();
-    const emailEmp  = document.getElementById('inp-email-empresa').value.trim();
     if (nome.length<3) { setF('nome','err','Preencha o nome completo'); ok=false; }
     if (tel.length<10) { setF('tel','err','Telefone inválido'); ok=false; }
     if (!validEmail(emailResp)) { setF('email-resp','err','E-mail obrigatório'); ok=false; }
-    if (!validEmail(emailEmp))  { setF('email-empresa','err','E-mail obrigatório'); ok=false; }
+    if (!vend) { showToast('Link de vendedor inválido ou ausente. Solicite o link correto ao seu vendedor.','err'); ok=false; }
     if (!ok) return;
-    showStep(2);
+    await enviarLinkWhatsApp();
   } else if (from===2) {
-    const cep = document.getElementById('inp-cep').value.replace(/\D/g,'');
-    const num = document.getElementById('inp-num').value.trim();
+    const cep     = document.getElementById('inp-cep').value.replace(/\D/g,'');
+    const num     = document.getElementById('inp-num').value.trim();
+    const uf      = document.getElementById('inp-uf').value.trim();
+    const end     = document.getElementById('inp-end').value.trim();
+    const comp    = document.getElementById('inp-comp').value.trim();
+    const bairro  = document.getElementById('inp-bairro').value.trim();
+    const cidade  = document.getElementById('inp-cidade').value.trim();
+    const telCom  = document.getElementById('inp-tel-com').value.replace(/\D/g,'');
+    const enfe    = document.getElementById('inp-enfe').value.trim();
     let ok = true;
-    if (cep.length<8) { setF('cep','err','CEP inválido'); ok=false; }
-    if (!num)          { setF('num','err','Informe o número'); ok=false; }
+    if (cep.length<8)        { setF('cep','err','CEP inválido'); ok=false; }
+    if (!num)                 { setF('num','err','Informe o número'); ok=false; }
+    if (!uf)                  { setF('uf','err','UF não encontrada'); ok=false; }
+    if (!end)                 { setF('end','err','Informe o logradouro'); ok=false; }
+    if (!comp)                 { setF('comp','err','Informe o complemento'); ok=false; }
+    if (!bairro)               { setF('bairro','err','Bairro não encontrado'); ok=false; }
+    if (!cidade)               { setF('cidade','err','Cidade não encontrada'); ok=false; }
+    if (telCom.length<10)      { setF('tel-com','err','Telefone inválido'); ok=false; }
+    if (!validEmail(enfe))     { setF('enfe','err','E-mail obrigatório'); ok=false; }
     if (!ok) return;
     submitForm();
   }
@@ -719,7 +865,7 @@ async function submitForm() {
     cnpj: tipoCliente === 'pf' ? '' : g('cnpj'),
     cpf: tipoCliente === 'pf' ? g('cpf') : '',
     razao_social: tipoCliente === 'pf' ? '' : g('razao'), nome_fantasia: tipoCliente === 'pf' ? '' : g('fantasia'),
-    insc_estadual: g('ie'), atividade: g('ativ'),
+    atividade: g('ativ'),
     telefone_empresa: g('tel-empresa'), email_empresa: g('email-empresa'),
     responsavel: g('nome'), telefone: g('tel'), email_responsavel: g('email-resp'),
     cep: g('cep'), logradouro: g('end'), numero: g('num'),
@@ -768,20 +914,78 @@ function selectOpt(group, val) {
     .forEach(b => b.classList.toggle('on', b.dataset.val === next && next !== ''));
 }
 
+function preencherDadosTeste() {
+  selectTipo('pj');
+
+  const setVal = (id, val) => {
+    const el = document.getElementById('inp-'+id);
+    if (!el) return;
+    const wasDisabled = el.disabled;
+    el.disabled = false;
+    el.value = val;
+    el.disabled = wasDisabled;
+    const row = document.getElementById('row-'+id);
+    if (row) row.classList.add('valid');
+  };
+
+  setVal('cnpj', '11.222.333/0001-81');
+  setVal('razao', 'Empresa Teste Ltda');
+  setVal('fantasia', 'Empresa Teste');
+  setVal('ativ', 'Comércio varejista de materiais elétricos');
+  setVal('tel-empresa', '(31) 3333-4444');
+  setVal('email-empresa', 'contato@empresateste.com.br');
+
+  setVal('cpf', '111.444.777-35');
+  setVal('nome', 'Fulano de Tal');
+  setVal('tel', '(31) 9 9999-8888');
+  setVal('email-resp', 'comprador@empresateste.com.br');
+
+  setVal('cep', '30130-010');
+  setVal('num', '100');
+  setVal('uf', 'MG');
+  setVal('end', 'Avenida Afonso Pena');
+  setVal('comp', 'Sala 200');
+  setVal('bairro', 'Centro');
+  setVal('cidade', 'Belo Horizonte');
+  setVal('tel-com', '(31) 3333-5555');
+  setVal('enfe', 'financeiro@empresateste.com.br');
+
+  if (!document.getElementById('contacts-rows').children.length) addContact();
+  const ctRow = document.getElementById('contacts-rows').children[0];
+  if (ctRow) {
+    const ins = ctRow.querySelectorAll('input');
+    ins[0].value = 'Maria Compradora';
+    ins[1].value = 'Gerente de Compras';
+    ins[2].value = '(31) 9 8888-7777';
+    ins[3].value = 'maria@empresateste.com.br';
+  }
+
+  if (!document.getElementById('refs-rows').children.length) addRef();
+  const rfRow = document.getElementById('refs-rows').children[0];
+  if (rfRow) {
+    const ins = rfRow.querySelectorAll('input');
+    ins[0].value = 'Fornecedor Teste S.A.';
+    ins[1].value = '(31) 3322-1100';
+  }
+
+  selectOpt('cons-final', 'sim');
+  selectOpt('finalidade', 'revenda');
+  selectOpt('contribuinte', 'sim');
+}
+
 function resetForm() {
   tipoCliente = null;
   document.getElementById('progress-bar').style.display = 'none';
   document.getElementById('tipo-select').style.display = 'block';
-  ['cnpj','razao','fantasia','ie','ativ','tel-empresa','email-empresa','nome','tel','email-resp',
+  ['cnpj','razao','fantasia','ativ','tel-empresa','email-empresa','nome','tel','email-resp',
    'cep','num','end','comp','bairro','cidade','uf','tel-com','enfe','obs'].forEach(id => {
     const el = document.getElementById('inp-'+id);
-    if (el) { el.value=''; if(['razao','fantasia','ativ','ie','bairro','cidade','uf'].includes(id)) el.disabled=true; }
+    if (el) { el.value=''; if(['razao','fantasia','ativ','bairro','cidade','uf'].includes(id)) el.disabled=true; }
     const row = document.getElementById('row-'+id);
-    if (row) row.className = ['razao','fantasia','ativ','ie','bairro','cidade','uf'].includes(id)?'irow auto-f':'irow';
+    if (row) row.className = ['razao','fantasia','ativ','bairro','cidade','uf'].includes(id)?'irow auto-f':'irow';
     setF(id,'','');
   });
   document.getElementById('cbanner').classList.remove('show');
-  document.getElementById('stbanner').classList.remove('show');
   document.getElementById('contacts-rows').innerHTML='';
   document.getElementById('banks-rows').innerHTML='';
   document.getElementById('refs-rows').innerHTML='';
@@ -796,7 +1000,7 @@ function resetForm() {
     document.getElementById('inp-'+g).value='';
     document.getElementById('grp-'+g).querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('on'));
   });
-  ccnt=0; bcnt=0; rcnt=0; addContact(); addBank();
+  ccnt=0; bcnt=0; rcnt=0; addContact();
   if (vend) document.getElementById('inp-vend').value=vend.name;
   document.querySelectorAll('.step-screen').forEach(s => s.classList.remove('on'));
 }
@@ -815,7 +1019,7 @@ function bindEvents() {
   cEl.addEventListener('input',()=>{
     cEl.value=maskCNPJ(cEl.value);
     const d=cEl.value.replace(/\D/g,'');
-    if(!d){setF('cnpj','','');document.getElementById('cbanner').classList.remove('show');document.getElementById('stbanner').classList.remove('show');return;}
+    if(!d){setF('cnpj','','');document.getElementById('cbanner').classList.remove('show');return;}
     if(d.length<14){setF('cnpj','','Digitando...');return;}
     if(!validarCNPJ(d)){setF('cnpj','err','CNPJ inválido');return;}
     setF('cnpj','loading','Consultando...');
@@ -864,7 +1068,7 @@ async function buscarCNPJ(cnpj) {
       console.log(`%c🌐 API    %cReceita Federal → ${d.razao_social} | ${d.descricao_situacao_cadastral}`, 'font-weight:bold;color:#D97706', 'color:#374151');
     }
     setF('cnpj','ok','Receita Federal ✓');
-    const setA=(id,val)=>{const i=document.getElementById('inp-'+id);const rw=document.getElementById('row-'+id);if(i){i.value=val||'';i.disabled=!val;}if(val&&rw)rw.className='irow valid';};
+    const setA=(id,val)=>{const i=document.getElementById('inp-'+id);const rw=document.getElementById('row-'+id);if(i){i.value=val||'';i.disabled=!!val;}if(val&&rw)rw.className='irow valid';};
     setA('razao',d.razao_social); setA('fantasia',d.nome_fantasia||d.razao_social); setA('ativ',d.cnae_fiscal_descricao);
     document.getElementById('cb-name').textContent=d.razao_social||'';
     document.getElementById('cb-sit').textContent=[d.descricao_situacao_cadastral,d.porte].filter(Boolean).join(' · ');
@@ -880,33 +1084,6 @@ async function buscarCNPJ(cnpj) {
     return;
   }
 
-  setF('ie','loading-st','Buscando IE no SINTEGRA...');
-  const _ieEl = document.getElementById('inp-ie');
-  try {
-    const ctrl = new AbortController();
-    const _stTimer = setTimeout(() => ctrl.abort(), 15000);
-    const r2 = await fetch(`${API}/api/sintegra/${document.getElementById('inp-cnpj').value.replace(/\D/g,'')}`, {signal:ctrl.signal});
-    clearTimeout(_stTimer);
-    const j2 = await r2.json();
-    const s = (j2.ok && j2.data && typeof j2.data === 'object') ? j2.data : {};
-    const ie  = s.inscricao_estadual || '';
-    const sit = s.situacao_ie_desc || s.situacao_ie || s.situacao_cnpj || '';
-    if (j2.fromCache)
-      console.log(`%c💾 CACHE  %cSINTEGRA → IE: ${ie||'não encontrada'} | ${sit||'—'}`, 'font-weight:bold;color:#16A34A', 'color:#374151');
-    else
-      console.log(`%c🌐 API    %cSINTEGRA → IE: ${ie||'não encontrada'} | ${sit||'—'}`, 'font-weight:bold;color:#D97706', 'color:#374151');
-    if(s.numero){const n=document.getElementById('inp-num');if(n&&!n.value){n.value=s.numero;setF('num','ok','');}}
-    if(ie){if(_ieEl){_ieEl.value=ie;_ieEl.disabled=false;}document.getElementById('row-ie').className='irow st-f';setF('ie','ok','SINTEGRA ✓');}
-    else{if(_ieEl){_ieEl.disabled=false;_ieEl.placeholder='Preencha manualmente';}setF('ie','','Não encontrado no SINTEGRA');}
-    document.getElementById('stb-ie').textContent='IE: '+(ie||'Não encontrada');
-    document.getElementById('stb-sit').textContent=sit||'Dados do SINTEGRA';
-    document.getElementById('stbanner').classList.add('show');
-    if(ie) setF('cnpj','ok','Receita Federal ✓  SINTEGRA ✓');
-  } catch(e){
-    console.error('%c❌ ERRO   %cSINTEGRA:', 'font-weight:bold;color:#DC2626', 'color:#374151', e.message);
-    if(_ieEl){_ieEl.disabled=false;_ieEl.placeholder='Preencha manualmente';}
-    setF('ie','','SINTEGRA indisponível — preencha manualmente');
-  }
 }
 
 async function buscarCEP(cep) {

@@ -109,16 +109,18 @@ const STAGE_RULES = {
       { campo: 'cidade',          label: 'Cidade',               tab: 'endereco'   },
       { campo: 'uf',              label: 'UF',                   tab: 'endereco'   },
       { campo: 'cond_pagamento',  label: 'Cond. de Pagamento',   tab: 'cliente'    },
+      { campo: 'forma_pagamento', label: 'Forma de Pagamento',   tab: 'cliente'    },
+      { campo: 'limite_credito',  label: 'Solicitação de Crédito', tab: 'cliente'  },
+      { campo: 'bancos',          label: 'Dados Bancários',      tab: 'cliente', tipo: 'array' },
     ]
   },
-  'lib-sistema': {
-    label: 'Aprov. Crédito', icon: 'ti-credit-card', color: '#0891B2',
-    campos: [
-      { campo: 'limite_credito',      label: 'Limite de Crédito',   tab: 'financeiro' },
-      { campo: 'forma_pagamento',     label: 'Forma de Pagamento',  tab: 'financeiro' },
-      { campo: 'email_financeiro',    label: 'E-mail Financeiro',   tab: 'financeiro' },
-      { campo: 'telefone_financeiro', label: 'Telefone Financeiro', tab: 'financeiro' },
-    ]
+  'cred-val-1': {
+    label: 'Validação de Crédito 1', icon: 'ti-credit-card', color: '#0891B2',
+    campos: []
+  },
+  'cred-val-2': {
+    label: 'Validação de Crédito 2', icon: 'ti-credit-card', color: '#0E7490',
+    campos: []
   },
   'lib-fiscal': {
     label: 'Lib. p/ Fiscal', icon: 'ti-file-invoice', color: '#7C3AED',
@@ -150,14 +152,18 @@ function mostrarChecklist(cadastro) {
   if (!cadastro) return;
   document.getElementById('checklist-modal')?.remove();
 
-  const stages = ['lib-cadastro', 'lib-sistema', 'lib-fiscal', 'cadastrado'];
+  const stages = ['lib-cadastro', 'cred-val-1', 'cred-val-2', 'lib-fiscal', 'cadastrado'];
   const nextMap = {
     'preenchido': 'lib-cadastro', 'revisao': 'lib-cadastro', 'pendente': 'lib-cadastro',
-    'lib-cadastro': 'lib-sistema', 'lib-sistema': 'lib-fiscal', 'lib-fiscal': 'cadastrado',
+    'lib-cadastro': 'cred-val-1', 'cred-val-1': 'cred-val-2', 'cred-val-2': 'lib-fiscal',
+    'lib-fiscal': 'cadastrado',
   };
   const nextStage = nextMap[cadastro.status] || null;
+  const ORDER  = ['preenchido', ...stages];
+  const curIdx = Math.max(0, ORDER.indexOf(cadastro.status));
 
   function isFilled(r) {
+    if (cadastro.campos_na?.includes(r.campo)) return true;
     const val = cadastro[r.campo];
     if (r.tipo === 'array') return Array.isArray(val) && val.length > 0;
     if (r.tipo === 'bool')  return val === true;
@@ -166,14 +172,18 @@ function mostrarChecklist(cadastro) {
 
   const sectionsHTML = stages.map(key => {
     const regras = STAGE_RULES[key];
-    const isNext = key === nextStage;
+    const stageIdx   = ORDER.indexOf(key);
+    const passed     = curIdx > stageIdx;
+    const isCurrent  = curIdx === stageIdx;
+    const isNext     = key === nextStage;
     const filled = regras.campos.filter(isFilled).length;
     const total  = regras.campos.length;
-    const allDone = filled === total;
+    const allDone = passed;
+    const active  = isNext || isCurrent;
 
-    const hColor = allDone ? '#16A34A' : isNext ? regras.color : '#9CA3AF';
-    const hBg    = allDone ? '#F0FDF4' : isNext ? (regras.color + '14') : '#F9FAFB';
-    const hBord  = allDone ? '#BBF7D0' : isNext ? (regras.color + '30') : '#F3F4F6';
+    const hColor = allDone ? '#16A34A' : active ? regras.color : '#9CA3AF';
+    const hBg    = allDone ? '#F0FDF4' : active ? (regras.color + '14') : '#F9FAFB';
+    const hBord  = allDone ? '#BBF7D0' : active ? (regras.color + '30') : '#F3F4F6';
 
     const fieldsHTML = regras.campos.map(r => {
       const ok = isFilled(r);
@@ -183,8 +193,9 @@ function mostrarChecklist(cadastro) {
       </div>`;
     }).join('');
 
-    const nextTag = isNext ? `<span style="font-size:9px;font-weight:700;background:${regras.color};color:#fff;padding:2px 7px;border-radius:20px;margin-left:4px;flex-shrink:0">PRÓXIMA</span>` : '';
-    const countTag = `<span style="font-size:10px;font-weight:700;color:${allDone?'#16A34A':hColor};margin-left:auto;flex-shrink:0">${filled}/${total}</span>`;
+    const nextTag = isNext ? `<span style="font-size:9px;font-weight:700;background:${regras.color};color:#fff;padding:2px 7px;border-radius:20px;margin-left:4px;flex-shrink:0">PRÓXIMA</span>`
+      : isCurrent ? `<span style="font-size:9px;font-weight:700;background:${regras.color};color:#fff;padding:2px 7px;border-radius:20px;margin-left:4px;flex-shrink:0">ATUAL</span>` : '';
+    const countTag = `<span style="font-size:10px;font-weight:700;color:${hColor};margin-left:auto;flex-shrink:0">${filled}/${total}</span>`;
 
     return `<div style="margin-bottom:10px">
       <div style="display:flex;align-items:center;gap:6px;padding:6px 10px;background:${hBg};border:1px solid ${hBord};border-radius:9px;margin-bottom:5px">
@@ -222,16 +233,17 @@ function mostrarChecklist(cadastro) {
   document.body.appendChild(modal);
 }
 
-/* correct order: preenchido → lib-cadastro → lib-sistema → lib-fiscal → cadastrado */
+/* correct order: preenchido → lib-cadastro → cred-val-1 → cred-val-2 → lib-fiscal → cadastrado */
 function buildPipelineWithFields(c) {
-  const SO = ['preenchido', 'lib-cadastro', 'lib-sistema', 'lib-fiscal', 'cadastrado'];
+  const SO = ['preenchido', 'lib-cadastro', 'cred-val-1', 'cred-val-2', 'lib-fiscal', 'cadastrado'];
   const si = Math.max(0, SO.indexOf(c.status)); /* revisao/-1 → 0 (Comercial) */
   const stages = [
-    { label: 'Comercial',      done: si >= 1, cur: si === 0 },
-    { label: 'Cadastro',       done: si >= 2, cur: si === 1 },
-    { label: 'Aprov. Crédito', done: si >= 3, cur: si === 2 },
-    { label: 'Fiscal',         done: si >= 4, cur: si === 3 },
-    { label: 'Cadastrado',     done: si >= 4, cur: false     },
+    { label: 'Comercial',   done: si >= 1, cur: si === 0 },
+    { label: 'Cadastro',    done: si >= 2, cur: si === 1 },
+    { label: 'Crédito 1',   done: si >= 3, cur: si === 2 },
+    { label: 'Crédito 2',   done: si >= 4, cur: si === 3 },
+    { label: 'Fiscal',      done: si >= 5, cur: si === 4 },
+    { label: 'Cadastrado',  done: si >= 5, cur: false     },
   ];
   let html = '<div class="det-pipe-wrap"><div class="det-pipeline">';
   stages.forEach((s, i) => {
@@ -264,18 +276,62 @@ function getAutoAvancar(c) {
     'preenchido':   'lib-cadastro',
     'revisao':      'lib-cadastro',
     'pendente':     'lib-cadastro',
-    'lib-cadastro': 'lib-sistema',
-    'lib-sistema':  'lib-fiscal',
     'lib-fiscal':   'cadastrado',
   };
   const proximo = nextMap[c.status];
   if (!proximo || !STAGE_RULES[proximo]) return null;
   const ok = STAGE_RULES[proximo].campos.every(r => {
+    if (c.campos_na?.includes(r.campo)) return true;
     const val = c[r.campo];
-    if (r.tipo === 'bool') return val === true;
+    if (r.tipo === 'bool')  return val === true;
+    if (r.tipo === 'array') return Array.isArray(val) && val.length > 0;
     return val != null && String(val).trim() !== '';
   });
   return ok ? proximo : null;
+}
+
+/* ── VALIDAÇÃO DE CRÉDITO (3 etapas) — botão manual de avanço ───────── */
+const CRED_VAL_NEXT       = { 'cred-val-1': 'cred-val-2', 'cred-val-2': 'lib-fiscal' };
+const CRED_VAL_NEXT_LABEL = { 'cred-val-1': 'Validação de Crédito 2', 'cred-val-2': 'Lib. p/ Fiscal' };
+function credValAdvanceHTML(status) {
+  const next = CRED_VAL_NEXT[status];
+  if (!next) return '';
+  return `<button class="btn btn-primary btn-sm" onclick="atualizarStatus('${next}')" style="margin-top:4px">
+    <i class="ti ti-arrow-right"></i> Avançar para ${CRED_VAL_NEXT_LABEL[status]}
+  </button>`;
+}
+
+/* ── CABEÇALHO COMPARTILHADO DO DETALHE (meta + pipeline + tabs) ── */
+const SL_ADMIN = {preenchido:'Preenchido','lib-cadastro':'Lib. p/ Cadastro','lib-fiscal':'Lib. p/ Fiscal','cred-val-1':'Validação de Crédito 1','cred-val-2':'Validação de Crédito 2',cadastrado:'Cadastrado',revisao:'Em Revisão'};
+
+function buildDetHeader(c, { locked = false } = {}) {
+  const teamData = TEAMS.find(t => t.name === c.equipe);
+  const tcolor   = teamData?.color || '#9DAEC4';
+  const tbg      = teamData?.bg    || '#F3F4F6';
+  const cnt      = n => n ? ` <span style="background:#EEF3FF;color:#1B3FAB;font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;margin-left:2px">${n}</span>` : '';
+  const credBtn  = credValAdvanceHTML(c.status);
+  return `
+    <div class="det-meta">
+      <span class="proto-chip"><i class="ti ti-hash" style="font-size:13px"></i> #${c.id}</span>
+      <span class="team-badge" style="background:${tbg};color:${tcolor};padding:4px 12px;font-size:11px">${c.equipe||'—'}</span>
+      <span style="font-size:12px;color:#8A9BB5;display:flex;align-items:center;gap:4px"><i class="ti ti-user" style="font-size:13px"></i>${c.vendedor_nome||'—'}</span>
+      ${c.operador_nome?`<span style="font-size:12px;color:#8A9BB5;display:flex;align-items:center;gap:4px"><i class="ti ti-headset" style="font-size:13px"></i>${c.operador_nome}</span>`:''}
+      ${locked?`<div style="flex-basis:100%;margin-top:6px;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:12px;color:#92400E">
+        <i class="ti ti-lock" style="font-size:18px;color:#D97706;flex-shrink:0"></i>
+        <div><strong>Ainda com o vendedor</strong> — Este cadastro está sendo preenchido. Edições administrativas são liberadas a partir de <em>Lib. p/ Cadastro</em>.</div>
+      </div>`:''}
+    </div>
+    ${buildPipelineWithFields(c)}
+    ${credBtn ? `<div style="padding:0 14px 10px">${credBtn}</div>` : ''}
+    <div class="det-tabs-bar">
+      <button class="det-tab on" onclick="switchDetTab('cliente')"    id="dtt-cliente"><i class="ti ti-user"></i> Cliente</button>
+      <button class="det-tab"    onclick="switchDetTab('empresa')"    id="dtt-empresa"><i class="ti ti-building-store"></i> Empresa</button>
+      <button class="det-tab"    onclick="switchDetTab('endereco')"   id="dtt-endereco"><i class="ti ti-map-pin"></i> Endereço</button>
+      <button class="det-tab"    onclick="switchDetTab('fiscal')"     id="dtt-fiscal"><i class="ti ti-file-invoice"></i> Fiscal</button>
+      <button class="det-tab"    onclick="switchDetTab('financeiro')" id="dtt-financeiro"><i class="ti ti-cash"></i> Financeiro</button>
+      <button class="det-tab"    onclick="switchDetTab('anexos')"     id="dtt-anexos"><i class="ti ti-paperclip"></i> Anexos${cnt(c.anexos?.length)}</button>
+      <button class="det-tab"    onclick="switchDetTab('registro')"   id="dtt-registro"><i class="ti ti-clock"></i> Registro</button>
+    </div>`;
 }
 
 function tipoTag(c) {

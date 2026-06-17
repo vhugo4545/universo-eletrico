@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WhatsApp — Universo Elétrico</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="shared.css">
+<link rel="stylesheet" href="admin-shared.css">
+<style>
+.wa-page { max-width: 700px; margin: 0 auto; padding: 32px 24px; }
+.wa-card { background: #fff; border: 1px solid var(--bd); border-radius: 16px; padding: 32px; box-shadow: 0 2px 8px rgba(16,24,40,.05); }
+.wa-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; display: flex; align-items: center; gap: 10px; }
+.wa-title i { font-size: 22px; color: #25D366; }
+.wa-sub { font-size: 13px; color: var(--muted); margin-bottom: 28px; }
+
+/* Status badge */
+.wa-status { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 100px; font-size: 13px; font-weight: 600; margin-bottom: 24px; }
+.wa-status.connected    { background: #F0FDF4; color: #16A34A; border: 1.5px solid #86EFAC; }
+.wa-status.qr_ready     { background: #FFFBEB; color: #D97706; border: 1.5px solid #FDE68A; }
+.wa-status.connecting   { background: #EFF6FF; color: #2563EB; border: 1.5px solid #BFDBFE; }
+.wa-status.disconnected { background: #FEF2F2; color: #DC2626; border: 1.5px solid #FECACA; }
+.wa-status .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.wa-status.connected .dot    { background: #16A34A; box-shadow: 0 0 0 3px #DCFCE7; }
+.wa-status.qr_ready .dot     { background: #D97706; animation: pulse-dot 1.2s infinite; }
+.wa-status.connecting .dot   { background: #2563EB; animation: pulse-dot 1.2s infinite; }
+.wa-status.disconnected .dot { background: #DC2626; }
+@keyframes pulse-dot { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+/* QR box */
+.wa-qr-wrap { display: flex; flex-direction: column; align-items: center; gap: 16px; padding: 24px; background: #F8FAFF; border: 1.5px dashed #BFDBFE; border-radius: 12px; margin-bottom: 24px; }
+.wa-qr-wrap img { border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+.wa-qr-hint { font-size: 13px; color: var(--muted); text-align: center; line-height: 1.6; }
+.wa-qr-hint strong { color: var(--text); }
+
+/* Connected info */
+.wa-connected-box { display: flex; align-items: center; gap: 16px; background: #F0FDF4; border: 1.5px solid #BBF7D0; border-radius: 12px; padding: 20px; margin-bottom: 24px; }
+.wa-connected-icon { width: 52px; height: 52px; border-radius: 50%; background: #25D366; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.wa-connected-icon i { font-size: 26px; color: #fff; }
+.wa-connected-text h3 { font-size: 15px; font-weight: 700; color: #166534; margin: 0 0 2px; }
+.wa-connected-text p  { font-size: 12px; color: #4ADE80; margin: 0; }
+
+/* Test form */
+.wa-form-section { border-top: 1px solid var(--bd); padding-top: 24px; }
+.wa-form-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 14px; display: flex; align-items: center; gap: 7px; }
+.wa-form-title i { font-size: 15px; color: var(--muted); }
+.wa-field { margin-bottom: 14px; }
+.wa-label { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+.wa-input { width: 100%; padding: 10px 14px; border: 1px solid var(--bd); border-radius: 8px; font-size: 13px; font-family: inherit; color: var(--text); background: #FAFBFF; box-sizing: border-box; outline: none; transition: border-color .15s; }
+.wa-input:focus { border-color: #1B3FAB; }
+.wa-textarea { resize: vertical; min-height: 90px; }
+.wa-btn-row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 6px; }
+.wa-btn-send { display: flex; align-items: center; gap: 7px; padding: 10px 22px; background: #25D366; color: #fff; border: none; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; transition: background .2s; }
+.wa-btn-send:hover { background: #1faf55; }
+.wa-btn-send:disabled { opacity: .5; cursor: not-allowed; }
+.wa-btn-disc { display: flex; align-items: center; gap: 7px; padding: 10px 18px; background: #fff; color: #DC2626; border: 1.5px solid #FECACA; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all .2s; }
+.wa-btn-disc:hover { background: #FEF2F2; }
+
+/* Log */
+.wa-log { margin-top: 20px; background: #0D1117; border-radius: 10px; padding: 14px 16px; font-family: monospace; font-size: 12px; color: #7EE787; max-height: 160px; overflow-y: auto; line-height: 1.6; }
+.wa-log .err { color: #FF7B72; }
+.wa-log .info { color: #79C0FF; }
+</style>
+</head>
+<body>
+<div class="toast" id="toast"></div>
+
+<!-- ── SIDEBAR ──────────────────────────────────────────────────── -->
+<aside class="sb">
+  <div class="sb-logo">
+    <div class="sb-bolt"><i class="ti ti-bolt"></i></div>
+    <div><div class="sb-top">Universo</div><div class="sb-bot">Elétrico</div></div>
+  </div>
+
+  <div class="sb-sec">Painéis</div>
+  <a class="ni" href="/admin.html"><i class="ti ti-layout-grid"></i> Comercial</a>
+  <a class="ni" href="/admin-cadastro.html"><i class="ti ti-clipboard-list"></i> Cadastro</a>
+  <a class="ni" href="/admin-fiscal.html"><i class="ti ti-file-invoice"></i> Fiscal</a>
+  <a class="ni" href="/dashboard.html"><i class="ti ti-chart-bar"></i> Dashboard</a>
+
+  <div class="sb-div"></div>
+  <div class="sb-sec">Automação</div>
+  <a class="ni on" href="/admin-whatsapp.html"><i class="ti ti-brand-whatsapp" style="color:#25D366"></i> WhatsApp</a>
+
+  <div class="sb-div"></div>
+  <div class="sb-sec">Ações</div>
+  <a class="ni" href="/formulario.html" target="_blank"><i class="ti ti-forms"></i> Abrir Formulário</a>
+</aside>
+
+<!-- ── MAIN WRAP ─────────────────────────────────────────────── -->
+<div class="mw">
+
+  <div class="tb">
+    <div class="tb-title"><i class="ti ti-brand-whatsapp" style="color:#25D366;margin-right:6px;font-size:16px"></i>Automação WhatsApp</div>
+    <div class="tb-sp"></div>
+  </div>
+
+  <div class="mc">
+  <div class="wa-page">
+
+    <div class="wa-card">
+      <div class="wa-title"><i class="ti ti-brand-whatsapp"></i> Automação WhatsApp</div>
+      <div class="wa-sub">Conecte seu celular via QR code para enviar mensagens automáticas pelo WhatsApp.</div>
+
+      <!-- Status -->
+      <div class="wa-status disconnected" id="wa-status-badge">
+        <span class="dot"></span>
+        <span id="wa-status-text">Verificando...</span>
+      </div>
+
+      <!-- QR code (visível só quando qr_ready) -->
+      <div class="wa-qr-wrap" id="wa-qr-section" style="display:none">
+        <img id="wa-qr-img" src="" alt="QR Code WhatsApp" width="240" height="240">
+        <div class="wa-qr-hint">
+          <strong>Abra o WhatsApp no celular</strong> → Mais opções → Dispositivos conectados<br>→ Conectar dispositivo → Aponte a câmera para este QR code
+        </div>
+      </div>
+
+      <!-- Box conectado (visível só quando connected) -->
+      <div class="wa-connected-box" id="wa-connected-section" style="display:none">
+        <div class="wa-connected-icon"><i class="ti ti-check"></i></div>
+        <div class="wa-connected-text">
+          <h3>WhatsApp conectado</h3>
+          <p>Mensagens automáticas estão ativas</p>
+        </div>
+      </div>
+
+      <!-- Formulário de teste -->
+      <div class="wa-form-section">
+        <div class="wa-form-title"><i class="ti ti-send"></i> Enviar mensagem de teste</div>
+        <div class="wa-field">
+          <div class="wa-label">Número (com DDD)</div>
+          <input class="wa-input" id="inp-numero" type="tel" placeholder="31 9 9999-9999">
+        </div>
+        <div class="wa-field">
+          <div class="wa-label">Mensagem</div>
+          <textarea class="wa-input wa-textarea" id="inp-texto" placeholder="Digite a mensagem..."></textarea>
+        </div>
+        <div class="wa-btn-row">
+          <button class="wa-btn-send" id="btn-conectar" onclick="conectar()" style="background:#1B3FAB">
+            <i class="ti ti-qrcode"></i> Gerar QR code
+          </button>
+          <button class="wa-btn-send" id="btn-send" onclick="enviarMensagem()" disabled style="display:none">
+            <i class="ti ti-brand-whatsapp"></i> Enviar via WhatsApp
+          </button>
+          <button class="wa-btn-disc" id="btn-disc" onclick="desconectar()" style="display:none">
+            <i class="ti ti-plug-x"></i> Desconectar
+          </button>
+        </div>
+
+        <!-- Log -->
+        <div class="wa-log" id="wa-log">
+          <span class="info"># Aguardando conexão...</span>
+        </div>
+      </div>
+    </div>
+
+
+  </div>
+  </div><!-- mc -->
+</div><!-- mw -->
+
+<script src="shared.js"></script>
+<script>
+let prevStatus = null;
+
+function log(msg, tipo) {
+  const box = document.getElementById('wa-log');
+  const ts  = new Date().toLocaleTimeString('pt-BR');
+  box.innerHTML += `\n<span class="${tipo||''}">[${ts}] ${msg}</span>`;
+  box.scrollTop = box.scrollHeight;
+}
+
+function renderStatus(s, qr) {
+  const labels = { connected:'Conectado', qr_ready:'Escaneie o QR code abaixo', connecting:'Conectando...', disconnected:'Desconectado', erro:'Servidor não responde' };
+  const badge = document.getElementById('wa-status-badge');
+  badge.className = `wa-status ${s}`;
+  document.getElementById('wa-status-text').textContent = labels[s] || s;
+
+  document.getElementById('wa-qr-section').style.display       = s === 'qr_ready'  ? 'flex' : 'none';
+  document.getElementById('wa-connected-section').style.display = s === 'connected' ? 'flex' : 'none';
+  document.getElementById('btn-send').style.display             = s === 'connected' ? '' : 'none';
+  document.getElementById('btn-send').disabled                  = false;
+  document.getElementById('btn-disc').style.display             = s === 'connected' ? '' : 'none';
+  document.getElementById('btn-conectar').style.display         = (s === 'disconnected' || s === 'erro') ? '' : 'none';
+
+  if (s === 'qr_ready' && qr) document.getElementById('wa-qr-img').src = qr;
+  if (s === 'connected'   && prevStatus !== 'connected')   log('✅ WhatsApp conectado!', 'info');
+  if (s === 'disconnected' && prevStatus === 'connected')  log('❌ Conexão encerrada', 'err');
+  prevStatus = s;
+}
+
+async function atualizarStatus() {
+  try {
+    const r = await fetch(`${API}/api/whatsapp/status`);
+    if (!r.ok) { renderStatus('erro'); return; }
+    const j = await r.json();
+    renderStatus(j.status, j.qr);
+  } catch(e) {
+    renderStatus('erro');
+    document.getElementById('wa-status-text').textContent = 'Servidor não responde — reinicie o servidor';
+  }
+}
+
+async function conectar() {
+  document.getElementById('btn-conectar').disabled = true;
+  log('Iniciando conexão...', 'info');
+  try {
+    await fetch(`${API}/api/whatsapp/connect`, { method: 'POST' });
+  } catch(e) {}
+  setTimeout(atualizarStatus, 2000);
+  document.getElementById('btn-conectar').disabled = false;
+}
+
+async function enviarMensagem() {
+  const numero = document.getElementById('inp-numero').value.trim();
+  const texto  = document.getElementById('inp-texto').value.trim();
+  if (!numero || !texto) { showToast('Preencha número e mensagem','err'); return; }
+  const btn = document.getElementById('btn-send');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin .8s linear infinite"></i> Enviando...';
+  try {
+    const r = await fetch(`${API}/api/whatsapp/send`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({numero,texto}) });
+    const j = await r.json();
+    if (j.ok) { log(`✅ Mensagem enviada para ${numero}`, 'info'); showToast('Mensagem enviada!','ok'); document.getElementById('inp-texto').value=''; }
+    else       { log(`❌ Erro: ${j.error}`, 'err'); showToast(j.error,'err'); }
+  } catch(e)   { log(`❌ ${e.message}`, 'err'); showToast('Erro de conexão','err'); }
+  finally      { btn.disabled=false; btn.innerHTML='<i class="ti ti-brand-whatsapp"></i> Enviar via WhatsApp'; }
+}
+
+async function desconectar() {
+  if (!confirm('Desconectar o WhatsApp? Você precisará escanear o QR novamente.')) return;
+  await fetch(`${API}/api/whatsapp/disconnect`, { method:'POST' });
+  log('Desconectado manualmente', 'info');
+  atualizarStatus();
+}
+
+atualizarStatus();
+setInterval(atualizarStatus, 2000);
+
+</script>
+</body>
+</html>

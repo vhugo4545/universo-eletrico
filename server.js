@@ -148,6 +148,15 @@ app.post('/api/cadastros', (req, res) => {
   lista.push(novo);
   salvarDB(lista);
   console.log(`[+] Cadastro: ${novo.razao_social} — ${novo.vendedor_nome}`);
+
+  // ── Confirmação WhatsApp ──────────────────────────────────────
+  if (novo.telefone && wa.getStatus() === 'connected') {
+    const nome  = novo.razao_social || novo.nome_fantasia || novo.responsavel || 'Cliente';
+    const data  = new Date(novo.created_at).toLocaleString('pt-BR', { dateStyle:'short', timeStyle:'short' });
+    const texto = `✅ *Cadastro Recebido — Universo Elétrico*\n\nOlá, ${novo.responsavel || 'cliente'}!\n\nRecebemos o cadastro de *${nome}* com sucesso.\n\n📋 Protocolo: #${novo.id}\n📅 Data: ${data}\n👤 Vendedor: ${novo.vendedor_nome || '—'}\n\nEm breve nossa equipe entrará em contato. Obrigado! 🙏`;
+    wa.sendMessage(novo.telefone, texto).catch(e => console.error('[WA Confirmação]', e.message));
+  }
+
   res.status(201).json({ ok:true, data:novo });
 });
 
@@ -485,11 +494,130 @@ app.get('/api/pagamentos/:id/comprovante/:arquivo', (req, res) => {
 
 app.get('/api/ping', (req, res) => res.json({ ok: true, ts: Date.now() }));
 
+// ─── WHATSAPP ─────────────────────────────────────────────────────────────────
+const wa = require('./whatsapp');
+
+app.get('/api/whatsapp/status', (req, res) => {
+  res.json({ ok: true, status: wa.getStatus(), qr: wa.getQR() });
+});
+
+app.post('/api/whatsapp/connect', async (req, res) => {
+  try {
+    await wa.connect();
+    res.json({ ok: true, status: wa.getStatus() });
+  } catch(e) {
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+app.post('/api/whatsapp/disconnect', (req, res) => {
+  wa.disconnect();
+  res.json({ ok: true });
+});
+
+app.post('/api/whatsapp/send', async (req, res) => {
+  const { numero, texto } = req.body;
+  if (!numero || !texto) return res.status(400).json({ ok: false, error: 'numero e texto são obrigatórios' });
+  try {
+    await wa.sendMessage(numero, texto);
+    console.log(`[WhatsApp] Mensagem enviada para ${numero}`);
+    res.json({ ok: true });
+  } catch(e) {
+    console.error('[WhatsApp] Erro ao enviar:', e.message);
+    res.status(500).json({ ok: false, error: e.message });
+  }
+});
+
+// ─── RASCUNHOS (step-1 do formulário) ────────────────────────────────────────
+const RASC_FILE = path.join(DB_DIR, 'rascunhos.json');
+if (!fs.existsSync(RASC_FILE)) fs.writeFileSync(RASC_FILE, '{}');
+const lerRasc    = () => { try { return JSON.parse(fs.readFileSync(RASC_FILE,'utf8')); } catch(e){ return {}; } };
+const salvarRasc = d  => fs.writeFileSync(RASC_FILE, JSON.stringify(d, null, 2));
+
+app.post('/api/rascunho', async (req, res) => {
+  const id   = Math.random().toString(36).slice(2, 9);
+  const rasc = lerRasc();
+  rasc[id]   = { ...req.body, created_at: new Date().toISOString() };
+  salvarRasc(rasc);
+
+  const { razao_social, nome_fantasia, responsavel, vendedor_slug, telefone } = req.body;
+  const nome   = razao_social || nome_fantasia || responsavel || 'Cliente';
+  const host   = `${req.protocol}://${req.get('host')}`;
+  const link   = `${host}/formulario.html?v=${vendedor_slug||''}&continua=${id}`;
+  const texto  = `📋 *Continuar Cadastro — Universo Elétrico*\n\nOlá, ${responsavel || 'cliente'}! O cadastro de *${nome}* foi iniciado.\n\nClique no link para preencher a segunda etapa:\n\n${link}\n\n_Este link é exclusivo para este cadastro._`;
+
+  console.log(`[Rascunho] id=${id} | ${nome} | telefone=${telefone||'—'} | link=${link}`);
+
+  if (telefone) {
+    try {
+      if (wa.getStatus() === 'connected') {
+        await wa.sendMessage(telefone, texto);
+        console.log(`[Rascunho] WhatsApp enviado para ${telefone}`);
+      } else {
+        console.warn('[Rascunho] WhatsApp desconectado — mensagem não enviada');
+      }
+    } catch(e) {
+      console.error('[Rascunho] Erro WhatsApp:', e.message);
+    }
+  } else {
+    console.warn('[Rascunho] Telefone não informado — mensagem não enviada');
+  }
+
+  res.json({ ok: true, id, link });
+});
+
+app.get('/api/rascunho/:id', (req, res) => {
+  const rasc = lerRasc();
+  const data = rasc[req.params.id];
+  if (!data) return res.status(404).json({ ok: false, error: 'Rascunho não encontrado ou expirado' });
+  res.json({ ok: true, data });
+});
+
 app.listen(PORT, () => {
   const totalCNPJs = Object.keys(lerCache()).length;
-  console.log(`✅  http://localhost:${PORT}`);
+  console.log(`✅  http://localhost:${PORT}  —  versão 1.10.10`);
   console.log(`📁  DB: ${DB_FILE}`);
   console.log(`🗄️   Cache: ${totalCNPJs} CNPJ(s) gravado(s) em ${CACHE_FILE}`);
+
+  // Aguarda WhatsApp conectar e roda teste com os dois formatos
+  (async () => {
+    let tentativas = 0;
+    while (wa.getStatus() !== 'connected' && tentativas < 30) {
+      await new Promise(r => setTimeout(r, 2000));
+      tentativas++;
+      console.log(`[Teste WA] aguardando conexão... (${tentativas * 2}s)`);
+    }
+
+    console.log('\n╔══════════════════════════════════════════════════════╗');
+    console.log('║        TESTE DE ENVIO WHATSAPP — v1.10.10            ║');
+    console.log('╚══════════════════════════════════════════════════════╝');
+
+    if (wa.getStatus() !== 'connected') {
+      console.log('❌ WhatsApp não conectou em 60s — teste cancelado\n');
+      return;
+    }
+
+    const testes = [
+      { label: 'TESTE 1 — COM 9  (31 99334-6034)', numero: '31 99334-6034' },
+      { label: 'TESTE 2 — SEM 9  (31 9334-6034)',  numero: '31 9334-6034'  },
+    ];
+
+    for (const t of testes) {
+      const digits  = t.numero.replace(/\D/g, '');
+      const numFull = digits.startsWith('55') ? digits : '55' + digits;
+      const jid     = numFull + '@s.whatsapp.net';
+      console.log(`  ${t.label}`);
+      console.log(`  JID: ${jid}`);
+      process.stdout.write('  Resultado: ');
+      try {
+        await wa.sendMessage(t.numero, `[${t.label}] v1.10.10`);
+        console.log('✅ ENVIADO\n');
+      } catch(e) {
+        console.log(`❌ ERRO: ${e.message}\n`);
+      }
+    }
+    console.log('══════════════════════════════════════════════════════\n');
+  })();
 });
 
 

@@ -79,6 +79,12 @@
   </a>
 
   <div class="sb-div"></div>
+  <div class="sb-sec">Automação</div>
+  <a class="ni" href="/admin-whatsapp.html">
+    <i class="ti ti-brand-whatsapp" style="color:#25D366"></i> WhatsApp
+  </a>
+
+  <div class="sb-div"></div>
   <div class="sb-sec">Ações</div>
   <button class="ni" onclick="carregarDados()">
     <i class="ti ti-refresh"></i> Atualizar dados
@@ -111,12 +117,19 @@
       <button class="btn btn-ghost btn-sm" onclick="mostrarChecklist(todos.find(c=>c.id===detId))" style="flex-shrink:0" title="Checklist de evolução">
         <i class="ti ti-list-check"></i>
       </button>
+      <button class="btn btn-primary btn-sm" onclick="abrirPreencherPendencias()" style="flex-shrink:0" title="Completar campos pendentes">
+        <i class="ti ti-edit-circle"></i> Completar
+      </button>
       <button class="btn btn-sm" id="btn-del" style="background:#FEF2F2;border:1px solid #FECACA;color:#DC2626;flex-shrink:0" onclick="confirmarExclusao()">
         <i class="ti ti-trash"></i>
       </button>
     </div>
   </div>
   <div class="det-body" id="modal-body"></div>
+  <div id="det-next-bar">
+    <span class="next-tab-label" id="det-next-label"></span>
+    <button class="btn-next-tab" onclick="confirmarAvancoAba()"><i class="ti ti-arrow-right"></i> Próximo</button>
+  </div>
 </div>
 
 <!-- ── MAIN WRAP ────────────────────────────────────────────────────── -->
@@ -364,7 +377,7 @@ function atualizarStats() {
         pre = todos.filter(c=>c.status==='preenchido').length,
         lc  = todos.filter(c=>c.status==='lib-cadastro').length,
         lf  = todos.filter(c=>c.status==='lib-fiscal').length,
-        ls  = todos.filter(c=>c.status==='lib-sistema').length,
+        ls  = todos.filter(c=>['cred-val-1','cred-val-2'].includes(c.status)).length,
         cad = todos.filter(c=>c.status==='cadastrado').length,
         rev = todos.filter(c=>c.status==='revisao').length;
   document.getElementById('sv-total').textContent=t;
@@ -410,7 +423,9 @@ function getLista() {
   const q      = document.getElementById('search-inp').value.toLowerCase();
   const equipe = document.getElementById('sel-equipe').value;
   const vend   = document.getElementById('sel-vend').value;
-  let lista = filtro==='todos' ? todos : todos.filter(c=>c.status===filtro);
+  let lista = filtro==='todos' ? todos
+    : filtro==='lib-sistema' ? todos.filter(c=>['cred-val-1','cred-val-2'].includes(c.status))
+    : todos.filter(c=>c.status===filtro);
   if (equipe)   lista = lista.filter(c => c.equipe === equipe);
   if (vend)     lista = lista.filter(c => c.vendedor_nome === vend);
   if (filtroOp) lista = lista.filter(c => c.operador_nome === filtroOp);
@@ -422,7 +437,7 @@ function getLista() {
     (c.vendedor_nome||'').toLowerCase().includes(q)
   );
   // sort
-  const STATUS_ORDER = {preenchido:0,'lib-cadastro':1,'lib-sistema':2,'lib-fiscal':3,cadastrado:4,revisao:5};
+  const STATUS_ORDER = {preenchido:0,'lib-cadastro':1,'cred-val-1':2,'cred-val-2':3,'lib-fiscal':4,cadastrado:5,revisao:6};
   lista = [...lista].sort((a,b) => {
     let va, vb;
     if      (sortCol==='data')     { va=new Date(a.created_at||0); vb=new Date(b.created_at||0); }
@@ -443,7 +458,7 @@ function renderTabela() {
   const total  = lista.length;
   const inicio = (paginaAtual - 1) * POR_PAGINA;
   const pagina = lista.slice(inicio, inicio + POR_PAGINA);
-  const SL     = {preenchido:'Preenchido','lib-cadastro':'Lib. p/ Cadastro','lib-fiscal':'Lib. p/ Fiscal','lib-sistema':'Aprov. Crédito',cadastrado:'Cadastrado',revisao:'Em Revisão'};
+  const SL     = {preenchido:'Preenchido','lib-cadastro':'Lib. p/ Cadastro','lib-fiscal':'Lib. p/ Fiscal','cred-val-1':'Validação de Crédito 1','cred-val-2':'Validação de Crédito 2',cadastrado:'Cadastrado',revisao:'Em Revisão'};
 
   if (!total) {
     const noData = filtro==='todos' && !document.getElementById('search-inp').value &&
@@ -539,9 +554,11 @@ async function abrirDetalhe(id) {
       opSel.appendChild(o);
     });
     document.getElementById('modal-body').innerHTML = detalheHTML(c);
+    inicializarAbas();
     setupDragDrop();
     const idx = todos.findIndex(x=>x.id===id);
     if (idx>-1) { const _p=getAutoAvancar(todos[idx]); if(_p) atualizarStatus(_p); }
+    if (!c.insc_estadual && c.cnpj) buscarIEseVazio(c);
   } catch(e) {
     document.getElementById('modal-body').innerHTML =
       '<div class="empty-state" style="padding:80px 20px"><i class="ti ti-alert-circle"></i><h3>Erro ao carregar</h3></div>';
@@ -550,7 +567,51 @@ async function abrirDetalhe(id) {
 
 function fecharModal() {
   document.getElementById('overlay').classList.remove('on');
+  document.getElementById('det-next-bar').classList.remove('visible');
+  confirmedTabs.clear();
   detId = null;
+}
+
+async function buscarIEseVazio(c) {
+  const cnpj = (c.cnpj || '').replace(/\D/g, '');
+  if (!cnpj || cnpj.length !== 14) return;
+
+  const ieInput = document.querySelector('.det-input[onblur*="insc_estadual"]');
+  if (ieInput) {
+    ieInput.disabled = true;
+    ieInput.value = 'Consultando...';
+    ieInput.style.color = '#9CA3AF';
+  }
+
+  try {
+    const r = await fetch(`${API}/api/sintegra/${cnpj}`);
+    const j = await r.json();
+    const ie = j?.data?.inscricao_estadual || '';
+    const valor = ie.trim() || 'Não encontrado';
+
+    const patch = await fetch(`${API}/api/cadastros/${c.id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ insc_estadual: valor })
+    });
+    const pj = await patch.json();
+    if (pj.ok) {
+      const idx = todos.findIndex(x => x.id === c.id);
+      if (idx > -1) todos[idx].insc_estadual = valor;
+    }
+
+    if (ieInput) {
+      ieInput.value = valor;
+      ieInput.disabled = false;
+      ieInput.style.color = valor === 'Não encontrado' ? '#9CA3AF' : '';
+    }
+  } catch(e) {
+    if (ieInput) {
+      ieInput.value = '';
+      ieInput.disabled = false;
+      ieInput.style.color = '';
+    }
+  }
 }
 
 async function atualizarStatus(novo) {
@@ -672,7 +733,7 @@ function renderFila() {
     if (c.operador_nome) {
       if (!fila[c.operador_nome]) fila[c.operador_nome] = {total:0,abertos:0};
       fila[c.operador_nome].total++;
-      if (['preenchido','lib-cadastro','lib-fiscal','lib-sistema'].includes(c.status)) fila[c.operador_nome].abertos++;
+      if (['preenchido','lib-cadastro','lib-fiscal','cred-val-1','cred-val-2'].includes(c.status)) fila[c.operador_nome].abertos++;
     }
   });
   const ops = Object.entries(fila);
@@ -823,6 +884,8 @@ async function salvarCampoEdit(campo, valor) {
     if (j.ok) {
       const idx = todos.findIndex(c=>c.id===detId);
       if (idx>-1) { todos[idx][campo] = valor; refreshPipeline(todos[idx]); const _p=getAutoAvancar(todos[idx]); if(_p) atualizarStatus(_p); }
+      document.querySelectorAll(`#modal-body input[onblur*="salvarCampoEdit('${campo}'"], #modal-body input[onblur*='salvarCampoEdit("${campo}"']`).forEach(el => { if (el !== document.activeElement) el.value = valor; });
+      showToast('Salvo!','ok');
     } else showToast('Erro ao salvar','err');
   } catch(e) { showToast('Erro de conexão','err'); }
 }
@@ -878,12 +941,152 @@ async function salvarFinanceiro() {
 }
 
 /* ── TABS DO DETALHE ─────────────────────────────────────────── */
+const DET_TAB_ORDER = ['cliente','empresa','endereco','fiscal','financeiro','anexos','registro'];
+const DET_TAB_LABELS = {cliente:'Cliente',empresa:'Empresa',endereco:'Endereço',fiscal:'Fiscal',financeiro:'Financeiro',anexos:'Anexos',registro:'Registro'};
+let detTabAtual = 'cliente';
+let confirmedTabs = new Set();
+
 function switchDetTab(name) {
   document.querySelectorAll('.det-tab').forEach(t => t.classList.remove('on'));
   document.querySelectorAll('.det-panel').forEach(p => p.classList.remove('on'));
   document.getElementById('dtt-'+name)?.classList.add('on');
   document.getElementById('dtp-'+name)?.classList.add('on');
   if (name === 'fiscal') carregarCnaes();
+  detTabAtual = name;
+  const idx = DET_TAB_ORDER.indexOf(name);
+  const nextBar = document.getElementById('det-next-bar');
+  if (idx >= 0 && idx < DET_TAB_ORDER.length - 1) {
+    const nextName = DET_TAB_ORDER[idx + 1];
+    document.getElementById('det-next-label').textContent = 'Ir para: ' + DET_TAB_LABELS[nextName];
+    nextBar.dataset.next = nextName;
+    nextBar.classList.add('visible');
+  } else {
+    nextBar.classList.remove('visible');
+  }
+  atualizarEstadoTabs();
+}
+
+function confirmarAvancoAba() {
+  const nextName = document.getElementById('det-next-bar').dataset.next;
+  if (!nextName) return;
+  const currentTab = detTabAtual;
+  const c = todos.find(x => x.id === detId);
+  const pendentes = c ? getCamposFaltando(c).filter(r => r.tab === currentTab) : [];
+
+  const warningBlock = pendentes.length ? `
+    <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:8px;padding:12px 14px;margin-bottom:16px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;font-weight:700;color:#92400E">
+        <i class="ti ti-alert-triangle" style="font-size:16px;color:#D97706"></i> Campos pendentes nesta aba:
+      </div>
+      <ul style="margin:0;padding-left:18px;font-size:12px;color:#92400E;display:flex;flex-direction:column;gap:3px">
+        ${pendentes.map(r=>`<li>${r.label}</li>`).join('')}
+      </ul>
+    </div>
+    <div style="font-size:13px;color:#64748B;margin-bottom:24px">Tem certeza que deseja avançar sem preencher essas informações?</div>`
+    : `<div style="font-size:13px;color:#64748B;margin-bottom:24px">As informações da aba <strong>${DET_TAB_LABELS[currentTab]}</strong> estão corretas e revisadas?</div>`;
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;padding:28px 32px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.18)">
+      <div style="font-size:15px;font-weight:700;color:#1E2942;margin-bottom:${pendentes.length?12:8}px">Confirmar avanço de aba</div>
+      ${warningBlock}
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onclick="this.closest('[style*=position]').remove()" style="padding:8px 18px;border:1px solid #E2E8F0;border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#64748B">Cancelar</button>
+        <button onclick="this.closest('[style*=position]').remove();marcarTabConfirmada('${currentTab}');switchDetTab('${nextName}')" style="padding:8px 18px;border:none;border-radius:8px;background:${pendentes.length?'#D97706':'#1B3FAB'};color:#fff;font-size:13px;font-weight:600;cursor:pointer">${pendentes.length?'Avançar mesmo assim':'Confirmar e avançar'}</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function confirmarTodasAbas() {
+  const c = todos.find(x => x.id === detId);
+  const todasPendentes = c ? getCamposFaltando(c) : [];
+
+  const porAba = {};
+  todasPendentes.forEach(r => {
+    if (!porAba[r.tab]) porAba[r.tab] = [];
+    porAba[r.tab].push(r.label);
+  });
+
+  const warnHTML = todasPendentes.length
+    ? `<div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:8px;padding:12px 14px;margin-bottom:16px;max-height:260px;overflow-y:auto">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;font-weight:700;color:#92400E">
+          <i class="ti ti-alert-triangle" style="font-size:16px;color:#D97706"></i> Campos pendentes no cadastro:
+        </div>
+        ${Object.entries(porAba).map(([tab,labels])=>`
+          <div style="margin-bottom:10px">
+            <div style="font-size:10px;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${DET_TAB_LABELS[tab]||tab}</div>
+            <ul style="margin:0;padding-left:16px;font-size:12px;color:#92400E;display:flex;flex-direction:column;gap:2px">
+              ${labels.map(l=>`<li>${l}</li>`).join('')}
+            </ul>
+          </div>`).join('')}
+      </div>
+      <div style="font-size:13px;color:#64748B;margin-bottom:24px">Confirmar todas as abas mesmo com campos pendentes?</div>`
+    : `<div style="font-size:13px;color:#64748B;margin-bottom:24px">Todos os campos estão preenchidos. Confirmar todas as abas e avançar?</div>`;
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:12px;padding:28px 32px;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.18)">
+      <div style="font-size:15px;font-weight:700;color:#1E2942;margin-bottom:12px">Confirmar todas as abas</div>
+      ${warnHTML}
+      <div style="display:flex;gap:10px;justify-content:flex-end">
+        <button onclick="this.closest('[style*=position]').remove()" style="padding:8px 18px;border:1px solid #E2E8F0;border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#64748B">Cancelar</button>
+        <button onclick="this.closest('[style*=position]').remove();_confirmarTodasExec()" style="padding:8px 18px;border:none;border-radius:8px;background:${todasPendentes.length?'#D97706':'#16A34A'};color:#fff;font-size:13px;font-weight:600;cursor:pointer">${todasPendentes.length?'Confirmar mesmo assim':'Confirmar todas'}</button>
+      </div>
+    </div>`;
+  document.body.appendChild(modal);
+}
+
+function _confirmarTodasExec() {
+  DET_TAB_ORDER.forEach(t => marcarTabConfirmada(t));
+  verificarAvancoAutomatico();
+}
+
+function marcarTabConfirmada(name) {
+  confirmedTabs.add(name);
+  const btn = document.getElementById('dtt-' + name);
+  if (btn && !btn.querySelector('.tab-check')) {
+    btn.classList.add('confirmed');
+    btn.insertAdjacentHTML('beforeend', ' <i class="tab-check ti ti-circle-check"></i>');
+  }
+  atualizarEstadoTabs();
+  verificarAvancoAutomatico();
+}
+
+async function verificarAvancoAutomatico() {
+  const ABAS_CREDITO = ['cliente','empresa','endereco','fiscal'];
+  if (!ABAS_CREDITO.every(t => confirmedTabs.has(t))) return;
+  const c = todos.find(x => x.id === detId);
+  if (!c) return;
+  if (!['preenchido','lib-cadastro'].includes(c.status)) return;
+  if (getCamposFaltando(c).length > 0) return;
+  await atualizarStatus('cred-val-1');
+}
+
+function atualizarEstadoTabs() {
+  const firstUnconfIdx = DET_TAB_ORDER.findIndex(t => !confirmedTabs.has(t));
+  const lockFrom = firstUnconfIdx === -1 ? DET_TAB_ORDER.length : firstUnconfIdx + 1;
+  DET_TAB_ORDER.forEach((tab, i) => {
+    const btn = document.getElementById('dtt-' + tab);
+    if (!btn) return;
+    if (i >= lockFrom) { btn.setAttribute('disabled',''); btn.classList.add('locked'); }
+    else                { btn.removeAttribute('disabled');  btn.classList.remove('locked'); }
+  });
+}
+
+function inicializarAbas(base) {
+  confirmedTabs = base || new Set(['cliente','empresa']);
+  DET_TAB_ORDER.forEach(t => {
+    if (!confirmedTabs.has(t)) return;
+    const btn = document.getElementById('dtt-' + t);
+    if (btn && !btn.querySelector('.tab-check')) {
+      btn.classList.add('confirmed');
+      btn.insertAdjacentHTML('beforeend', ' <i class="tab-check ti ti-circle-check"></i>');
+    }
+  });
+  switchDetTab(DET_TAB_ORDER.find(t => !confirmedTabs.has(t)) || 'registro');
 }
 
 async function carregarCnaes() {
@@ -926,14 +1129,10 @@ async function carregarCnaes() {
 /* ── DETALHE HTML ────────────────────────────────────────────── */
 function detalheHTML(c) {
   const locked = false;
-  const f = (label, val, mono) => val
-    ? `<div class="det-f"><div class="det-lbl">${label}</div><div class="det-val${mono?' mono':''}">${val}</div></div>` : '';
+  const f = (label, val, mono) => `<div class="det-f"><div class="det-lbl">${label}</div><div class="det-val${mono?' mono':''}">${val||'—'}</div></div>`;
 
-  const teamData = TEAMS.find(t => t.name === c.equipe);
-  const tcolor   = teamData?.color || '#9DAEC4';
-  const tbg      = teamData?.bg    || '#F3F4F6';
 
-  const HLABELS = {status:'Status',operador_nome:'Operador',limite_credito:'Limite de Crédito',forma_pagamento:'Forma de Pagamento',observacoes:'Observação'};
+  const HLABELS = {status:'Status',operador_nome:'Operador',limite_credito:'Solicitação de Crédito',forma_pagamento:'Forma de Pagamento',observacoes:'Observação'};
 
   const entregaHTML = (() => {
     const e = c.endereco_entrega;
@@ -962,30 +1161,8 @@ function detalheHTML(c) {
     ? c.anexos.map(a => anexoHTML(a, c.id)).join('')
     : `<div style="text-align:center;padding:20px 0;color:#C4D0E8;font-size:13px">Nenhum arquivo anexado</div>`;
 
-  const cnt = n => n ? ` <span style="background:#EEF3FF;color:#1B3FAB;font-size:9px;font-weight:700;padding:1px 6px;border-radius:20px;margin-left:2px">${n}</span>` : '';
-  const SL = {preenchido:'Preenchido','lib-cadastro':'Lib. p/ Cadastro','lib-fiscal':'Lib. p/ Fiscal','lib-sistema':'Aprov. Crédito',cadastrado:'Cadastrado',revisao:'Em Revisão'};
-
   return `
-    <div class="det-meta">
-      <span class="proto-chip"><i class="ti ti-hash" style="font-size:13px"></i> #${c.id}</span>
-      <span class="team-badge" style="background:${tbg};color:${tcolor};padding:4px 12px;font-size:11px">${c.equipe||'—'}</span>
-      <span style="font-size:12px;color:#8A9BB5;display:flex;align-items:center;gap:4px"><i class="ti ti-user" style="font-size:13px"></i>${c.vendedor_nome||'—'}</span>
-      ${c.operador_nome?`<span style="font-size:12px;color:#8A9BB5;display:flex;align-items:center;gap:4px"><i class="ti ti-headset" style="font-size:13px"></i>${c.operador_nome}</span>`:''}
-      ${locked?`<div style="flex-basis:100%;margin-top:6px;background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;padding:10px 14px;display:flex;align-items:center;gap:10px;font-size:12px;color:#92400E">
-        <i class="ti ti-lock" style="font-size:18px;color:#D97706;flex-shrink:0"></i>
-        <div><strong>Ainda com o vendedor</strong> — Este cadastro está sendo preenchido. Edições administrativas são liberadas a partir de <em>Lib. p/ Cadastro</em>.</div>
-      </div>`:''}
-    </div>
-    ${buildPipeline(c.status)}
-    <div class="det-tabs-bar">
-      <button class="det-tab on" onclick="switchDetTab('cliente')"    id="dtt-cliente"><i class="ti ti-user"></i> Cliente</button>
-      <button class="det-tab"    onclick="switchDetTab('empresa')"    id="dtt-empresa"><i class="ti ti-building-store"></i> Empresa</button>
-      <button class="det-tab"    onclick="switchDetTab('endereco')"   id="dtt-endereco"><i class="ti ti-map-pin"></i> Endereço</button>
-      <button class="det-tab"    onclick="switchDetTab('fiscal')"     id="dtt-fiscal"><i class="ti ti-file-invoice"></i> Fiscal</button>
-      <button class="det-tab"    onclick="switchDetTab('financeiro')" id="dtt-financeiro"><i class="ti ti-cash"></i> Financeiro</button>
-      <button class="det-tab"    onclick="switchDetTab('anexos')"     id="dtt-anexos"><i class="ti ti-paperclip"></i> Anexos${cnt(c.anexos?.length)}</button>
-      <button class="det-tab"    onclick="switchDetTab('registro')"   id="dtt-registro"><i class="ti ti-clock"></i> Registro</button>
-    </div>
+    ${buildDetHeader(c, { locked })}
     <div class="det-panel on" id="dtp-cliente">
       <div class="det-sect">
         <div class="det-sect-title"><i class="ti ti-hash"></i> Identificação</div>
@@ -1023,6 +1200,7 @@ function detalheHTML(c) {
           <div class="det-f"><div class="det-lbl">Razão Social</div><input class="det-input" value="${(c.razao_social||'').replace(/"/g,'&quot;')}" placeholder="Razão Social" onblur="salvarCampoEdit('razao_social',this.value)"></div>
           <div class="det-f"><div class="det-lbl">Nome Fantasia</div><input class="det-input" value="${(c.nome_fantasia||'').replace(/"/g,'&quot;')}" placeholder="Nome Fantasia" onblur="salvarCampoEdit('nome_fantasia',this.value)"></div>
           <div class="det-f"><div class="det-lbl">CNPJ</div><input class="det-input mono" value="${(c.cnpj||'').replace(/"/g,'&quot;')}" placeholder="00.000.000/0000-00" onblur="salvarCampoEdit('cnpj',this.value)"></div>
+          <div class="det-f"><div class="det-lbl">Inscrição Estadual (IE)</div><input class="det-input mono" value="${(c.insc_estadual||'').replace(/"/g,'&quot;')}" placeholder="Número da IE" onblur="salvarCampoEdit('insc_estadual',this.value)"></div>
           <div class="det-f"><div class="det-lbl">Atividade Principal</div><input class="det-input" value="${(c.atividade||'').replace(/"/g,'&quot;')}" placeholder="Atividade" onblur="salvarCampoEdit('atividade',this.value)"></div>
           <div class="det-f"><div class="det-lbl">Telefone</div><input class="det-input" value="${(c.telefone_empresa||'').replace(/"/g,'&quot;')}" placeholder="(31) 0000-0000" onblur="salvarCampoEdit('telefone_empresa',this.value)"></div>
           <div class="det-f"><div class="det-lbl">E-mail</div><input type="email" class="det-input" value="${(c.email_empresa||'').replace(/"/g,'&quot;')}" placeholder="contato@empresa.com" onblur="salvarCampoEdit('email_empresa',this.value)"></div>
@@ -1061,7 +1239,7 @@ function detalheHTML(c) {
         <div class="det-sect-title"><i class="ti ti-receipt-tax"></i> Dados Fiscais</div>
         <div class="det-grid">
           <div class="det-f"><div class="det-lbl">CNPJ</div><input class="det-input mono" value="${(c.cnpj||'').replace(/"/g,'&quot;')}" placeholder="00.000.000/0000-00" onblur="salvarCampoEdit('cnpj',this.value)"></div>
-          <div class="det-f"><div class="det-lbl">Inscrição Estadual (IE)</div><input class="det-input mono" value="${(c.insc_estadual||'').replace(/"/g,'&quot;')}" placeholder="000.000.000/0000" onblur="salvarCampoEdit('insc_estadual',this.value)"></div>
+          <div class="det-f"><div class="det-lbl">Inscrição Estadual (IE)</div><input class="det-input mono" value="${(c.insc_estadual||'').replace(/"/g,'&quot;')}" placeholder="Número da IE" onblur="salvarCampoEdit('insc_estadual',this.value)"></div>
           <div class="det-f"><div class="det-lbl">Atividade / CNAE</div><input class="det-input" value="${(c.atividade||'').replace(/"/g,'&quot;')}" placeholder="Atividade" onblur="salvarCampoEdit('atividade',this.value)"></div>
           <div class="det-f"><div class="det-lbl">UF</div><input class="det-input" value="${(c.uf||'').replace(/"/g,'&quot;')}" placeholder="MG" maxlength="2" onblur="salvarCampoEdit('uf',this.value)"></div>
           <div class="det-f"><div class="det-lbl">Razão Social</div><input class="det-input" value="${(c.razao_social||'').replace(/"/g,'&quot;')}" placeholder="Razão Social" onblur="salvarCampoEdit('razao_social',this.value)"></div>
@@ -1134,7 +1312,7 @@ function detalheHTML(c) {
         <div class="det-sect-title"><i class="ti ti-settings"></i> Gestão Comercial</div>
         <div style="${locked?'pointer-events:none;opacity:.45':''}">
         <div class="det-grid" style="margin-bottom:10px">
-          <div class="det-f"><div class="det-lbl">Limite de Crédito</div>
+          <div class="det-f"><div class="det-lbl">Solicitação de Crédito</div>
             <input type="text" id="inp-limite" class="det-input" value="${c.limite_credito||''}" placeholder="Ex: R$ 5.000,00" onblur="salvarFinanceiro()">
           </div>
           <div class="det-f"><div class="det-lbl">Forma de Pagamento</div>
@@ -1193,7 +1371,7 @@ function detalheHTML(c) {
         <div class="det-sect-title"><i class="ti ti-clock"></i> Protocolo &amp; Datas</div>
         <div class="det-grid">
           ${f('Protocolo','#'+c.id,true)}
-          ${f('Status',`<span class="status-badge ${c.status}">${SL[c.status]||c.status}</span>${tipoTag(c)}`)}
+          ${f('Status',`<span class="status-badge ${c.status}">${SL_ADMIN[c.status]||c.status}</span>${tipoTag(c)}`)}
           ${f('Criado em',new Date(c.created_at).toLocaleString('pt-BR'))}
           ${f('Última atualização',new Date(c.updated_at).toLocaleString('pt-BR'))}
           ${f('Operador',c.operador_nome)}${f('Equipe',c.equipe)}
@@ -1244,6 +1422,223 @@ function closePreview() {
 }
 
 function _escPreview(e) { if (e.key === 'Escape') closePreview(); }
+
+/* ── POPUP: PREENCHER PENDÊNCIAS ────────────────────────────────── */
+function getCamposFaltando(c) {
+  const regras = STAGE_RULES['lib-cadastro'];
+  if (!regras) return [];
+  return regras.campos.filter(r => {
+    if (c?.campos_na?.includes(r.campo)) return false;
+    const val = c?.[r.campo];
+    if (r.tipo === 'bool')  return val !== true;
+    if (r.tipo === 'array') return !Array.isArray(val) || val.length === 0;
+    return !val || String(val).trim() === '';
+  });
+}
+
+const PF_LABELS = {
+  responsavel:    { label: 'Nome do Responsável',    type: 'text',   placeholder: 'Nome completo' },
+  telefone:       { label: 'Telefone / WhatsApp',    type: 'tel',    placeholder: '(31) 9 0000-0000', mask: 'tel' },
+  cnpj:           { label: 'CNPJ',                   type: 'text',   placeholder: '00.000.000/0000-00' },
+  razao_social:   { label: 'Razão Social',           type: 'text',   placeholder: 'Razão Social' },
+  cep:            { label: 'CEP',                    type: 'text',   placeholder: '00000-000', mask: 'cep' },
+  logradouro:     { label: 'Logradouro',             type: 'text',   placeholder: 'Rua / Av.' },
+  cidade:         { label: 'Cidade',                 type: 'text',   placeholder: 'Cidade' },
+  uf:             { label: 'UF',                     type: 'text',   placeholder: 'MG' },
+  cond_pagamento: { label: 'Cond. de Pagamento',     type: 'text',   placeholder: 'Ex: 30/60/90 dias' },
+  forma_pagamento:{ label: 'Forma de Pagamento',     type: 'select', options: [
+    {v:'ANT',t:'ANT — Antecipado'},{v:'BK',t:'BK — Cobrança Bancária'},{v:'BNDS',t:'BNDS — BNDES'},
+    {v:'BNF',t:'BNF — Bonificação'},{v:'CAPR',t:'CAPR — Contra Apresentação'},{v:'CCAD',t:'CCAD — Construcard'},
+    {v:'CCRE',t:'CCRE — Carta de Crédito'},{v:'CH',t:'CH — Cheque em Trânsito'},{v:'CRTC',t:'CRTC — Cartão de Crédito'},
+    {v:'CTOT',t:'CTOT — Cartão Transferência'},{v:'DBTO',t:'DBTO — Cartão de Débito'},{v:'DEP',t:'DEP — Depósito em Conta Corrente'},
+    {v:'DINH',t:'DINH — Dinheiro'},{v:'DNE',t:'DNE — Dinheiro Entrega'},{v:'SENT',t:'SENT — Simples Entrega'},
+  ]},
+  limite_credito: { label: 'Solicitação de Crédito', type: 'text',  placeholder: 'Ex: R$ 5.000,00' },
+};
+
+function abrirPreencherPendencias() {
+  const cadastro = todos.find(c => c.id === detId);
+  if (!cadastro) return;
+  document.getElementById('pendencias-modal')?.remove();
+
+  const faltando = getCamposFaltando(cadastro);
+  if (faltando.length === 0) { showToast('Nenhuma pendência! Pode avançar.', 'ok'); return; }
+
+  const camposBancos = faltando.find(r => r.tipo === 'array' && r.campo === 'bancos');
+  const camposTexto  = faltando.filter(r => r.tipo !== 'array');
+
+  const fieldsHTML = camposTexto.map(r => {
+    const meta = PF_LABELS[r.campo] || { label: r.label, type: 'text', placeholder: '' };
+    const oninput = meta.mask === 'tel'
+      ? ` oninput="this.value=maskTel(this.value)"`
+      : meta.mask === 'cep'
+        ? ` oninput="this.value=maskCEP(this.value);if(this.value.replace(/\\D/g,'').length===8)pfBuscarCEP(this.value.replace(/\\D/g,''))"`
+        : '';
+    const inputHTML = meta.type === 'select'
+      ? `<select class="einput" id="pf-${r.campo}">
+          <option value="">Selecione...</option>
+          ${meta.options.map(o=>`<option value="${o.v}">${o.t}</option>`).join('')}
+        </select>`
+      : `<input class="einput" id="pf-${r.campo}" type="${meta.type}" placeholder="${meta.placeholder}"${oninput}>`;
+    return `<div class="ef" style="margin-bottom:14px">
+      <label class="ef-lbl">${meta.label}</label>
+      ${inputHTML}
+      <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;color:#6B7C99;cursor:pointer">
+        <input type="checkbox" id="pf-na-${r.campo}" onchange="pfToggleNA('${r.campo}',this.checked)">
+        Cliente não possui esta informação
+      </label>
+    </div>`;
+  }).join('');
+
+  const banksHTML = camposBancos ? `<div class="ef" style="margin-bottom:14px">
+    <label class="ef-lbl">Dados Bancários</label>
+    <div id="pf-banks"></div>
+    <button type="button" class="add-btn" id="pf-banks-add-btn" onclick="pfAddBank()" style="margin-top:4px"><i class="ti ti-plus" style="font-size:12px"></i> Adicionar banco</button>
+    <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;color:#6B7C99;cursor:pointer">
+      <input type="checkbox" id="pf-na-bancos" onchange="pfToggleNA('bancos',this.checked)">
+      Cliente não possui dados bancários
+    </label>
+  </div>` : '';
+
+  const modal = document.createElement('div');
+  modal.id = 'pendencias-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .15s ease';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:16px;width:100%;max-width:420px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.25)">
+      <div style="padding:16px 20px 12px;border-bottom:1px solid #F3F4F6;display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:10px;background:#EEF3FF;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="ti ti-list-check" style="font-size:18px;color:#1B3FAB"></i>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:700;color:#111827">Completar pendências</div>
+          <div style="font-size:11px;color:#9CA3AF">${faltando.length} campo(s) faltando para Lib. p/ Cadastro</div>
+        </div>
+        <button onclick="document.getElementById('pendencias-modal').remove()" style="width:28px;height:28px;border:none;background:transparent;cursor:pointer;border-radius:6px;color:#9CA3AF;font-size:16px">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+      <div style="padding:16px 20px;overflow-y:auto;flex:1">${fieldsHTML}${banksHTML}</div>
+      <div style="padding:10px 16px;border-top:1px solid #F3F4F6;display:flex;justify-content:flex-end;gap:8px;background:#FAFBFF">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('pendencias-modal').remove()">Cancelar</button>
+        <button class="btn btn-primary btn-sm" id="pf-save-btn" onclick="salvarPendencias()"><i class="ti ti-device-floppy"></i> Salvar</button>
+      </div>
+    </div>`;
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+
+  window._pfBankCnt = 0;
+  if (camposBancos) pfAddBank();
+}
+
+async function pfBuscarCEP(cep) {
+  try {
+    const r = await fetch(`${API}/api/cep/${cep}`);
+    const j = await r.json();
+    if (!j.ok) return;
+    const d = j.data;
+    if (document.getElementById('pf-logradouro')) document.getElementById('pf-logradouro').value = d.street || '';
+    if (document.getElementById('pf-cidade'))     document.getElementById('pf-cidade').value     = d.city   || '';
+    if (document.getElementById('pf-uf'))         document.getElementById('pf-uf').value         = d.state  || '';
+  } catch(e) {}
+}
+
+function pfAddBank(data={}) {
+  window._pfBankCnt = (window._pfBankCnt||0) + 1;
+  const n = window._pfBankCnt;
+  const row = document.createElement('div');
+  row.className = 'bk-edit-row'; row.id = 'pfb-'+n;
+  row.innerHTML = `
+    <div class="ef"><label class="ef-lbl">Banco</label>
+      <input class="einput" type="text" placeholder="Ex: Bradesco" value="${data.banco||''}"></div>
+    <div class="ef"><label class="ef-lbl">Agência</label>
+      <input class="einput" type="text" placeholder="0000-0" value="${data.agencia||''}"></div>
+    <div class="ef"><label class="ef-lbl">Conta</label>
+      <div style="display:flex;gap:6px;align-items:flex-end">
+        <input class="einput" type="text" placeholder="00000-0" style="flex:1" value="${data.conta||''}">
+        <button class="rm-row" onclick="document.getElementById('pfb-${n}').remove()"><i class="ti ti-x"></i></button>
+      </div></div>`;
+  document.getElementById('pf-banks').appendChild(row);
+}
+
+function pfToggleNA(campo, checked) {
+  if (campo === 'bancos') {
+    const wrap = document.getElementById('pf-banks');
+    const addBtn = document.getElementById('pf-banks-add-btn');
+    if (wrap)   wrap.style.display   = checked ? 'none' : '';
+    if (addBtn) addBtn.style.display = checked ? 'none' : '';
+    return;
+  }
+  const el = document.getElementById('pf-'+campo);
+  if (!el) return;
+  el.disabled = checked;
+  if (checked) el.value = '';
+}
+
+async function salvarPendencias() {
+  if (!detId) return;
+  const cadastro = todos.find(c => c.id === detId);
+  if (!cadastro) return;
+  const faltando = getCamposFaltando(cadastro);
+  const payload  = {};
+  const camposNA = new Set(cadastro.campos_na || []);
+
+  faltando.filter(r => r.tipo !== 'array').forEach(r => {
+    const naChecked = document.getElementById('pf-na-'+r.campo)?.checked;
+    if (naChecked) { camposNA.add(r.campo); return; }
+    camposNA.delete(r.campo);
+    const el = document.getElementById('pf-'+r.campo);
+    if (el) payload[r.campo] = el.value.trim();
+  });
+
+  if (faltando.some(r => r.tipo === 'array' && r.campo === 'bancos')) {
+    const naBancos = document.getElementById('pf-na-bancos')?.checked;
+    if (naBancos) {
+      camposNA.add('bancos');
+    } else {
+      camposNA.delete('bancos');
+      const bancos = [];
+      document.querySelectorAll('#pf-banks .bk-edit-row').forEach(row => {
+        const ins = row.querySelectorAll('input');
+        if (ins[0]?.value.trim()) bancos.push({banco:ins[0].value.trim(), agencia:ins[1]?.value||'', conta:ins[2]?.value||''});
+      });
+      if (bancos.length) payload.bancos = bancos;
+    }
+  }
+
+  payload.campos_na = Array.from(camposNA);
+
+  const btn = document.getElementById('pf-save-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin .7s linear infinite"></i> Salvando...'; }
+
+  try {
+    const r = await fetch(`${API}/api/cadastros/${detId}`, {
+      method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+    });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error||'Erro ao salvar');
+
+    const idx = todos.findIndex(c => c.id === detId);
+    if (idx > -1) Object.assign(todos[idx], j.data);
+
+    document.getElementById('pendencias-modal')?.remove();
+    showToast('Pendências salvas!', 'ok');
+
+    if (idx > -1) {
+      const _savedTabs = new Set(confirmedTabs);
+      document.getElementById('modal-body').innerHTML = detalheHTML(todos[idx]);
+      refreshPipeline(todos[idx]);
+      setupDragDrop();
+      inicializarAbas(_savedTabs);
+      atualizarStats();
+      renderTabela();
+      const proximo = getAutoAvancar(todos[idx]);
+      if (proximo) atualizarStatus(proximo);
+    }
+  } catch(e) {
+    showToast(e.message || 'Erro de conexão', 'err');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-device-floppy"></i> Salvar'; }
+  }
+}
 </script>
 </body>
 </html>

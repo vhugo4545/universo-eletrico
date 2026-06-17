@@ -207,9 +207,6 @@
       <span id="modal-status-badge" class="status-badge" style="flex-shrink:0"></span>
       <span id="modal-tipo-badge" style="flex-shrink:0"></span>
       <div id="modal-status-actions" style="display:flex;gap:8px;flex-shrink:0"></div>
-      <button class="btn btn-ghost btn-sm" id="btn-edit" onclick="entrarEditMode()" style="display:none;flex-shrink:0">
-        <i class="ti ti-edit"></i> Editar
-      </button>
     </div>
   </div>
 
@@ -271,6 +268,10 @@
             <option value="DNE">DNE — Dinheiro Entrega</option>
             <option value="SENT">SENT — Simples Entrega</option>
           </select></div>
+      </div>
+      <div class="eg2">
+        <div class="ef"><label class="ef-lbl">Solicitação de Crédito</label>
+          <input class="einput" id="ed-credito" type="text" placeholder="Ex: R$ 5.000,00"></div>
       </div>
     </div>
 
@@ -711,7 +712,7 @@ async function carregarDados() {
 function atualizarStats() {
   const t=todos.length,
         p=todos.filter(c=>c.status==='preenchido').length,
-        l=todos.filter(c=>['lib-cadastro','lib-fiscal','lib-sistema'].includes(c.status)).length,
+        l=todos.filter(c=>['lib-cadastro','lib-fiscal','cred-val-1','cred-val-2'].includes(c.status)).length,
         f=todos.filter(c=>c.status==='cadastrado').length;
   document.getElementById('sv-total').textContent=t;
   document.getElementById('sv-pend').textContent=p;
@@ -726,7 +727,7 @@ function setFiltro(f) {
   });
   document.getElementById('sc-total')?.classList.toggle('on', f==='todos');
   document.getElementById('sc-preenchido')?.classList.toggle('on', f==='preenchido');
-  document.getElementById('sc-andamento')?.classList.toggle('on', ['lib-cadastro','lib-fiscal','lib-sistema'].includes(f));
+  document.getElementById('sc-andamento')?.classList.toggle('on', ['lib-cadastro','lib-fiscal','cred-val-1','cred-val-2'].includes(f));
   document.getElementById('sc-fin')?.classList.toggle('on', f==='cadastrado');
   renderTabela();
 }
@@ -763,7 +764,9 @@ function renderTabela() {
   const q      = document.getElementById('search-inp').value.toLowerCase();
   const equipe = document.getElementById('filt-equipe').value;
   const vend   = document.getElementById('filt-vend').value;
-  let lista = filtro==='todos' ? todos : todos.filter(c=>c.status===filtro);
+  let lista = filtro==='todos' ? todos
+    : filtro==='lib-sistema' ? todos.filter(c=>['cred-val-1','cred-val-2'].includes(c.status))
+    : todos.filter(c=>c.status===filtro);
   if (equipe) lista = lista.filter(c=>c.equipe===equipe);
   if (vend)   lista = lista.filter(c=>c.vendedor_nome===vend);
   if (q) lista = lista.filter(c=>
@@ -774,7 +777,7 @@ function renderTabela() {
   );
 
   // sort
-  const STATUS_ORDER = {preenchido:0,'lib-cadastro':1,'lib-sistema':2,'lib-fiscal':3,cadastrado:4,revisao:5};
+  const STATUS_ORDER = {preenchido:0,'lib-cadastro':1,'cred-val-1':2,'cred-val-2':3,'lib-fiscal':4,cadastrado:5,revisao:6};
   lista = [...lista].sort((a,b) => {
     let va, vb;
     if (sortCol==='data') {
@@ -803,7 +806,7 @@ function renderTabela() {
     return;
   }
 
-  const SL = {preenchido:'Preenchido','lib-cadastro':'Lib. Cadastro','lib-fiscal':'Lib. Fiscal','lib-sistema':'Aprov. Crédito',cadastrado:'Cadastrado',revisao:'Em revisão'};
+  const SL = {preenchido:'Preenchido','lib-cadastro':'Lib. Cadastro','lib-fiscal':'Lib. Fiscal','cred-val-1':'Validação de Crédito 1','cred-val-2':'Validação de Crédito 2',cadastrado:'Cadastrado',revisao:'Em revisão'};
   document.getElementById('table-body').innerHTML = lista.map(c => {
     const ini      = (c.razao_social||c.responsavel||'?').split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
     const teamData = TEAMS.find(t=>t.name===c.equipe);
@@ -839,7 +842,6 @@ async function abrirDetalhe(id) {
   ov.scrollTop = 0;
   document.getElementById('modal-body').innerHTML = '<div class="loading-state"><i class="ti ti-loader-2"></i> Carregando...</div>';
   document.getElementById('modal-title').textContent = '...';
-  document.getElementById('btn-edit').style.display = 'none';
   document.getElementById('det-tabs-bar').style.display = 'none';
   document.getElementById('modal-status-badge').className = 'status-badge';
   document.getElementById('modal-status-badge').textContent = '';
@@ -862,8 +864,6 @@ async function abrirDetalhe(id) {
     const cntEl = document.getElementById('tab-anexos-cnt');
     if (cntEl) { cntEl.textContent = aCnt; cntEl.style.display = aCnt ? '' : 'none'; }
     setupDragDrop();
-    if (!vendSlug || c.vendedor_slug === vendSlug)
-      document.getElementById('btn-edit').style.display = '';
   } catch(e) {
     document.getElementById('modal-body').innerHTML = '<div class="empty-state"><i class="ti ti-alert-circle"></i><h3>Erro ao carregar</h3></div>';
   }
@@ -883,7 +883,6 @@ function entrarEditMode() {
   document.getElementById('det-tabs-bar').style.display  = 'none';
   document.getElementById('modal-edit').style.display    = '';
   document.getElementById('modal-footer').style.display  = '';
-  document.getElementById('btn-edit').style.display      = 'none';
   document.getElementById('overlay').scrollTop = 0;
 
   // Responsável
@@ -909,6 +908,7 @@ function entrarEditMode() {
   document.getElementById('ed-enfe').value  = c.email_nfe      || '';
   document.getElementById('ed-cond').value  = c.cond_pagamento || '';
   document.getElementById('ed-fpagto').value = c.forma_pagamento || '';
+  document.getElementById('ed-credito').value = c.limite_credito || '';
 
   // Contatos
   edCnt = 0;
@@ -944,7 +944,6 @@ function sairEditMode(reabrir=true) {
   document.getElementById('modal-footer').style.display = 'none';
   if (reabrir && dadosAbertos) {
     document.getElementById('det-tabs-bar').style.display = '';
-    document.getElementById('btn-edit').style.display = '';
     document.getElementById('modal-body').innerHTML = detalheHTML(dadosAbertos);
     switchDetTab('cliente');
   }
@@ -1051,6 +1050,7 @@ async function salvarEdicao() {
     email_responsavel:     g('ed-email-resp').trim(),
     cond_pagamento:        g('ed-cond').trim(),
     forma_pagamento:       g('ed-fpagto'),
+    limite_credito:        g('ed-credito').trim(),
     telefone_empresa:      g('ed-tel-empresa'),
     email_empresa:         g('ed-email-empresa').trim(),
     cep:                   g('ed-cep'),
@@ -1193,7 +1193,7 @@ function switchDetTab(tab) {
 }
 
 function renderStatusModal(status) {
-  const SL = {preenchido:'Preenchido','lib-cadastro':'Lib. Cadastro','lib-fiscal':'Lib. Fiscal','lib-sistema':'Aprov. Crédito',cadastrado:'Cadastrado',revisao:'Em revisão'};
+  const SL = {preenchido:'Preenchido','lib-cadastro':'Lib. Cadastro','lib-fiscal':'Lib. Fiscal','cred-val-1':'Validação de Crédito 1','cred-val-2':'Validação de Crédito 2',cadastrado:'Cadastrado',revisao:'Em revisão'};
   const badge = document.getElementById('modal-status-badge');
   badge.className = 'status-badge '+status;
   badge.textContent = SL[status]||status;
@@ -1204,8 +1204,10 @@ function getCamposFaltando(c) {
   const regras = STAGE_RULES['lib-cadastro'];
   if (!regras) return [];
   return regras.campos.filter(r => {
+    if (c?.campos_na?.includes(r.campo)) return false;
     const val = c?.[r.campo];
-    if (r.tipo === 'bool') return val !== true;
+    if (r.tipo === 'bool')  return val !== true;
+    if (r.tipo === 'array') return !Array.isArray(val) || val.length === 0;
     return !val || String(val).trim() === '';
   });
 }
@@ -1217,7 +1219,9 @@ function renderStatusActions(status) {
     const faltando = getCamposFaltando(dadosAbertos);
     if (faltando.length > 0) {
       actions.innerHTML = `<button class="btn btn-ghost btn-sm" onclick="mostrarChecklist(dadosAbertos)" title="Ver o que está faltando">
-        <i class="ti ti-list-check"></i> O que falta?</button>`;
+        <i class="ti ti-list-check"></i> O que falta?</button>
+        <button class="btn btn-primary btn-sm" onclick="abrirPreencherPendencias()" title="Preencher os campos que faltam">
+        <i class="ti ti-edit-circle"></i> Completar agora</button>`;
     } else {
       actions.innerHTML = '';
     }
@@ -1226,6 +1230,201 @@ function renderStatusActions(status) {
       <i class="ti ti-arrow-back-up"></i> Recolher</button>`;
   } else {
     actions.innerHTML = '';
+  }
+}
+
+/* ── POPUP: PREENCHER PENDÊNCIAS (só os campos que faltam) ──────── */
+const PF_LABELS = {
+  responsavel:   { label: 'Nome do Responsável',  type: 'text', placeholder: 'Nome completo' },
+  telefone:      { label: 'Telefone / WhatsApp',  type: 'tel',  placeholder: '(31) 9 0000-0000', mask: 'tel' },
+  cnpj:          { label: 'CNPJ',                 type: 'text', placeholder: '00.000.000/0000-00' },
+  razao_social:  { label: 'Razão Social',         type: 'text', placeholder: 'Razão Social' },
+  cep:           { label: 'CEP',                  type: 'text', placeholder: '00000-000', mask: 'cep' },
+  logradouro:    { label: 'Logradouro',           type: 'text', placeholder: 'Rua / Av.' },
+  cidade:        { label: 'Cidade',               type: 'text', placeholder: 'Cidade' },
+  uf:            { label: 'UF',                   type: 'text', placeholder: 'MG' },
+  cond_pagamento:{ label: 'Cond. de Pagamento',   type: 'text', placeholder: 'Ex: 30/60/90 dias' },
+  forma_pagamento:{ label: 'Forma de Pagamento',  type: 'select', options: [
+    {v:'ANT', t:'ANT — Antecipado'}, {v:'BK', t:'BK — Cobrança Bancária'}, {v:'BNDS', t:'BNDS — BNDES'},
+    {v:'BNF', t:'BNF — Bonificação'}, {v:'CAPR', t:'CAPR — Contra Apresentação'}, {v:'CCAD', t:'CCAD — Construcard'},
+    {v:'CCRE', t:'CCRE — Carta de Crédito'}, {v:'CH', t:'CH — Cheque em Trânsito'}, {v:'CRTC', t:'CRTC — Cartão de Crédito'},
+    {v:'CTOT', t:'CTOT — Cartão Transferência'}, {v:'DBTO', t:'DBTO — Cartão de Débito'}, {v:'DEP', t:'DEP — Depósito em Conta Corrente'},
+    {v:'DINH', t:'DINH — Dinheiro'}, {v:'DNE', t:'DNE — Dinheiro Entrega'}, {v:'SENT', t:'SENT — Simples Entrega'},
+  ]},
+  limite_credito:{ label: 'Solicitação de Crédito', type: 'text', placeholder: 'Ex: R$ 5.000,00' },
+};
+
+function abrirPreencherPendencias() {
+  if (!dadosAbertos) return;
+  document.getElementById('pendencias-modal')?.remove();
+
+  const faltando = getCamposFaltando(dadosAbertos);
+  if (faltando.length === 0) { showToast('Nenhuma pendência! Pode avançar.', 'ok'); return; }
+
+  const camposBancos = faltando.find(r => r.tipo === 'array' && r.campo === 'bancos');
+  const camposTexto  = faltando.filter(r => r.tipo !== 'array');
+
+  const fieldsHTML = camposTexto.map(r => {
+    const meta = PF_LABELS[r.campo] || { label: r.label, type: 'text', placeholder: '' };
+    const oninput = meta.mask === 'tel' ? ` oninput="this.value=maskTel(this.value)"` : meta.mask === 'cep' ? ` oninput="this.value=maskCEP(this.value);if(this.value.replace(/\\D/g,'').length===8)pfBuscarCEP(this.value.replace(/\\D/g,''))"` : '';
+    const inputHTML = meta.type === 'select'
+      ? `<select class="einput" id="pf-${r.campo}">
+          <option value="">Selecione...</option>
+          ${meta.options.map(o => `<option value="${o.v}">${o.t}</option>`).join('')}
+        </select>`
+      : `<input class="einput" id="pf-${r.campo}" type="${meta.type}" placeholder="${meta.placeholder}"${oninput}>`;
+    return `<div class="ef" style="margin-bottom:14px">
+      <label class="ef-lbl">${meta.label}</label>
+      ${inputHTML}
+      <label style="display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px;color:#6B7C99;cursor:pointer">
+        <input type="checkbox" id="pf-na-${r.campo}" onchange="pfToggleNA('${r.campo}',this.checked)">
+        Cliente não possui esta informação
+      </label>
+    </div>`;
+  }).join('');
+
+  const banksHTML = camposBancos ? `<div class="ef" style="margin-bottom:14px">
+    <label class="ef-lbl">Dados Bancários</label>
+    <div id="pf-banks"></div>
+    <button type="button" class="add-btn" id="pf-banks-add-btn" onclick="pfAddBank()" style="margin-top:4px"><i class="ti ti-plus" style="font-size:12px"></i> Adicionar banco</button>
+    <label style="display:flex;align-items:center;gap:6px;margin-top:8px;font-size:11px;color:#6B7C99;cursor:pointer">
+      <input type="checkbox" id="pf-na-bancos" onchange="pfToggleNA('bancos',this.checked)">
+      Cliente não possui dados bancários
+    </label>
+  </div>` : '';
+
+  const modal = document.createElement('div');
+  modal.id = 'pendencias-modal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .15s ease';
+  modal.innerHTML = `
+    <div style="background:#fff;border-radius:16px;width:100%;max-width:420px;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 60px rgba(0,0,0,.25)">
+      <div style="padding:16px 20px 12px;border-bottom:1px solid #F3F4F6;display:flex;align-items:center;gap:10px">
+        <div style="width:36px;height:36px;border-radius:10px;background:#EEF3FF;display:flex;align-items:center;justify-content:center;flex-shrink:0">
+          <i class="ti ti-list-check" style="font-size:18px;color:#1B3FAB"></i>
+        </div>
+        <div style="flex:1;min-width:0">
+          <div style="font-size:14px;font-weight:700;color:#111827">Completar pendências</div>
+          <div style="font-size:11px;color:#9CA3AF">${faltando.length} campo(s) faltando para Lib. p/ Cadastro</div>
+        </div>
+        <button onclick="document.getElementById('pendencias-modal').remove()" style="width:28px;height:28px;border:none;background:transparent;cursor:pointer;border-radius:6px;color:#9CA3AF;font-size:16px">
+          <i class="ti ti-x"></i>
+        </button>
+      </div>
+      <div style="padding:16px 20px;overflow-y:auto;flex:1">${fieldsHTML}${banksHTML}</div>
+      <div style="padding:10px 16px;border-top:1px solid #F3F4F6;display:flex;justify-content:flex-end;gap:8px;background:#FAFBFF">
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('pendencias-modal').remove()">Cancelar</button>
+        <button class="btn btn-primary btn-sm" id="pf-save-btn" onclick="salvarPendencias()"><i class="ti ti-device-floppy"></i> Salvar</button>
+      </div>
+    </div>`;
+  modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+  document.body.appendChild(modal);
+
+  window._pfBankCnt = 0;
+  if (camposBancos) pfAddBank();
+}
+
+async function pfBuscarCEP(cep) {
+  try {
+    const r = await fetch(`${API}/api/cep/${cep}`);
+    const j = await r.json();
+    if (!j.ok) return;
+    const d = j.data;
+    if (document.getElementById('pf-logradouro')) document.getElementById('pf-logradouro').value = d.street || '';
+    if (document.getElementById('pf-cidade'))     document.getElementById('pf-cidade').value     = d.city   || '';
+    if (document.getElementById('pf-uf'))         document.getElementById('pf-uf').value         = d.state  || '';
+  } catch(e) {}
+}
+
+function pfAddBank(data={}) {
+  window._pfBankCnt = (window._pfBankCnt||0) + 1;
+  const n = window._pfBankCnt;
+  const row = document.createElement('div');
+  row.className = 'bk-edit-row'; row.id = 'pfb-'+n;
+  row.innerHTML = `
+    <div class="ef"><label class="ef-lbl">Banco</label>
+      <input class="einput" type="text" placeholder="Ex: Bradesco" value="${data.banco||''}"></div>
+    <div class="ef"><label class="ef-lbl">Agência</label>
+      <input class="einput" type="text" placeholder="0000-0" value="${data.agencia||''}"></div>
+    <div class="ef"><label class="ef-lbl">Conta</label>
+      <div style="display:flex;gap:6px;align-items:flex-end">
+        <input class="einput" type="text" placeholder="00000-0" style="flex:1" value="${data.conta||''}">
+        <button class="rm-row" onclick="document.getElementById('pfb-${n}').remove()"><i class="ti ti-x"></i></button>
+      </div></div>`;
+  document.getElementById('pf-banks').appendChild(row);
+}
+
+function pfToggleNA(campo, checked) {
+  if (campo === 'bancos') {
+    const wrap = document.getElementById('pf-banks');
+    const addBtn = document.getElementById('pf-banks-add-btn');
+    if (wrap) wrap.style.display = checked ? 'none' : '';
+    if (addBtn) addBtn.style.display = checked ? 'none' : '';
+    return;
+  }
+  const el = document.getElementById('pf-'+campo);
+  if (!el) return;
+  el.disabled = checked;
+  if (checked) el.value = '';
+}
+
+async function salvarPendencias() {
+  if (!detId) return;
+  const faltando = getCamposFaltando(dadosAbertos);
+  const payload = {};
+  const camposNA = new Set(dadosAbertos.campos_na || []);
+
+  faltando.filter(r => r.tipo !== 'array').forEach(r => {
+    const naChecked = document.getElementById('pf-na-'+r.campo)?.checked;
+    if (naChecked) { camposNA.add(r.campo); return; }
+    camposNA.delete(r.campo);
+    const el = document.getElementById('pf-'+r.campo);
+    if (el) payload[r.campo] = el.value.trim();
+  });
+
+  if (faltando.some(r => r.tipo === 'array' && r.campo === 'bancos')) {
+    const naBancos = document.getElementById('pf-na-bancos')?.checked;
+    if (naBancos) {
+      camposNA.add('bancos');
+    } else {
+      camposNA.delete('bancos');
+      const bancos = [];
+      document.querySelectorAll('#pf-banks .bk-edit-row').forEach(row => {
+        const ins = row.querySelectorAll('input');
+        if (ins[0]?.value.trim()) bancos.push({banco:ins[0].value.trim(), agencia:ins[1]?.value||'', conta:ins[2]?.value||''});
+      });
+      if (bancos.length) payload.bancos = bancos;
+    }
+  }
+
+  payload.campos_na = Array.from(camposNA);
+
+  const btn = document.getElementById('pf-save-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="ti ti-loader-2" style="animation:spin .7s linear infinite"></i> Salvando...'; }
+
+  try {
+    const r = await fetch(`${API}/api/cadastros/${detId}`, {
+      method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+    });
+    const j = await r.json();
+    if (!j.ok) throw new Error(j.error||'Erro ao salvar');
+
+    dadosAbertos = j.data;
+    const idx = todos.findIndex(c=>c.id===detId);
+    if (idx>-1) Object.assign(todos[idx], j.data);
+
+    document.getElementById('pendencias-modal')?.remove();
+    showToast('Pendências salvas!','ok');
+
+    document.getElementById('modal-body').innerHTML = detalheHTML(dadosAbertos);
+    switchDetTab('cliente');
+    refreshPipeline(dadosAbertos);
+    renderStatusActions(dadosAbertos.status);
+
+    const proximo = getAutoAvancar(dadosAbertos);
+    if (proximo) atualizarStatus(proximo);
+  } catch(e) {
+    showToast(e.message || 'Erro de conexão', 'err');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="ti ti-device-floppy"></i> Salvar'; }
   }
 }
 
@@ -1276,7 +1475,7 @@ async function atualizarStatus(novo) {
 
     // ── Animação do badge ──────────────────────────────────────
     const badge = document.getElementById('modal-status-badge');
-    const SL = {pendente:'Pendente',preenchido:'Preenchido','lib-cadastro':'Lib. Cadastro','lib-fiscal':'Lib. Fiscal','lib-sistema':'Aprov. Crédito',cadastrado:'Cadastrado',revisao:'Em revisão'};
+    const SL = {pendente:'Pendente',preenchido:'Preenchido','lib-cadastro':'Lib. Cadastro','lib-fiscal':'Lib. Fiscal','cred-val-1':'Validação de Crédito 1','cred-val-2':'Validação de Crédito 2',cadastrado:'Cadastrado',revisao:'Em revisão'};
 
     // Fase 1 – sai
     badge.style.transition = 'opacity .15s, transform .15s';
@@ -1302,14 +1501,18 @@ async function atualizarStatus(novo) {
 }
 
 function detalheHTML(c) {
-  const f = (label, val, mono) => val
-    ? `<div class="det-f"><div class="det-lbl">${label}</div><div class="det-val${mono?' mono':''}">${val}</div></div>` : '';
-  const fr = (label, val, mono) => val
-    ? `<div class="det-f"><div class="det-lbl">${label}</div><div class="det-val${mono?' mono':''}">${val}</div></div>`
-    : `<div class="det-f" style="background:#FFF1F2;border:1.5px solid #FECACA;border-radius:8px;padding:6px 10px">
+  const f = (label, val, mono) => `<div class="det-f"><div class="det-lbl">${label}</div><div class="det-val${mono?' mono':''}">${val||'—'}</div></div>`;
+  const fr = (label, val, mono, campo) => {
+    if (val) return `<div class="det-f"><div class="det-lbl">${label}</div><div class="det-val${mono?' mono':''}">${val}</div></div>`;
+    if (campo && c.campos_na?.includes(campo)) return `<div class="det-f" style="background:#F8FAFF;border:1.5px solid #DCE6FB;border-radius:8px;padding:6px 10px">
+         <div class="det-lbl">${label}</div>
+         <div style="font-size:11px;color:#6B7C99;display:flex;align-items:center;gap:4px"><i class="ti ti-circle-minus" style="font-size:12px"></i> Cliente não possui</div>
+       </div>`;
+    return `<div class="det-f" style="background:#FFF1F2;border:1.5px solid #FECACA;border-radius:8px;padding:6px 10px">
          <div class="det-lbl" style="color:#DC2626">${label}</div>
          <div style="font-size:11px;color:#DC2626;display:flex;align-items:center;gap:4px"><i class="ti ti-alert-circle" style="font-size:12px"></i> Não preenchido</div>
        </div>`;
+  };
 
   const fiscalBadge = v => {
     if (v==='sim')              return `<span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:8px;background:#DCFCE7;border:1px solid #86EFAC;color:#166534;font-size:12px;font-weight:600"><i class="ti ti-check" style="font-size:11px"></i>Sim</span>`;
@@ -1320,7 +1523,7 @@ function detalheHTML(c) {
   };
 
   return `
-    ${buildPipeline(c.status)}
+    ${buildPipelineWithFields(c)}
     <!-- ── CLIENTE ── -->
     <div class="det-panel" id="panel-cliente">
       <div class="det-sect">
@@ -1339,9 +1542,9 @@ function detalheHTML(c) {
       <div class="det-sect">
         <div class="det-sect-title"><i class="ti ti-building-store"></i> Empresa</div>
         <div class="det-grid">
-          ${fr('Razão Social',c.razao_social)}
+          ${fr('Razão Social',c.razao_social,false,'razao_social')}
           ${f('Nome Fantasia',c.nome_fantasia)}
-          ${fr('CNPJ',c.cnpj,true)}
+          ${fr('CNPJ',c.cnpj,true,'cnpj')}
           ${f('Insc. Estadual',c.insc_estadual,true)}
           ${f('Atividade',c.atividade)}
           ${f('Telefone da Empresa',c.telefone_empresa)}
@@ -1351,10 +1554,10 @@ function detalheHTML(c) {
       <div class="det-sect">
         <div class="det-sect-title"><i class="ti ti-user"></i> Responsável</div>
         <div class="det-grid">
-          ${fr('Nome',c.responsavel)}
-          ${fr('Telefone',c.telefone)}
+          ${fr('Nome',c.responsavel,false,'responsavel')}
+          ${fr('Telefone',c.telefone,false,'telefone')}
           ${f('E-mail',c.email_responsavel)}
-          ${fr('Cond. de Pagamento',c.cond_pagamento)}
+          ${fr('Cond. de Pagamento',c.cond_pagamento,false,'cond_pagamento')}
           ${f('Vendedor',c.vendedor_nome)}
           ${f('Equipe',c.equipe)}
         </div>
@@ -1378,12 +1581,12 @@ function detalheHTML(c) {
       <div class="det-sect">
         <div class="det-sect-title"><i class="ti ti-map-pin"></i> Endereço Comercial</div>
         <div class="det-grid">
-          ${fr('Logradouro',c.logradouro?(c.logradouro+(c.numero?' Nº '+c.numero:'')):'')}
+          ${fr('Logradouro',c.logradouro?(c.logradouro+(c.numero?' Nº '+c.numero:'')):'',false,'logradouro')}
           ${f('Complemento',c.complemento)}
           ${f('Bairro',c.bairro)}
-          ${fr('Cidade',c.cidade)}
-          ${f('UF',c.uf)}
-          ${fr('CEP',c.cep,true)}
+          ${fr('Cidade',c.cidade,false,'cidade')}
+          ${fr('UF',c.uf,false,'uf')}
+          ${fr('CEP',c.cep,true,'cep')}
           ${f('Telefone Comercial',c.telefone_comercial)}
         </div>
       </div>
@@ -1414,8 +1617,9 @@ function detalheHTML(c) {
       <div class="det-sect">
         <div class="det-sect-title"><i class="ti ti-cash"></i> Condições Comerciais</div>
         <div class="det-grid">
-          ${fr('Cond. de Pagamento',c.cond_pagamento)}
-          ${f('Forma de Pagamento',c.forma_pagamento)}
+          ${fr('Cond. de Pagamento',c.cond_pagamento,false,'cond_pagamento')}
+          ${fr('Forma de Pagamento',c.forma_pagamento,false,'forma_pagamento')}
+          ${fr('Solicitação de Crédito',c.limite_credito,false,'limite_credito')}
         </div>
       </div>
       ${c.bancos?.length ? `
@@ -1424,6 +1628,12 @@ function detalheHTML(c) {
           ${c.bancos.map(b=>`<div class="det-grid" style="padding:10px 16px;border-bottom:1px solid #EAF0FB">${
             f('Banco',b.banco)+f('Agência',b.agencia)+f('Conta',b.conta)
           }</div>`).join('')}
+        </div>` : c.campos_na?.includes('bancos') ? `
+        <div class="det-sect">
+          <div class="det-f" style="background:#F8FAFF;border:1.5px solid #DCE6FB;border-radius:8px;padding:6px 10px">
+            <div class="det-lbl">Dados Bancários</div>
+            <div style="font-size:11px;color:#6B7C99;display:flex;align-items:center;gap:4px"><i class="ti ti-circle-minus" style="font-size:12px"></i> Cliente não possui</div>
+          </div>
         </div>` : ''}
       ${c.referencias_comerciais?.length ? `
         <div class="det-sect">
@@ -1432,7 +1642,7 @@ function detalheHTML(c) {
             <div class="det-grid">${f('Empresa',r.empresa)}${f('Telefone',r.telefone)}</div>
           </div>`).join('')}
         </div>` : ''}
-      ${!c.cond_pagamento&&!c.forma_pagamento&&!c.bancos?.length&&!c.referencias_comerciais?.length ?
+      ${!c.cond_pagamento&&!c.forma_pagamento&&!c.limite_credito&&!c.bancos?.length&&!c.referencias_comerciais?.length ?
         `<div class="empty-state" style="padding:40px 20px"><i class="ti ti-cash"></i><p>Nenhum dado financeiro cadastrado</p></div>` : ''}
     </div>
 
