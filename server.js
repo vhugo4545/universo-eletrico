@@ -689,7 +689,7 @@ app.post('/api/ajuste/:token', uploadMem.any(), async (req, res) => {
   });
 
   db[idx].comentario_vendedor = comentario_vendedor;
-  db[idx].status              = 'preenchido';
+  db[idx].status              = 'lib-cadastro';
   db[idx].ajuste_token        = null;
   db[idx].updated_at          = new Date().toISOString();
   db[idx].log_ajustes = [...(db[idx].log_ajustes || []), {
