@@ -455,7 +455,7 @@ function renderDash() {
         const team = TEAMS.find(t => t.name === c.equipe) || {color:'#9CA3AF', bg:'#F3F4F6'};
         const d    = new Date(c.created_at||Date.now());
         const tipo = c.tipo_solicitacao === 'atualizacao-credito' ? '💳 Crédito'
-                   : c.tipo_solicitacao === 'sem-orcamento' ? '📋 Sem Orc.'
+                   : c.tipo_solicitacao === 'sem-orcamento' ? 'Sem Orc.'
                    : '✅ Padrão';
         return `<tr>
           <td><strong>${c.razao_social||c.responsavel||'—'}</strong></td>
