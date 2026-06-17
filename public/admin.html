@@ -131,10 +131,6 @@
     </div>
   </div>
   <div class="det-body" id="modal-body"></div>
-  <div id="det-next-bar">
-    <span class="next-tab-label" id="det-next-label"></span>
-    <button class="btn-next-tab" onclick="confirmarAvancoAba()"><i class="ti ti-arrow-right"></i> Próximo</button>
-  </div>
 </div>
 
 <!-- ── MAIN WRAP ────────────────────────────────────────────────────── -->
@@ -570,8 +566,6 @@ async function abrirDetalhe(id) {
 
 function fecharModal() {
   document.getElementById('overlay').classList.remove('on');
-  document.getElementById('det-next-bar').classList.remove('visible');
-  confirmedTabs.clear();
   detId = null;
 }
 
@@ -995,10 +989,7 @@ async function salvarFinanceiro() {
 }
 
 /* ── TABS DO DETALHE ─────────────────────────────────────────── */
-const DET_TAB_ORDER = ['cliente','empresa','endereco','fiscal','financeiro','anexos','registro'];
-const DET_TAB_LABELS = {cliente:'Cliente',empresa:'Empresa',endereco:'Endereço',fiscal:'Fiscal',financeiro:'Financeiro',anexos:'Anexos',registro:'Registro'};
 let detTabAtual = 'cliente';
-let confirmedTabs = new Set();
 
 function switchDetTab(name) {
   document.querySelectorAll('.det-tab').forEach(t => t.classList.remove('on'));
@@ -1007,140 +998,10 @@ function switchDetTab(name) {
   document.getElementById('dtp-'+name)?.classList.add('on');
   if (name === 'fiscal') carregarCnaes();
   detTabAtual = name;
-  const idx = DET_TAB_ORDER.indexOf(name);
-  const nextBar = document.getElementById('det-next-bar');
-  if (idx >= 0 && idx < DET_TAB_ORDER.length - 1) {
-    const nextName = DET_TAB_ORDER[idx + 1];
-    document.getElementById('det-next-label').textContent = 'Ir para: ' + DET_TAB_LABELS[nextName];
-    nextBar.dataset.next = nextName;
-    nextBar.classList.add('visible');
-  } else {
-    nextBar.classList.remove('visible');
-  }
-  atualizarEstadoTabs();
 }
 
-function confirmarAvancoAba() {
-  const nextName = document.getElementById('det-next-bar').dataset.next;
-  if (!nextName) return;
-  const currentTab = detTabAtual;
-  const c = todos.find(x => x.id === detId);
-  const pendentes = c ? getCamposFaltando(c).filter(r => r.tab === currentTab) : [];
-
-  const warningBlock = pendentes.length ? `
-    <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:8px;padding:12px 14px;margin-bottom:16px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;font-weight:700;color:#92400E">
-        <i class="ti ti-alert-triangle" style="font-size:16px;color:#D97706"></i> Campos pendentes nesta aba:
-      </div>
-      <ul style="margin:0;padding-left:18px;font-size:12px;color:#92400E;display:flex;flex-direction:column;gap:3px">
-        ${pendentes.map(r=>`<li>${r.label}</li>`).join('')}
-      </ul>
-    </div>
-    <div style="font-size:13px;color:#64748B;margin-bottom:24px">Tem certeza que deseja avançar sem preencher essas informações?</div>`
-    : `<div style="font-size:13px;color:#64748B;margin-bottom:24px">As informações da aba <strong>${DET_TAB_LABELS[currentTab]}</strong> estão corretas e revisadas?</div>`;
-
-  const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
-  modal.innerHTML = `
-    <div style="background:#fff;border-radius:12px;padding:28px 32px;max-width:420px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.18)">
-      <div style="font-size:15px;font-weight:700;color:#1E2942;margin-bottom:${pendentes.length?12:8}px">Confirmar avanço de aba</div>
-      ${warningBlock}
-      <div style="display:flex;gap:10px;justify-content:flex-end">
-        <button onclick="this.closest('[style*=position]').remove()" style="padding:8px 18px;border:1px solid #E2E8F0;border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#64748B">Cancelar</button>
-        <button onclick="this.closest('[style*=position]').remove();marcarTabConfirmada('${currentTab}');switchDetTab('${nextName}')" style="padding:8px 18px;border:none;border-radius:8px;background:${pendentes.length?'#D97706':'#1B3FAB'};color:#fff;font-size:13px;font-weight:600;cursor:pointer">${pendentes.length?'Avançar mesmo assim':'Confirmar e avançar'}</button>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
-}
-
-function confirmarTodasAbas() {
-  const c = todos.find(x => x.id === detId);
-  const todasPendentes = c ? getCamposFaltando(c) : [];
-
-  const porAba = {};
-  todasPendentes.forEach(r => {
-    if (!porAba[r.tab]) porAba[r.tab] = [];
-    porAba[r.tab].push(r.label);
-  });
-
-  const warnHTML = todasPendentes.length
-    ? `<div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:8px;padding:12px 14px;margin-bottom:16px;max-height:260px;overflow-y:auto">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;font-size:13px;font-weight:700;color:#92400E">
-          <i class="ti ti-alert-triangle" style="font-size:16px;color:#D97706"></i> Campos pendentes no cadastro:
-        </div>
-        ${Object.entries(porAba).map(([tab,labels])=>`
-          <div style="margin-bottom:10px">
-            <div style="font-size:10px;font-weight:700;color:#B45309;text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">${DET_TAB_LABELS[tab]||tab}</div>
-            <ul style="margin:0;padding-left:16px;font-size:12px;color:#92400E;display:flex;flex-direction:column;gap:2px">
-              ${labels.map(l=>`<li>${l}</li>`).join('')}
-            </ul>
-          </div>`).join('')}
-      </div>
-      <div style="font-size:13px;color:#64748B;margin-bottom:24px">Confirmar todas as abas mesmo com campos pendentes?</div>`
-    : `<div style="font-size:13px;color:#64748B;margin-bottom:24px">Todos os campos estão preenchidos. Confirmar todas as abas e avançar?</div>`;
-
-  const modal = document.createElement('div');
-  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center';
-  modal.innerHTML = `
-    <div style="background:#fff;border-radius:12px;padding:28px 32px;max-width:440px;width:90%;box-shadow:0 8px 32px rgba(0,0,0,.18)">
-      <div style="font-size:15px;font-weight:700;color:#1E2942;margin-bottom:12px">Confirmar todas as abas</div>
-      ${warnHTML}
-      <div style="display:flex;gap:10px;justify-content:flex-end">
-        <button onclick="this.closest('[style*=position]').remove()" style="padding:8px 18px;border:1px solid #E2E8F0;border-radius:8px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#64748B">Cancelar</button>
-        <button onclick="this.closest('[style*=position]').remove();_confirmarTodasExec()" style="padding:8px 18px;border:none;border-radius:8px;background:${todasPendentes.length?'#D97706':'#16A34A'};color:#fff;font-size:13px;font-weight:600;cursor:pointer">${todasPendentes.length?'Confirmar mesmo assim':'Confirmar todas'}</button>
-      </div>
-    </div>`;
-  document.body.appendChild(modal);
-}
-
-function _confirmarTodasExec() {
-  DET_TAB_ORDER.forEach(t => marcarTabConfirmada(t));
-  verificarAvancoAutomatico();
-}
-
-function marcarTabConfirmada(name) {
-  confirmedTabs.add(name);
-  const btn = document.getElementById('dtt-' + name);
-  if (btn && !btn.querySelector('.tab-check')) {
-    btn.classList.add('confirmed');
-    btn.insertAdjacentHTML('beforeend', ' <i class="tab-check ti ti-circle-check"></i>');
-  }
-  atualizarEstadoTabs();
-  verificarAvancoAutomatico();
-}
-
-async function verificarAvancoAutomatico() {
-  const ABAS_CREDITO = ['cliente','empresa','endereco','fiscal'];
-  if (!ABAS_CREDITO.every(t => confirmedTabs.has(t))) return;
-  const c = todos.find(x => x.id === detId);
-  if (!c) return;
-  if (!['preenchido','lib-cadastro'].includes(c.status)) return;
-  if (getCamposFaltando(c).length > 0) return;
-  await atualizarStatus('cred-val-1');
-}
-
-function atualizarEstadoTabs() {
-  const firstUnconfIdx = DET_TAB_ORDER.findIndex(t => !confirmedTabs.has(t));
-  const lockFrom = firstUnconfIdx === -1 ? DET_TAB_ORDER.length : firstUnconfIdx + 1;
-  DET_TAB_ORDER.forEach((tab, i) => {
-    const btn = document.getElementById('dtt-' + tab);
-    if (!btn) return;
-    if (i >= lockFrom) { btn.setAttribute('disabled',''); btn.classList.add('locked'); }
-    else                { btn.removeAttribute('disabled');  btn.classList.remove('locked'); }
-  });
-}
-
-function inicializarAbas(base) {
-  confirmedTabs = base || new Set(['cliente','empresa']);
-  DET_TAB_ORDER.forEach(t => {
-    if (!confirmedTabs.has(t)) return;
-    const btn = document.getElementById('dtt-' + t);
-    if (btn && !btn.querySelector('.tab-check')) {
-      btn.classList.add('confirmed');
-      btn.insertAdjacentHTML('beforeend', ' <i class="tab-check ti ti-circle-check"></i>');
-    }
-  });
-  switchDetTab(DET_TAB_ORDER.find(t => !confirmedTabs.has(t)) || 'registro');
+function inicializarAbas() {
+  switchDetTab('cliente');
 }
 
 async function carregarCnaes() {
