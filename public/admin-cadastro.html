@@ -1287,8 +1287,8 @@ async function salvarFinanceiro() {
 }
 
 /* ── TABS DO DETALHE ─────────────────────────────────────────── */
-const DET_TAB_ORDER = ['cliente','empresa','endereco','fiscal','financeiro','anexos','registro'];
-const DET_TAB_LABELS = {cliente:'Cliente',empresa:'Empresa',endereco:'Endereço',fiscal:'Fiscal',financeiro:'Financeiro',anexos:'Anexos',registro:'Registro'};
+const DET_TAB_ORDER = ['cliente','empresa','endereco','referencias','fiscal','financeiro','anexos','registro'];
+const DET_TAB_LABELS = {cliente:'Cliente',empresa:'Empresa',endereco:'Endereço',referencias:'Referências',fiscal:'Fiscal',financeiro:'Financeiro',anexos:'Anexos',registro:'Registro'};
 let detTabAtual = 'cliente';
 let confirmedTabs = new Set();
 
@@ -1561,13 +1561,6 @@ function detalheHTML(c) {
         ${c.contatos.map(ct=>`<div class="det-grid" style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #F3F4F6">
           ${f('Nome',ct.nome)}${f('Cargo',ct.cargo)}${f('Telefone',ct.telefone)}${f('E-mail',ct.email)}</div>`).join('')}
       </div>`:''}
-      ${c.referencias_comerciais?.length?`<div class="det-sect">
-        <div class="det-sect-title"><i class="ti ti-building"></i> Referências Comerciais (${c.referencias_comerciais.length})</div>
-        ${c.referencias_comerciais.map(r=>`<div style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #F3F4F6">
-          <div class="det-grid">${f('Empresa',r.empresa)}${f('Telefone',r.telefone)}</div>
-          ${r.obs?`<div style="margin-top:6px;padding:8px 12px;background:#F8FAFF;border-radius:8px;font-size:12px;color:#374151;line-height:1.5;white-space:pre-wrap">${r.obs}</div>`:''}
-        </div>`).join('')}
-      </div>`:''}
     </div>
     <div class="det-panel" id="dtp-empresa">
       <div class="det-sect">
@@ -1609,6 +1602,18 @@ function detalheHTML(c) {
         <div class="det-sect-title"><i class="ti ti-truck-delivery"></i> Endereço de Entrega</div>
         ${entregaHTML}
       </div>`:''}
+    </div>
+    <div class="det-panel" id="dtp-referencias">
+      <div class="det-sect">
+        <div class="det-sect-title"><i class="ti ti-building-store"></i> Referências Comerciais</div>
+        ${c.referencias_comerciais?.length
+          ? c.referencias_comerciais.map((r,i) => `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0;${i<c.referencias_comerciais.length-1?'border-bottom:1px solid #F3F4F6':''}">
+              ${f('Empresa',r.empresa)}${f('Telefone',r.telefone)}
+              ${r.obs?`<div style="grid-column:1/-1;padding:8px 12px;background:#F8FAFF;border-radius:8px;font-size:12px;color:#374151;line-height:1.5;white-space:pre-wrap">${r.obs}</div>`:''}
+            </div>`).join('')
+          : `<div style="text-align:center;padding:24px 0;color:#C4D0E8;font-size:13px"><i class="ti ti-building-off" style="font-size:28px;display:block;margin-bottom:8px"></i>Nenhuma referência informada</div>`}
+      </div>
     </div>
     <div class="det-panel" id="dtp-fiscal">
       <div class="det-sect">

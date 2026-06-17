@@ -326,8 +326,9 @@ function buildDetHeader(c, { locked = false } = {}) {
     <div class="det-tabs-bar">
       <button class="det-tab on" onclick="switchDetTab('cliente')"    id="dtt-cliente"><i class="ti ti-user"></i> Cliente</button>
       <button class="det-tab"    onclick="switchDetTab('empresa')"    id="dtt-empresa"><i class="ti ti-building-store"></i> Empresa</button>
-      <button class="det-tab"    onclick="switchDetTab('endereco')"   id="dtt-endereco"><i class="ti ti-map-pin"></i> Endereço</button>
-      <button class="det-tab"    onclick="switchDetTab('fiscal')"     id="dtt-fiscal"><i class="ti ti-file-invoice"></i> Fiscal</button>
+      <button class="det-tab"    onclick="switchDetTab('endereco')"    id="dtt-endereco"><i class="ti ti-map-pin"></i> Endereço</button>
+      <button class="det-tab"    onclick="switchDetTab('referencias')" id="dtt-referencias"><i class="ti ti-building-store"></i> Referências</button>
+      <button class="det-tab"    onclick="switchDetTab('fiscal')"      id="dtt-fiscal"><i class="ti ti-file-invoice"></i> Fiscal</button>
       <button class="det-tab"    onclick="switchDetTab('financeiro')" id="dtt-financeiro"><i class="ti ti-cash"></i> Financeiro</button>
       <button class="det-tab"    onclick="switchDetTab('anexos')"     id="dtt-anexos"><i class="ti ti-paperclip"></i> Anexos${cnt(c.anexos?.length)}</button>
       <button class="det-tab"    onclick="switchDetTab('registro')"   id="dtt-registro"><i class="ti ti-clock"></i> Registro</button>
