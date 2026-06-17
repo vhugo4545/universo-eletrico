@@ -1556,11 +1556,13 @@ function detalheHTML(c) {
           <div class="det-f"><div class="det-lbl">Cond. de Pagamento</div><input class="det-input" value="${(c.cond_pagamento||'').replace(/"/g,'&quot;')}" placeholder="Ex: 30 dias" onblur="salvarCampoEdit('cond_pagamento',this.value)"></div>
         </div>
       </div>
-      ${c.contatos?.length?`<div class="det-sect">
-        <div class="det-sect-title"><i class="ti ti-users"></i> Pessoas Autorizadas a Comprar (${c.contatos.length})</div>
-        ${c.contatos.map(ct=>`<div class="det-grid" style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #F3F4F6">
-          ${f('Nome',ct.nome)}${f('Cargo',ct.cargo)}${f('Telefone',ct.telefone)}${f('E-mail',ct.email)}</div>`).join('')}
-      </div>`:''}
+      <div class="det-sect">
+        <div class="det-sect-title"><i class="ti ti-users"></i> Pessoas Autorizadas a Comprar${c.contatos?.length?` (${c.contatos.length})`:''}</div>
+        ${c.contatos?.length
+          ? c.contatos.map(ct=>`<div class="det-grid" style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #F3F4F6">
+              ${f('Nome',ct.nome)}${f('Cargo',ct.cargo)}${f('Telefone',ct.telefone)}${f('E-mail',ct.email)}</div>`).join('')
+          : `<div style="color:#C4D0E8;font-size:13px;padding:8px 0">—</div>`}
+      </div>
     </div>
     <div class="det-panel" id="dtp-empresa">
       <div class="det-sect">
@@ -1598,10 +1600,10 @@ function detalheHTML(c) {
           <div class="det-f"><div class="det-lbl">Telefone Comercial</div><input class="det-input" value="${(c.telefone_comercial||'').replace(/"/g,'&quot;')}" placeholder="(31) 0000-0000" onblur="salvarCampoEdit('telefone_comercial',this.value)"></div>
         </div>
       </div>
-      ${c.endereco_entrega?`<div class="det-sect">
+      <div class="det-sect">
         <div class="det-sect-title"><i class="ti ti-truck-delivery"></i> Endereço de Entrega</div>
-        ${entregaHTML}
-      </div>`:''}
+        ${entregaHTML || `<div style="color:#C4D0E8;font-size:13px;padding:8px 0">—</div>`}
+      </div>
     </div>
     <div class="det-panel" id="dtp-referencias">
       <div class="det-sect">
@@ -1684,11 +1686,13 @@ function detalheHTML(c) {
           ${f('Valor Solicitado',`<span style="font-size:16px;font-weight:700;color:#D97706">${c.valor_solicitado_credito||'—'}</span>`)}
         </div>
       </div>`:''}
-      ${c.bancos?.length?`<div class="det-sect">
-        <div class="det-sect-title"><i class="ti ti-building-bank"></i> Dados Bancários (${c.bancos.length})</div>
-        ${c.bancos.map(b=>`<div class="det-grid" style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #F3F4F6">
-          ${f('Banco',b.banco)}${f('Agência',b.agencia)}${f('Conta',b.conta)}</div>`).join('')}
-      </div>`:''}
+      <div class="det-sect">
+        <div class="det-sect-title"><i class="ti ti-building-bank"></i> Dados Bancários${c.bancos?.length?` (${c.bancos.length})`:''}</div>
+        ${c.bancos?.length
+          ? c.bancos.map(b=>`<div class="det-grid" style="margin-bottom:8px;padding-bottom:8px;border-bottom:1px solid #F3F4F6">
+              ${f('Banco',b.banco)}${f('Agência',b.agencia)}${f('Conta',b.conta)}</div>`).join('')
+          : `<div style="color:#C4D0E8;font-size:13px;padding:8px 0">—</div>`}
+      </div>
       <div class="det-sect">
         <div class="det-sect-title"><i class="ti ti-settings"></i> Gestão Comercial</div>
         <div style="${locked?'pointer-events:none;opacity:.45':''}">
