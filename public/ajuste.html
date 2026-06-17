@@ -493,7 +493,8 @@ async function enviarAjuste() {
     const r = await fetch(`${API}/api/ajuste/${TOKEN}`, { method:'POST', body:fd });
     const j = await r.json();
     if (j.ok) {
-      show('suc-page');
+      const slug = _data.vendedor_slug;
+      window.location.href = slug ? `/formulario.html?v=${encodeURIComponent(slug)}` : '/formulario.html';
     } else {
       alert('Erro ao enviar: ' + (j.error || 'tente novamente'));
       btn.disabled = false;
