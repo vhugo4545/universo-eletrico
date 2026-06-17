@@ -71,6 +71,7 @@ app.use((req, res, next) => {
   if (!fs.existsSync(file)) return next();
   let html = fs.readFileSync(file, 'utf8');
   html = html.replace(/(href|src)="([^"]+\.(css|js))"/g, (m, attr, url) => {
+    if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('//')) return m;
     const base = url.split('?')[0];
     return `${attr}="${base}?v=${BUILD_ID}"`;
   });
