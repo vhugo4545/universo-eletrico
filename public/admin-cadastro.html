@@ -1232,6 +1232,23 @@ function admOpt(group, val) {
   salvarFinanceiro();
 }
 
+async function salvarRefObs(refIdx, val) {
+  if (!detId) return;
+  const idx = todos.findIndex(c => c.id === detId);
+  if (idx < 0) return;
+  const refs = JSON.parse(JSON.stringify(todos[idx].referencias_comerciais || []));
+  if (!refs[refIdx]) return;
+  refs[refIdx].obs = val.trim();
+  try {
+    const r = await fetch(`${API}/api/cadastros/${detId}`, {
+      method:'PATCH', headers:{'Content-Type':'application/json'}, body:JSON.stringify({referencias_comerciais: refs})
+    });
+    const j = await r.json();
+    if (j.ok) { todos[idx].referencias_comerciais = refs; showToast('Salvo!','ok'); }
+    else showToast('Erro ao salvar','err');
+  } catch(e) { showToast('Erro de conexão','err'); }
+}
+
 async function salvarCampoEdit(campo, valor) {
   if (!detId) return;
   try {
@@ -1489,9 +1506,10 @@ function detalheHTML(c) {
         <div class="det-sect-title"><i class="ti ti-building-store"></i> Referências Comerciais</div>
         ${c.referencias_comerciais?.length
           ? c.referencias_comerciais.map((r,i) => `
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:10px 0;${i<c.referencias_comerciais.length-1?'border-bottom:1px solid #F3F4F6':''}">
-              ${f('Empresa',r.empresa)}${f('Telefone',r.telefone)}
-              ${r.obs?`<div style="grid-column:1/-1;padding:8px 12px;background:#F8FAFF;border-radius:8px;font-size:12px;color:#374151;line-height:1.5;white-space:pre-wrap">${r.obs}</div>`:''}
+            <div style="padding:10px 0;${i<c.referencias_comerciais.length-1?'border-bottom:1px solid #F3F4F6':''}">
+              <div class="det-grid" style="margin-bottom:6px">${f('Empresa',r.empresa)}${f('Telefone',r.telefone)}</div>
+              <div class="det-lbl" style="margin-bottom:4px">Comentário</div>
+              <textarea class="det-input" rows="2" style="resize:vertical;height:auto;padding:8px 10px;font-size:13px" placeholder="Adicionar comentário sobre esta referência..." onblur="salvarRefObs(${i},this.value)">${(r.obs||'').replace(/</g,'&lt;')}</textarea>
             </div>`).join('')
           : `<div style="text-align:center;padding:24px 0;color:#C4D0E8;font-size:13px"><i class="ti ti-building-off" style="font-size:28px;display:block;margin-bottom:8px"></i>Nenhuma referência informada</div>`}
       </div>
