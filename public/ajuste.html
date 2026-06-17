@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ajuste de Cadastro — Universo Elétrico</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
+<link rel="stylesheet" href="shared.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#F3F6FB;font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
+.page{max-width:680px;margin:0 auto;padding:32px 16px 80px}
+.logo-bar{display:flex;align-items:center;gap:10px;margin-bottom:28px}
+.logo-bolt{width:36px;height:36px;background:#1B3FAB;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+.logo-name{font-size:16px;font-weight:700;color:#111827}
+.logo-sub{font-size:11px;color:#9DAEC4}
+.alert-box{background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:14px;padding:18px 20px;margin-bottom:24px}
+.alert-head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#C2410C;margin-bottom:6px}
+.alert-msg{font-size:13px;color:#92400E;line-height:1.6;white-space:pre-wrap}
+.card{background:#fff;border:1px solid #E8EEF7;border-radius:16px;padding:22px 20px;margin-bottom:16px}
+.card-title{font-size:12px;font-weight:700;color:#1B3FAB;text-transform:uppercase;letter-spacing:.6px;margin-bottom:16px;display:flex;align-items:center;gap:6px}
+.frow{margin-bottom:14px}
+.flbl{font-size:11px;font-weight:700;color:#9DAEC4;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.finput{width:100%;height:42px;border:1.5px solid #E8EEF7;border-radius:10px;padding:0 12px;font-size:14px;font-family:inherit;color:#111827;background:#F8FAFF;transition:border .15s}
+.finput:focus{outline:none;border-color:#1B3FAB;background:#fff}
+textarea.finput{height:90px;padding:10px 12px;resize:vertical}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-submit{width:100%;height:52px;background:#1B3FAB;border:none;border-radius:14px;color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;transition:background .15s}
+.btn-submit:hover{background:#1534A0}
+.btn-submit:disabled{background:#9DAEC4;cursor:not-allowed}
+.suc-page{display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center}
+.suc-ico{width:72px;height:72px;background:#DCFCE7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;color:#16A34A;margin:0 auto 20px}
+.suc-title{font-size:20px;font-weight:700;color:#111827;margin-bottom:8px}
+.suc-sub{font-size:14px;color:#6B7280;line-height:1.6}
+.err-page{display:none;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center}
+.err-ico{font-size:48px;color:#DC2626;margin-bottom:16px}
+.err-title{font-size:18px;font-weight:700;color:#111827;margin-bottom:8px}
+.err-sub{font-size:13px;color:#6B7280}
+@media(max-width:600px){
+  .g2{grid-template-columns:1fr}
+  .page{padding:20px 12px 80px}
+}
+</style>
+</head>
+<body>
+<div class="page" id="main-page">
+  <div class="logo-bar">
+    <div class="logo-bolt"><i class="ti ti-bolt"></i></div>
+    <div><div class="logo-name">Universo Elétrico</div><div class="logo-sub">Revisão de Cadastro</div></div>
+  </div>
+
+  <div id="alert-box" class="alert-box" style="display:none">
+    <div class="alert-head"><i class="ti ti-message-exclamation"></i> Mensagem do Setor de Cadastro</div>
+    <div class="alert-msg" id="alert-msg-text"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-user"></i> Comprador / Responsável</div>
+    <div class="frow"><div class="flbl">Nome completo</div><input class="finput" id="f-responsavel" type="text"></div>
+    <div class="g2">
+      <div class="frow"><div class="flbl">Telefone</div><input class="finput" id="f-telefone" type="tel"></div>
+      <div class="frow"><div class="flbl">E-mail do responsável</div><input class="finput" id="f-email-responsavel" type="email"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-building"></i> Dados da Empresa</div>
+    <div class="frow"><div class="flbl">Razão Social</div><input class="finput" id="f-razao-social" type="text"></div>
+    <div class="g2">
+      <div class="frow"><div class="flbl">Nome Fantasia</div><input class="finput" id="f-nome-fantasia" type="text"></div>
+      <div class="frow"><div class="flbl">CNPJ / CPF</div><input class="finput" id="f-cnpj" type="text"></div>
+    </div>
+    <div class="g2">
+      <div class="frow"><div class="flbl">E-mail da empresa</div><input class="finput" id="f-email-empresa" type="email"></div>
+      <div class="frow"><div class="flbl">E-mail para NF-e</div><input class="finput" id="f-enfe" type="email"></div>
+    </div>
+    <div class="frow"><div class="flbl">Telefone comercial</div><input class="finput" id="f-telefone-empresa" type="tel"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-map-pin"></i> Endereço</div>
+    <div class="g2">
+      <div class="frow"><div class="flbl">CEP</div><input class="finput" id="f-cep" type="text"></div>
+      <div class="frow"><div class="flbl">Logradouro</div><input class="finput" id="f-logradouro" type="text"></div>
+    </div>
+    <div class="g2">
+      <div class="frow"><div class="flbl">Número</div><input class="finput" id="f-numero" type="text"></div>
+      <div class="frow"><div class="flbl">Complemento</div><input class="finput" id="f-complemento" type="text"></div>
+    </div>
+    <div class="g2">
+      <div class="frow"><div class="flbl">Bairro</div><input class="finput" id="f-bairro" type="text"></div>
+      <div class="frow"><div class="flbl">Cidade / UF</div><input class="finput" id="f-cidade-uf" type="text"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title"><i class="ti ti-message-2"></i> Comentário para o Cadastro</div>
+    <div class="frow">
+      <div class="flbl">Descreva as alterações feitas ou deixe uma observação (opcional)</div>
+      <textarea class="finput" id="f-comentario" placeholder="Ex: Atualizei o e-mail da empresa e corrigi o endereço..."></textarea>
+    </div>
+  </div>
+
+  <button class="btn-submit" id="btn-enviar" onclick="enviarAjuste()">
+    <i class="ti ti-send"></i> Enviar para o Cadastro
+  </button>
+</div>
+
+<!-- Sucesso -->
+<div class="suc-page" id="suc-page">
+  <div class="logo-bar" style="margin-bottom:32px">
+    <div class="logo-bolt"><i class="ti ti-bolt"></i></div>
+    <div><div class="logo-name">Universo Elétrico</div></div>
+  </div>
+  <div class="suc-ico"><i class="ti ti-check"></i></div>
+  <div class="suc-title">Ajuste enviado com sucesso!</div>
+  <div class="suc-sub">O setor de Cadastro foi notificado e irá revisar as informações.<br>Obrigado!</div>
+</div>
+
+<!-- Erro / link inválido -->
+<div class="err-page" id="err-page">
+  <i class="ti ti-link-off err-ico"></i>
+  <div class="err-title">Link inválido ou expirado</div>
+  <div class="err-sub">Este link já foi utilizado ou não existe.<br>Entre em contato com o setor de Cadastro.</div>
+</div>
+
+<script>
+const API = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+let TOKEN = '';
+let dadosOriginais = {};
+
+(async function init() {
+  const params = new URLSearchParams(window.location.search);
+  TOKEN = params.get('token') || '';
+  if (!TOKEN) { mostrarErro(); return; }
+  try {
+    const r = await fetch(`${API}/api/ajuste/${TOKEN}`);
+    const j = await r.json();
+    if (!j.ok) { mostrarErro(); return; }
+    dadosOriginais = j.data;
+    preencherFormulario(j.data);
+  } catch(e) { mostrarErro(); }
+})();
+
+function preencherFormulario(d) {
+  const set = (id, val) => { const el = document.getElementById(id); if(el) el.value = val||''; };
+  set('f-responsavel', d.responsavel);
+  set('f-telefone', d.telefone);
+  set('f-email-responsavel', d.email_responsavel);
+  set('f-razao-social', d.razao_social);
+  set('f-nome-fantasia', d.nome_fantasia);
+  set('f-cnpj', d.cnpj);
+  set('f-email-empresa', d.email_empresa);
+  set('f-enfe', d.email_nfe || d.enfe);
+  set('f-telefone-empresa', d.telefone_empresa);
+  set('f-cep', d.cep);
+  set('f-logradouro', d.logradouro);
+  set('f-numero', d.numero);
+  set('f-complemento', d.complemento);
+  set('f-bairro', d.bairro);
+  set('f-cidade-uf', d.cidade_uf || (d.cidade ? (d.cidade + (d.uf ? '/' + d.uf : '')) : ''));
+
+  if (d.ajuste_mensagem) {
+    document.getElementById('alert-box').style.display = 'block';
+    document.getElementById('alert-msg-text').textContent = d.ajuste_mensagem;
+  }
+}
+
+async function enviarAjuste() {
+  const btn = document.getElementById('btn-enviar');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader"></i> Enviando...';
+
+  const get = id => document.getElementById(id)?.value?.trim() || '';
+  const payload = {
+    responsavel:       get('f-responsavel'),
+    telefone:          get('f-telefone'),
+    email_responsavel: get('f-email-responsavel'),
+    razao_social:      get('f-razao-social'),
+    nome_fantasia:     get('f-nome-fantasia'),
+    cnpj:              get('f-cnpj'),
+    email_empresa:     get('f-email-empresa'),
+    email_nfe:         get('f-enfe'),
+    enfe:              get('f-enfe'),
+    telefone_empresa:  get('f-telefone-empresa'),
+    cep:               get('f-cep'),
+    logradouro:        get('f-logradouro'),
+    numero:            get('f-numero'),
+    complemento:       get('f-complemento'),
+    bairro:            get('f-bairro'),
+    cidade_uf:         get('f-cidade-uf'),
+    comentario_vendedor: get('f-comentario'),
+  };
+
+  try {
+    const r = await fetch(`${API}/api/ajuste/${TOKEN}`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const j = await r.json();
+    if (j.ok) {
+      document.getElementById('main-page').style.display = 'none';
+      document.getElementById('suc-page').style.display = 'flex';
+    } else {
+      alert('Erro ao enviar: ' + (j.error || 'tente novamente'));
+      btn.disabled = false;
+      btn.innerHTML = '<i class="ti ti-send"></i> Enviar para o Cadastro';
+    }
+  } catch(e) {
+    alert('Erro de conexão. Tente novamente.');
+    btn.disabled = false;
+    btn.innerHTML = '<i class="ti ti-send"></i> Enviar para o Cadastro';
+  }
+}
+
+function mostrarErro() {
+  document.getElementById('main-page').style.display = 'none';
+  document.getElementById('err-page').style.display = 'flex';
+}
+</script>
+</body>
+</html>

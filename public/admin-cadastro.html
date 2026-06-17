@@ -65,6 +65,10 @@
     <i class="ti ti-alert-circle"></i> Em Revisão
     <span class="nb" id="nb-rev">—</span>
   </button>
+  <button class="ni" id="pill-ajuste-solicitado" onclick="setFiltro('ajuste-solicitado')">
+    <i class="ti ti-message-exclamation" style="color:#EA580C"></i> Ajuste Solicitado
+    <span class="nb" id="nb-ajuste">—</span>
+  </button>
 
   <div class="sb-div"></div>
   <div class="sb-sec">Painéis</div>
@@ -119,6 +123,9 @@
       </button>
       <button class="btn btn-primary btn-sm" onclick="abrirPreencherPendencias()" style="flex-shrink:0" title="Completar campos pendentes">
         <i class="ti ti-edit-circle"></i> Completar
+      </button>
+      <button class="btn btn-sm" id="btn-ajuste" style="background:#FFF7ED;border:1px solid #FED7AA;color:#EA580C;flex-shrink:0" onclick="abrirSolicitarAjuste()" title="Solicitar ajuste ao vendedor">
+        <i class="ti ti-message-exclamation"></i> Solicitar Ajuste
       </button>
       <button class="btn btn-sm" id="btn-del" style="background:#FEF2F2;border:1px solid #FECACA;color:#DC2626;flex-shrink:0" onclick="confirmarExclusao()">
         <i class="ti ti-trash"></i>
@@ -379,7 +386,8 @@ function atualizarStats() {
         lf  = todos.filter(c=>c.status==='lib-fiscal').length,
         ls  = todos.filter(c=>['cred-val-1','cred-val-2'].includes(c.status)).length,
         cad = todos.filter(c=>c.status==='cadastrado').length,
-        rev = todos.filter(c=>c.status==='revisao').length;
+        rev = todos.filter(c=>c.status==='revisao').length,
+        adj = todos.filter(c=>c.status==='ajuste-solicitado').length;
   document.getElementById('sv-total').textContent=t;
   document.getElementById('sv-preenchido').textContent=pre;
   document.getElementById('sv-lib-cadastro').textContent=lc;
@@ -387,14 +395,14 @@ function atualizarStats() {
   document.getElementById('sv-lib-sistema').textContent=ls;
   document.getElementById('sv-cadastrado').textContent=cad;
   document.getElementById('sv-rev').textContent=rev;
-  const map = {'nb-total':t,'nb-preenchido':pre,'nb-lib-cadastro':lc,'nb-lib-fiscal':lf,'nb-lib-sistema':ls,'nb-cadastrado':cad,'nb-rev':rev};
+  const map = {'nb-total':t,'nb-preenchido':pre,'nb-lib-cadastro':lc,'nb-lib-fiscal':lf,'nb-lib-sistema':ls,'nb-cadastrado':cad,'nb-rev':rev,'nb-ajuste':adj};
   Object.entries(map).forEach(([id,v]) => { const el=document.getElementById(id); if(el) el.textContent=v; });
 }
 
 function setFiltro(f) {
   filtro = f; paginaAtual = 1;
-  const _pills = ['todos','preenchido','lib-cadastro','lib-fiscal','lib-sistema','cadastrado','revisao'];
-  const _scMap = {todos:'total',preenchido:'preenchido','lib-cadastro':'lib-cadastro','lib-fiscal':'lib-fiscal','lib-sistema':'lib-sistema',cadastrado:'cadastrado',revisao:'rev'};
+  const _pills = ['todos','preenchido','lib-cadastro','lib-fiscal','lib-sistema','cadastrado','revisao','ajuste-solicitado'];
+  const _scMap = {todos:'total',preenchido:'preenchido','lib-cadastro':'lib-cadastro','lib-fiscal':'lib-fiscal','lib-sistema':'lib-sistema',cadastrado:'cadastrado',revisao:'rev','ajuste-solicitado':'ajuste'};
   _pills.forEach(k => {
     document.getElementById('pill-'+k)?.classList.toggle('on', k===f);
     document.getElementById('sc-'+_scMap[k])?.classList.toggle('on', k===f);
@@ -437,7 +445,7 @@ function getLista() {
     (c.vendedor_nome||'').toLowerCase().includes(q)
   );
   // sort
-  const STATUS_ORDER = {preenchido:0,'lib-cadastro':1,'cred-val-1':2,'cred-val-2':3,'lib-fiscal':4,cadastrado:5,revisao:6};
+  const STATUS_ORDER = {preenchido:0,'lib-cadastro':1,'cred-val-1':2,'cred-val-2':3,'lib-fiscal':4,cadastrado:5,revisao:6,'ajuste-solicitado':0.5};
   lista = [...lista].sort((a,b) => {
     let va, vb;
     if      (sortCol==='data')     { va=new Date(a.created_at||0); vb=new Date(b.created_at||0); }
@@ -458,7 +466,7 @@ function renderTabela() {
   const total  = lista.length;
   const inicio = (paginaAtual - 1) * POR_PAGINA;
   const pagina = lista.slice(inicio, inicio + POR_PAGINA);
-  const SL     = {preenchido:'Preenchido','lib-cadastro':'Lib. p/ Cadastro','lib-fiscal':'Lib. p/ Fiscal','cred-val-1':'Validação de Crédito 1','cred-val-2':'Validação de Crédito 2',cadastrado:'Cadastrado',revisao:'Em Revisão'};
+  const SL     = {preenchido:'Preenchido','lib-cadastro':'Lib. p/ Cadastro','lib-fiscal':'Lib. p/ Fiscal','cred-val-1':'Validação de Crédito 1','cred-val-2':'Validação de Crédito 2',cadastrado:'Cadastrado',revisao:'Em Revisão','ajuste-solicitado':'Ajuste Solicitado'};
 
   if (!total) {
     const noData = filtro==='todos' && !document.getElementById('search-inp').value &&
@@ -723,6 +731,33 @@ async function confirmarExclusao() {
       todos = todos.filter(x=>x.id!==detId);
       atualizarStats(); renderTabela(); fecharModal();
     } else showToast('Erro ao excluir','err');
+  } catch(e){ showToast('Erro de conexão','err'); }
+}
+
+/* ── SOLICITAR AJUSTE ────────────────────────────────────────── */
+function abrirSolicitarAjuste() {
+  if (!detId) return;
+  const c = todos.find(x=>x.id===detId);
+  const nome = c?.razao_social||c?.nome_fantasia||c?.responsavel||'Cliente';
+  const msg = prompt(`Solicitar ajuste ao vendedor para "${nome}".\n\nDescreva o que precisa ser corrigido (opcional):`);
+  if (msg === null) return; // cancelou
+  confirmarSolicitarAjuste(msg.trim());
+}
+
+async function confirmarSolicitarAjuste(mensagem) {
+  if (!detId) return;
+  try {
+    const r = await fetch(`${API}/api/cadastros/${detId}/solicitar-ajuste`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({mensagem})
+    });
+    const j = await r.json();
+    if (j.ok) {
+      showToast('Ajuste solicitado! Link enviado via WhatsApp.','ok');
+      const idx = todos.findIndex(x=>x.id===detId);
+      if (idx>-1) { todos[idx].status='ajuste-solicitado'; atualizarStats(); renderTabela(); }
+    } else showToast('Erro ao solicitar ajuste','err');
   } catch(e){ showToast('Erro de conexão','err'); }
 }
 

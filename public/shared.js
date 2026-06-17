@@ -302,7 +302,7 @@ function credValAdvanceHTML(status) {
 }
 
 /* ── CABEÇALHO COMPARTILHADO DO DETALHE (meta + pipeline + tabs) ── */
-const SL_ADMIN = {preenchido:'Preenchido','lib-cadastro':'Lib. p/ Cadastro','lib-fiscal':'Lib. p/ Fiscal','cred-val-1':'Validação de Crédito 1','cred-val-2':'Validação de Crédito 2',cadastrado:'Cadastrado',revisao:'Em Revisão'};
+const SL_ADMIN = {preenchido:'Preenchido','lib-cadastro':'Lib. p/ Cadastro','lib-fiscal':'Lib. p/ Fiscal','cred-val-1':'Validação de Crédito 1','cred-val-2':'Validação de Crédito 2',cadastrado:'Cadastrado',revisao:'Em Revisão','ajuste-solicitado':'Ajuste Solicitado'};
 
 function buildDetHeader(c, { locked = false } = {}) {
   const teamData = TEAMS.find(t => t.name === c.equipe);

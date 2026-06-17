@@ -592,6 +592,65 @@ app.get('/api/rascunho/:id', (req, res) => {
   res.json({ ok: true, data });
 });
 
+// ─── AJUSTE DE CADASTRO ───────────────────────────────────────────────────────
+const NUMERO_VENDEDOR_TEMP = '31993346064'; // temporário — todos os vendedores
+
+app.post('/api/cadastros/:id/solicitar-ajuste', async (req, res) => {
+  const db  = lerDB();
+  const idx = db.findIndex(c => c.id === req.params.id);
+  if (idx === -1) return res.status(404).json({ ok: false, error: 'Cadastro não encontrado' });
+
+  const mensagem = (req.body.mensagem || '').trim();
+  const token    = Math.random().toString(36).slice(2, 11);
+  const host     = process.env.BASE_URL || `${req.protocol}://${req.get('host')}`;
+  const link     = `${host}/ajuste.html?token=${token}`;
+
+  db[idx].ajuste_token    = token;
+  db[idx].ajuste_mensagem = mensagem;
+  db[idx].status          = 'ajuste-solicitado';
+  db[idx].updated_at      = new Date().toISOString();
+  salvarDB(db);
+
+  const c        = db[idx];
+  const nome     = c.razao_social || c.nome_fantasia || c.responsavel || 'Cliente';
+  const vendedor = c.vendedor_nome || 'Vendedor';
+  const texto    = `🔔 *Ajuste Necessário — Universo Elétrico*\n\nOlá, ${vendedor}!\n\nO setor de Cadastro solicitou ajustes no cadastro de *${nome}*.\n\n${mensagem ? `_${mensagem}_\n\n` : ''}Acesse o link para revisar e corrigir os dados:\n\n${link}`;
+
+  console.log(`[Ajuste] id=${c.id} | ${nome} | token=${token}`);
+  if (wa.getStatus() === 'connected') {
+    wa.sendMessage(NUMERO_VENDEDOR_TEMP, texto).catch(e => console.error('[Ajuste WA]', e.message));
+  } else {
+    console.warn('[Ajuste] WhatsApp desconectado — mensagem não enviada');
+  }
+
+  res.json({ ok: true, link });
+});
+
+app.get('/api/ajuste/:token', (req, res) => {
+  const db = lerDB();
+  const c  = db.find(x => x.ajuste_token === req.params.token);
+  if (!c) return res.status(404).json({ ok: false, error: 'Link inválido ou expirado' });
+  res.json({ ok: true, data: c });
+});
+
+app.post('/api/ajuste/:token', async (req, res) => {
+  const db  = lerDB();
+  const idx = db.findIndex(x => x.ajuste_token === req.params.token);
+  if (idx === -1) return res.status(404).json({ ok: false, error: 'Link inválido ou expirado' });
+
+  const { comentario_vendedor, ...campos } = req.body;
+  ['id','created_at','status','ajuste_token','ajuste_mensagem'].forEach(k => delete campos[k]);
+
+  Object.assign(db[idx], campos);
+  db[idx].comentario_vendedor = comentario_vendedor || '';
+  db[idx].status       = 'preenchido';
+  db[idx].ajuste_token = null;
+  db[idx].updated_at   = new Date().toISOString();
+  salvarDB(db);
+
+  res.json({ ok: true });
+});
+
 app.listen(PORT, () => {
   const totalCNPJs = Object.keys(lerCache()).length;
   console.log(`✅  http://localhost:${PORT}  —  versão 1.10.10`);
