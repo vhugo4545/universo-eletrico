@@ -76,6 +76,28 @@
 .opt-btn:hover{border-color:#C7D7FF;color:#1B3FAB;background:#EEF3FF}
 .opt-btn.on{border-color:#1B3FAB;background:#1B3FAB;color:#fff;box-shadow:0 2px 8px rgba(27,63,171,.18)}
 .opt-btn i{font-size:15px}
+
+/* Labels para linhas de contato/referência — ocultos no desktop, visíveis no mobile */
+.ct-lbl{display:none;font-size:10px;font-weight:700;color:#9DAEC4;text-transform:uppercase;letter-spacing:.5px;padding:0 2px;margin-bottom:3px}
+
+@media(max-width:640px){
+  .page{padding:12px 10px 80px}
+  .card{padding:16px 14px}
+  .finput{font-size:16px}
+  .ct-head-row,.ref-head-row{display:none!important}
+  .ct-lbl{display:block}
+  .ct-row,.ref-row{background:#F8FAFF;border:1px solid #EAF0FB;border-radius:12px;padding:12px;margin-bottom:10px;gap:10px}
+  .step-footer{flex-direction:column-reverse;gap:8px}
+  .step-footer .btn{width:100%;justify-content:center;min-height:48px;font-size:15px;border-radius:12px}
+  .foot-note{display:none}
+  .tipo-btn{flex-direction:row;justify-content:flex-start;text-align:left;padding:14px 16px}
+  .tipo-btn-ico{flex-shrink:0}
+  .tipo-btn-title{font-size:14px}
+  .progress{padding:10px 12px}
+  .step-lbl{font-size:10px}
+  .suc-page{padding:40px 14px}
+  .suc-title{font-size:18px}
+}
 </style>
 </head>
 <body>
@@ -300,7 +322,7 @@
 
     <div class="card">
       <div class="card-title"><i class="ti ti-users"></i> Pessoas Autorizadas a Comprar</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:6px">
+      <div class="ct-head-row" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;margin-bottom:6px">
         <div class="ct-head">Contato</div><div class="ct-head">Cargo</div><div class="ct-head">Telefone</div><div class="ct-head">E-mail</div>
       </div>
       <div id="contacts-rows"></div>
@@ -311,7 +333,7 @@
 
     <div class="card">
       <div class="card-title"><i class="ti ti-building-community"></i> Referências Comerciais</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
+      <div class="ref-head-row" style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px">
         <div class="ct-head">Empresa</div><div class="ct-head">Telefone</div>
       </div>
       <div id="refs-rows"></div>
@@ -747,6 +769,7 @@ async function carregarRascunho(id) {
 
     // inicializa o tipo (mostra progress bar, configura cards, chama showStep(1))
     selectTipo(d.tipo_cliente || 'pj');
+    bindEvents();
 
     // preenche campos do step 1
     const set = (elId, val) => { const el = document.getElementById(elId); if (el && val) el.value = val; };
@@ -777,12 +800,29 @@ async function carregarRascunho(id) {
     setEnd('cidade', d.cidade);
     setEnd('uf',     d.uf);
 
+    // E-mail NF-e a partir do e-mail da empresa (vindo do CNPJ)
+    if (d.email_empresa) {
+      const enfe = document.getElementById('inp-enfe');
+      if (enfe && !enfe.value) { enfe.value = d.email_empresa; setF('enfe','ok',''); }
+    }
+
     // avança para step 2 marcando step 1 como concluído
     document.getElementById('dot1').className  = 'step-dot done';
     document.getElementById('lbl1').className  = 'step-lbl done';
     document.getElementById('dot2').className  = 'step-dot active';
     document.getElementById('lbl2').className  = 'step-lbl active';
     showStep(2);
+
+    // Primeiro contato pré-preenchido com dados do comprador
+    addContact();
+    const firstRow = document.getElementById('contacts-rows').children[0];
+    if (firstRow) {
+      const ins = firstRow.querySelectorAll('input');
+      if (ins[0] && d.responsavel)       ins[0].value = d.responsavel;
+      if (ins[1])                         ins[1].value = 'Comprador';
+      if (ins[2] && d.telefone)           ins[2].value = d.telefone;
+      if (ins[3] && d.email_responsavel)  ins[3].value = d.email_responsavel;
+    }
   } catch(e) {
     console.error('[Rascunho] erro ao carregar:', e.message);
     showToast('Erro ao carregar cadastro', 'err');
@@ -1085,7 +1125,10 @@ async function buscarCNPJ(cnpj) {
     document.getElementById('cb-sit').textContent=[d.descricao_situacao_cadastral,d.porte].filter(Boolean).join(' · ');
     document.getElementById('cbanner').classList.add('show');
     if(d.ddd_telefone_1){const te=document.getElementById('inp-tel-empresa');if(te&&!te.value){te.value=maskTel(d.ddd_telefone_1.replace(/\D/g,''));setF('tel-empresa','ok','');}}
-    if(d.email){const em=document.getElementById('inp-email-empresa');if(em&&!em.value){em.value=d.email;setF('email-empresa','ok','');}}
+    if(d.email){
+      const em=document.getElementById('inp-email-empresa');if(em&&!em.value){em.value=d.email;setF('email-empresa','ok','');}
+      const enfe=document.getElementById('inp-enfe');if(enfe&&!enfe.value){enfe.value=d.email;setF('enfe','ok','');}
+    }
     if(d.numero){const n=document.getElementById('inp-num');if(n&&!n.value){n.value=d.numero;setF('num','ok','');}}
     const cep=d.cep?d.cep.replace(/\D/g,''):'';
     if(cep&&cep.length===8){const c=document.getElementById('inp-cep');if(c&&!c.value){c.value=maskCEP(cep);buscarCEP(cep);}}
@@ -1136,13 +1179,17 @@ function addContact() {
   const row=document.createElement('div');
   row.className='ct-row';row.id='ct-'+c;
   row.innerHTML=`
-    <div class="irow" style="border-radius:10px"><div class="iico"><i class="ti ti-user"></i></div><input class="finput" type="text" placeholder="Nome completo"></div>
-    <div class="irow" style="border-radius:10px"><div class="iico"><i class="ti ti-briefcase"></i></div><input class="finput" type="text" placeholder="Cargo"></div>
-    <div class="irow" style="border-radius:10px"><div class="iico"><i class="ti ti-phone"></i></div><input class="finput" type="tel" placeholder="(31) 9 0000-0000"></div>
-    <div style="display:flex;gap:4px;align-items:center">
-      <div class="irow" style="border-radius:10px;flex:1"><div class="iico"><i class="ti ti-mail"></i></div><input class="finput" type="email" placeholder="email@..."></div>
-      <button class="rm-btn" onclick="document.getElementById('ct-${c}').remove()"><i class="ti ti-x"></i></button>
-    </div>`;
+    <div class="ct-field"><div class="ct-lbl">Contato</div>
+      <div class="irow" style="border-radius:10px"><div class="iico"><i class="ti ti-user"></i></div><input class="finput" type="text" placeholder="Nome completo"></div></div>
+    <div class="ct-field"><div class="ct-lbl">Cargo</div>
+      <div class="irow" style="border-radius:10px"><div class="iico"><i class="ti ti-briefcase"></i></div><input class="finput" type="text" placeholder="Cargo"></div></div>
+    <div class="ct-field"><div class="ct-lbl">Telefone</div>
+      <div class="irow" style="border-radius:10px"><div class="iico"><i class="ti ti-phone"></i></div><input class="finput" type="tel" placeholder="(31) 9 0000-0000"></div></div>
+    <div class="ct-field"><div class="ct-lbl">E-mail</div>
+      <div style="display:flex;gap:4px;align-items:center">
+        <div class="irow" style="border-radius:10px;flex:1"><div class="iico"><i class="ti ti-mail"></i></div><input class="finput" type="email" placeholder="email@..."></div>
+        <button class="rm-btn" onclick="document.getElementById('ct-${c}').remove()"><i class="ti ti-x"></i></button>
+      </div></div>`;
   document.getElementById('contacts-rows').appendChild(row);
 }
 
@@ -1151,11 +1198,13 @@ function addRef() {
   const row=document.createElement('div');
   row.className='ref-row';row.id='rf-'+r;
   row.innerHTML=`
-    <div class="irow" style="border-radius:10px"><div class="iico"><i class="ti ti-building"></i></div><input class="finput" type="text" placeholder="Nome da empresa"></div>
-    <div style="display:flex;gap:4px;align-items:center">
-      <div class="irow" style="border-radius:10px;flex:1"><div class="iico"><i class="ti ti-phone"></i></div><input class="finput" type="tel" placeholder="(31) 9 0000-0000"></div>
-      <button class="rm-btn" onclick="document.getElementById('rf-${r}').remove()"><i class="ti ti-x"></i></button>
-    </div>`;
+    <div class="ct-field"><div class="ct-lbl">Empresa</div>
+      <div class="irow" style="border-radius:10px"><div class="iico"><i class="ti ti-building"></i></div><input class="finput" type="text" placeholder="Nome da empresa"></div></div>
+    <div class="ct-field"><div class="ct-lbl">Telefone</div>
+      <div style="display:flex;gap:4px;align-items:center">
+        <div class="irow" style="border-radius:10px;flex:1"><div class="iico"><i class="ti ti-phone"></i></div><input class="finput" type="tel" placeholder="(31) 9 0000-0000"></div>
+        <button class="rm-btn" onclick="document.getElementById('rf-${r}').remove()"><i class="ti ti-x"></i></button>
+      </div></div>`;
   document.getElementById('refs-rows').appendChild(row);
 }
 
