@@ -132,7 +132,7 @@ body{display:flex;min-height:100vh;background:var(--bg);overflow-x:hidden;margin
 .overlay.on{opacity:1;pointer-events:all;transform:translateY(0)}
 .det-topbar{background:var(--white);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:10;box-shadow:0 1px 4px rgba(27,63,171,.06)}
 .det-topbar-inner{max-width:880px;margin:0 auto;padding:0 20px;height:58px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.det-body{max-width:880px;margin:0 auto;padding:0}
+.det-body{max-width:880px;margin:0 auto;padding:0 0 72px}
 .status-sel{padding:6px 12px;border-radius:20px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;border:1.5px solid var(--bd);cursor:pointer;background:var(--white);transition:all .2s}
 .det-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:stretch}
 .det-f{display:flex;flex-direction:column;gap:5px;background:#F8FAFF;border:1px solid #EAF0FB;border-radius:10px;padding:12px 14px;min-height:60px}
@@ -188,7 +188,7 @@ body{display:flex;min-height:100vh;background:var(--bg);overflow-x:hidden;margin
 .det-panel{display:none;flex-direction:column;gap:10px;padding:10px 10px 10px 0}
 .det-panel.on{display:flex}
 /* ── NEXT-TAB BAR ── */
-#det-next-bar{display:none;position:sticky;bottom:0;z-index:20;background:var(--white);border-top:1px solid var(--bd);padding:12px 20px;justify-content:flex-end;align-items:center;gap:12px}
+#det-next-bar{display:none;position:fixed;bottom:0;left:0;right:0;z-index:20;background:var(--white);border-top:1px solid var(--bd);padding:12px 20px;justify-content:flex-end;align-items:center;gap:12px}
 #det-next-bar.visible{display:flex}
 #det-next-bar .next-tab-label{font-size:12px;color:var(--muted)}
 #det-next-bar .btn-next-tab{display:flex;align-items:center;gap:6px;padding:8px 20px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;transition:background .2s}
