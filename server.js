@@ -59,8 +59,26 @@ const storage = multer.diskStorage({
 const upload = multer({ storage, limits: { fileSize: 20 * 1024 * 1024 } });
 
 // ─── MIDDLEWARES ──────────────────────────────────────────────────────────────
+const BUILD_ID = Date.now().toString(36); // ID único por deploy
+
 app.use(cors());
 app.use(express.json());
+
+// Injeta ?v=BUILD_ID em .css e .js dentro de arquivos HTML para forçar cache-bust
+app.use((req, res, next) => {
+  if (!req.path.endsWith('.html') && req.path !== '/') return next();
+  const file = path.join(__dirname, 'public', req.path === '/' ? 'index.html' : req.path);
+  if (!fs.existsSync(file)) return next();
+  let html = fs.readFileSync(file, 'utf8');
+  html = html.replace(/(href|src)="([^"]+\.(css|js))"/g, (m, attr, url) => {
+    const base = url.split('?')[0];
+    return `${attr}="${base}?v=${BUILD_ID}"`;
+  });
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Content-Type', 'text/html; charset=utf-8');
+  res.send(html);
+});
+
 app.use(express.static(path.join(__dirname, 'public'), {
   etag: false,
   lastModified: false,
