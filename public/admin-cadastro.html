@@ -22,6 +22,43 @@
 .preview-body .no-preview{display:flex;flex-direction:column;align-items:center;gap:12px;padding:48px;color:#9CA3AF;text-align:center}
 .preview-body .no-preview i{font-size:48px;color:#374151}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+
+/* ── AJUSTE MODAL ── */
+.ajm-ov{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:10001;display:none;align-items:center;justify-content:center;padding:16px}
+.ajm-ov.open{display:flex!important}
+.ajm-box{background:#fff;border-radius:18px;width:100%;max-width:620px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3)}
+.ajm-head{padding:20px 24px 14px;border-bottom:1px solid #E8EEF7;flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.ajm-head-text .ajm-title{font-size:15px;font-weight:700;color:#111827}
+.ajm-head-text .ajm-sub{font-size:12px;color:#9DAEC4;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:400px}
+.ajm-close{width:30px;height:30px;border:none;background:#F3F6FB;border-radius:8px;color:#6B7280;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ajm-body{flex:1;overflow-y:auto;padding:16px 24px}
+.ajm-sec{margin-bottom:18px}
+.ajm-sec-head{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid #F0F4FA;margin-bottom:8px}
+.ajm-sec-name{font-size:10px;font-weight:700;color:#1B3FAB;text-transform:uppercase;letter-spacing:.7px}
+.ajm-sec-all{font-size:10px;color:#9DAEC4;cursor:pointer;user-select:none}
+.ajm-sec-all:hover{color:#1B3FAB;text-decoration:underline}
+.ajm-field{display:flex;align-items:center;gap:10px;padding:5px 8px;border-radius:8px;cursor:pointer;transition:background .1s}
+.ajm-field:hover{background:#F8FAFF}
+.ajm-field input[type=checkbox]{width:15px;height:15px;cursor:pointer;accent-color:#1B3FAB;flex-shrink:0}
+.ajm-field-lbl{font-size:13px;color:#374151;font-weight:500;flex:0 0 160px}
+.ajm-field-val{font-size:11px;color:#9DAEC4;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;font-family:monospace}
+.ajm-div{border-top:1px dashed #E8EEF7;margin:16px 0}
+.ajm-anexos-title{font-size:10px;font-weight:700;color:#EA580C;text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ajm-anexo-row{display:flex;gap:8px;margin-bottom:8px;align-items:center}
+.ajm-anexo-inp{flex:1;height:36px;border:1.5px solid #E8EEF7;border-radius:8px;padding:0 10px;font-size:13px;font-family:inherit;color:#111827}
+.ajm-anexo-inp:focus{outline:none;border-color:#1B3FAB}
+.ajm-anexo-rm{width:34px;height:34px;border:1px solid #FECACA;background:#FEF2F2;color:#DC2626;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.ajm-add-anexo{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#EA580C;cursor:pointer;font-weight:600;margin-top:2px}
+.ajm-add-anexo:hover{text-decoration:underline}
+.ajm-msg-lbl{font-size:10px;font-weight:700;color:#9DAEC4;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;margin-top:16px}
+.ajm-msg-inp{width:100%;height:66px;border:1.5px solid #E8EEF7;border-radius:10px;padding:8px 12px;font-size:13px;font-family:inherit;resize:none;color:#111827}
+.ajm-msg-inp:focus{outline:none;border-color:#1B3FAB}
+.ajm-foot{padding:14px 24px;border-top:1px solid #E8EEF7;display:flex;gap:10px;flex-shrink:0}
+.ajm-cancel{flex:1;height:40px;border:1.5px solid #E8EEF7;background:#fff;border-radius:10px;font-family:inherit;font-size:13px;font-weight:600;color:#6B7280;cursor:pointer}
+.ajm-cancel:hover{background:#F8FAFF}
+.ajm-send{flex:2;height:40px;background:#1B3FAB;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+.ajm-send:hover{background:#1534A0}
+.ajm-send:disabled{background:#9DAEC4;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -136,6 +173,26 @@
   <div id="det-next-bar">
     <span class="next-tab-label" id="det-next-label"></span>
     <button class="btn-next-tab" onclick="confirmarAvancoAba()"><i class="ti ti-arrow-right"></i> Próximo</button>
+  </div>
+</div>
+
+<!-- ── MODAL SOLICITAR AJUSTE ───────────────────────────────────────── -->
+<div class="ajm-ov" id="ajm-ov" onclick="ajmFecharFora(event)">
+  <div class="ajm-box">
+    <div class="ajm-head">
+      <div class="ajm-head-text">
+        <div class="ajm-title"><i class="ti ti-message-exclamation" style="color:#EA580C;margin-right:5px"></i>Solicitar Ajuste</div>
+        <div class="ajm-sub" id="ajm-sub">—</div>
+      </div>
+      <button class="ajm-close" onclick="ajmFechar()"><i class="ti ti-x"></i></button>
+    </div>
+    <div class="ajm-body" id="ajm-body"></div>
+    <div class="ajm-foot">
+      <button class="ajm-cancel" onclick="ajmFechar()">Cancelar</button>
+      <button class="ajm-send" id="ajm-send" onclick="ajmEnviar()">
+        <i class="ti ti-brand-whatsapp"></i> Enviar via WhatsApp
+      </button>
+    </div>
   </div>
 </div>
 
@@ -735,30 +792,137 @@ async function confirmarExclusao() {
 }
 
 /* ── SOLICITAR AJUSTE ────────────────────────────────────────── */
+const CAMPOS_AJUSTE = [
+  { sec:'Comprador / Responsável', fields:[
+    {key:'responsavel',       label:'Nome completo'},
+    {key:'telefone',          label:'Telefone'},
+    {key:'email_responsavel', label:'E-mail do responsável'},
+  ]},
+  { sec:'Dados da Empresa', fields:[
+    {key:'razao_social',    label:'Razão Social'},
+    {key:'nome_fantasia',   label:'Nome Fantasia'},
+    {key:'cnpj',            label:'CNPJ / CPF'},
+    {key:'email_empresa',   label:'E-mail da empresa'},
+    {key:'email_nfe',       label:'E-mail para NF-e'},
+    {key:'telefone_empresa',label:'Telefone comercial'},
+    {key:'site',            label:'Site'},
+  ]},
+  { sec:'Endereço', fields:[
+    {key:'cep',         label:'CEP'},
+    {key:'logradouro',  label:'Logradouro'},
+    {key:'numero',      label:'Número'},
+    {key:'complemento', label:'Complemento'},
+    {key:'bairro',      label:'Bairro'},
+    {key:'cidade',      label:'Cidade'},
+    {key:'uf',          label:'Estado (UF)'},
+  ]},
+  { sec:'Fiscal', fields:[
+    {key:'inscricao_estadual',  label:'Inscrição Estadual'},
+    {key:'inscricao_municipal', label:'Inscrição Municipal'},
+    {key:'cnae_principal',      label:'CNAE Principal'},
+    {key:'regime_tributario',   label:'Regime Tributário'},
+    {key:'atividade',           label:'Atividade'},
+  ]},
+  { sec:'Financeiro', fields:[
+    {key:'limite_credito',  label:'Limite de Crédito'},
+    {key:'prazo_pagamento', label:'Prazo de Pagamento'},
+    {key:'forma_pagamento', label:'Forma de Pagamento'},
+  ]},
+];
+
+let _ajmAnexos = [];
+
 function abrirSolicitarAjuste() {
   if (!detId) return;
   const c = todos.find(x=>x.id===detId);
-  const nome = c?.razao_social||c?.nome_fantasia||c?.responsavel||'Cliente';
-  const msg = prompt(`Solicitar ajuste ao vendedor para "${nome}".\n\nDescreva o que precisa ser corrigido (opcional):`);
-  if (msg === null) return; // cancelou
-  confirmarSolicitarAjuste(msg.trim());
+  if (!c) return;
+  _ajmAnexos = [];
+  document.getElementById('ajm-sub').textContent = c.razao_social||c.nome_fantasia||c.responsavel||'Cliente';
+
+  let html = '';
+  CAMPOS_AJUSTE.forEach((sec, si) => {
+    html += `<div class="ajm-sec">
+      <div class="ajm-sec-head">
+        <span class="ajm-sec-name">${sec.sec}</span>
+        <span class="ajm-sec-all" onclick="ajmToggleSec(${si},this)">Selecionar tudo</span>
+      </div>`;
+    sec.fields.forEach(f => {
+      const val = (c[f.key] != null ? String(c[f.key]) : '').slice(0,45) || '—';
+      html += `<label class="ajm-field">
+        <input type="checkbox" class="ajm-chk" data-key="${f.key}" data-label="${f.label.replace(/"/g,'&quot;')}" data-sec="${si}">
+        <span class="ajm-field-lbl">${f.label}</span>
+        <span class="ajm-field-val">${val}</span>
+      </label>`;
+    });
+    html += `</div>`;
+  });
+
+  html += `<div class="ajm-div"></div>
+  <div class="ajm-anexos-title"><i class="ti ti-paperclip"></i> Documentos / Anexos solicitados</div>
+  <div id="ajm-anexos-list"></div>
+  <span class="ajm-add-anexo" onclick="ajmAddAnexo()"><i class="ti ti-circle-plus"></i> Adicionar documento</span>
+  <div class="ajm-msg-lbl">Observação (opcional)</div>
+  <textarea class="ajm-msg-inp" id="ajm-msg" placeholder="Ex: Corrija o CNPJ e envie o contrato social atualizado..."></textarea>`;
+
+  document.getElementById('ajm-body').innerHTML = html;
+  document.getElementById('ajm-send').disabled = false;
+  document.getElementById('ajm-send').innerHTML = '<i class="ti ti-brand-whatsapp"></i> Enviar via WhatsApp';
+  document.getElementById('ajm-ov').classList.add('open');
 }
 
-async function confirmarSolicitarAjuste(mensagem) {
-  if (!detId) return;
+function ajmFechar() { document.getElementById('ajm-ov').classList.remove('open'); }
+function ajmFecharFora(e) { if (e.target === document.getElementById('ajm-ov')) ajmFechar(); }
+
+function ajmToggleSec(si, el) {
+  const chks = [...document.querySelectorAll(`.ajm-chk[data-sec="${si}"]`)];
+  const all = chks.every(c=>c.checked);
+  chks.forEach(c=>c.checked=!all);
+  el.textContent = all ? 'Selecionar tudo' : 'Desmarcar tudo';
+}
+
+function ajmAddAnexo() {
+  const idx = _ajmAnexos.length;
+  _ajmAnexos.push('');
+  const list = document.getElementById('ajm-anexos-list');
+  const row = document.createElement('div');
+  row.className = 'ajm-anexo-row'; row.id = `ajm-ar-${idx}`;
+  row.innerHTML = `<input class="ajm-anexo-inp" placeholder="Nome do documento (ex: Contrato Social, RG dos sócios...)" oninput="_ajmAnexos[${idx}]=this.value">
+    <button class="ajm-anexo-rm" onclick="document.getElementById('ajm-ar-${idx}').remove();_ajmAnexos[${idx}]=null" title="Remover"><i class="ti ti-trash"></i></button>`;
+  list.appendChild(row);
+}
+
+async function ajmEnviar() {
+  const campos = [...document.querySelectorAll('.ajm-chk:checked')].map(el=>({
+    key: el.dataset.key,
+    label: el.dataset.label,
+    sec: CAMPOS_AJUSTE[+el.dataset.sec]?.sec || '',
+  }));
+  const anexos = _ajmAnexos.filter(n=>n&&n.trim()).map(nome=>({nome:nome.trim()}));
+  const mensagem = (document.getElementById('ajm-msg')?.value||'').trim();
+
+  if (!campos.length && !anexos.length) {
+    alert('Selecione pelo menos um campo ou adicione um documento para solicitar ajuste.');
+    return;
+  }
+
+  const btn = document.getElementById('ajm-send');
+  btn.disabled = true;
+  btn.innerHTML = '<i class="ti ti-loader"></i> Enviando...';
+
   try {
     const r = await fetch(`${API}/api/cadastros/${detId}/solicitar-ajuste`,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({mensagem})
+      body:JSON.stringify({mensagem,campos,anexos}),
     });
     const j = await r.json();
     if (j.ok) {
+      ajmFechar();
       showToast('Ajuste solicitado! Link enviado via WhatsApp.','ok');
       const idx = todos.findIndex(x=>x.id===detId);
-      if (idx>-1) { todos[idx].status='ajuste-solicitado'; atualizarStats(); renderTabela(); }
-    } else showToast('Erro ao solicitar ajuste','err');
-  } catch(e){ showToast('Erro de conexão','err'); }
+      if (idx>-1){ todos[idx].status='ajuste-solicitado'; atualizarStats(); renderTabela(); }
+    } else { showToast('Erro ao solicitar ajuste: '+(j.error||''),'err'); btn.disabled=false; btn.innerHTML='<i class="ti ti-brand-whatsapp"></i> Enviar via WhatsApp'; }
+  } catch(e){ showToast('Erro de conexão','err'); btn.disabled=false; btn.innerHTML='<i class="ti ti-brand-whatsapp"></i> Enviar via WhatsApp'; }
 }
 
 /* ── FILA ────────────────────────────────────────────────────── */

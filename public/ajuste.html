@@ -5,99 +5,73 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ajuste de Cadastro — Universo Elétrico</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.0.0/dist/tabler-icons.min.css">
-<link rel="stylesheet" href="shared.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-body{background:#F3F6FB;font-family:'Plus Jakarta Sans',sans-serif;min-height:100vh}
-.page{max-width:680px;margin:0 auto;padding:32px 16px 80px}
+body{background:#F3F6FB;font-family:'Plus Jakarta Sans',system-ui,sans-serif;min-height:100vh;color:#111827}
+.page{max-width:660px;margin:0 auto;padding:32px 16px 80px}
 .logo-bar{display:flex;align-items:center;gap:10px;margin-bottom:28px}
-.logo-bolt{width:36px;height:36px;background:#1B3FAB;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px}
+.logo-bolt{width:38px;height:38px;background:#1B3FAB;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;flex-shrink:0}
 .logo-name{font-size:16px;font-weight:700;color:#111827}
 .logo-sub{font-size:11px;color:#9DAEC4}
-.alert-box{background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:14px;padding:18px 20px;margin-bottom:24px}
+/* alert */
+.alert{background:#FFF7ED;border:1.5px solid #FED7AA;border-radius:14px;padding:16px 18px;margin-bottom:22px}
 .alert-head{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:#C2410C;margin-bottom:6px}
 .alert-msg{font-size:13px;color:#92400E;line-height:1.6;white-space:pre-wrap}
-.card{background:#fff;border:1px solid #E8EEF7;border-radius:16px;padding:22px 20px;margin-bottom:16px}
-.card-title{font-size:12px;font-weight:700;color:#1B3FAB;text-transform:uppercase;letter-spacing:.6px;margin-bottom:16px;display:flex;align-items:center;gap:6px}
-.frow{margin-bottom:14px}
+/* card */
+.card{background:#fff;border:1px solid #E8EEF7;border-radius:16px;padding:20px 20px;margin-bottom:14px}
+.card-title{font-size:10px;font-weight:700;color:#1B3FAB;text-transform:uppercase;letter-spacing:.7px;margin-bottom:16px;display:flex;align-items:center;gap:6px}
+.frow{margin-bottom:13px}
+.frow:last-child{margin-bottom:0}
 .flbl{font-size:11px;font-weight:700;color:#9DAEC4;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
-.finput{width:100%;height:42px;border:1.5px solid #E8EEF7;border-radius:10px;padding:0 12px;font-size:14px;font-family:inherit;color:#111827;background:#F8FAFF;transition:border .15s}
+.finput{width:100%;height:42px;border:1.5px solid #E8EEF7;border-radius:10px;padding:0 12px;font-size:15px;font-family:inherit;color:#111827;background:#F8FAFF;transition:border .15s}
 .finput:focus{outline:none;border-color:#1B3FAB;background:#fff}
-textarea.finput{height:90px;padding:10px 12px;resize:vertical}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+/* file upload */
+.file-zone{border:2px dashed #D1D9E8;border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:border .15s;background:#F8FAFF;position:relative}
+.file-zone:hover,.file-zone.over{border-color:#1B3FAB;background:#EEF3FF}
+.file-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.file-zone-ico{font-size:28px;color:#9DAEC4;display:block;margin-bottom:6px}
+.file-zone-lbl{font-size:13px;font-weight:600;color:#374151}
+.file-zone-sub{font-size:11px;color:#9DAEC4;margin-top:3px}
+.file-chosen{display:none;margin-top:10px;background:#EEF3FF;border-radius:8px;padding:8px 12px;font-size:12px;color:#1B3FAB;font-weight:600;align-items:center;gap:6px}
+/* comment */
+textarea.finput{height:80px;padding:10px 12px;resize:vertical;font-size:14px}
+/* submit btn */
 .btn-submit{width:100%;height:52px;background:#1B3FAB;border:none;border-radius:14px;color:#fff;font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;transition:background .15s}
 .btn-submit:hover{background:#1534A0}
 .btn-submit:disabled{background:#9DAEC4;cursor:not-allowed}
-.suc-page{display:none;flex-direction:column;align-items:center;justify-content:center;padding:60px 24px;text-align:center}
+/* success */
+.suc-page{display:none;flex-direction:column;align-items:center;text-align:center;padding:80px 24px}
 .suc-ico{width:72px;height:72px;background:#DCFCE7;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:32px;color:#16A34A;margin:0 auto 20px}
-.suc-title{font-size:20px;font-weight:700;color:#111827;margin-bottom:8px}
+.suc-title{font-size:20px;font-weight:700;margin-bottom:8px}
 .suc-sub{font-size:14px;color:#6B7280;line-height:1.6}
-.err-page{display:none;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px;text-align:center}
-.err-ico{font-size:48px;color:#DC2626;margin-bottom:16px}
-.err-title{font-size:18px;font-weight:700;color:#111827;margin-bottom:8px}
+/* error */
+.err-page{display:none;flex-direction:column;align-items:center;text-align:center;padding:100px 24px}
+.err-ico{font-size:52px;color:#DC2626;margin-bottom:16px}
+.err-title{font-size:18px;font-weight:700;margin-bottom:8px}
 .err-sub{font-size:13px;color:#6B7280}
-@media(max-width:600px){
-  .g2{grid-template-columns:1fr}
-  .page{padding:20px 12px 80px}
-}
+@media(max-width:600px){.page{padding:20px 12px 80px}}
 </style>
 </head>
 <body>
-<div class="page" id="main-page">
+
+<div class="page" id="main-page" style="display:none">
   <div class="logo-bar">
     <div class="logo-bolt"><i class="ti ti-bolt"></i></div>
     <div><div class="logo-name">Universo Elétrico</div><div class="logo-sub">Revisão de Cadastro</div></div>
   </div>
 
-  <div id="alert-box" class="alert-box" style="display:none">
+  <div class="alert" id="alert-box" style="display:none">
     <div class="alert-head"><i class="ti ti-message-exclamation"></i> Mensagem do Setor de Cadastro</div>
     <div class="alert-msg" id="alert-msg-text"></div>
   </div>
 
-  <div class="card">
-    <div class="card-title"><i class="ti ti-user"></i> Comprador / Responsável</div>
-    <div class="frow"><div class="flbl">Nome completo</div><input class="finput" id="f-responsavel" type="text"></div>
-    <div class="g2">
-      <div class="frow"><div class="flbl">Telefone</div><input class="finput" id="f-telefone" type="tel"></div>
-      <div class="frow"><div class="flbl">E-mail do responsável</div><input class="finput" id="f-email-responsavel" type="email"></div>
-    </div>
-  </div>
+  <div id="campos-container"></div>
 
-  <div class="card">
-    <div class="card-title"><i class="ti ti-building"></i> Dados da Empresa</div>
-    <div class="frow"><div class="flbl">Razão Social</div><input class="finput" id="f-razao-social" type="text"></div>
-    <div class="g2">
-      <div class="frow"><div class="flbl">Nome Fantasia</div><input class="finput" id="f-nome-fantasia" type="text"></div>
-      <div class="frow"><div class="flbl">CNPJ / CPF</div><input class="finput" id="f-cnpj" type="text"></div>
-    </div>
-    <div class="g2">
-      <div class="frow"><div class="flbl">E-mail da empresa</div><input class="finput" id="f-email-empresa" type="email"></div>
-      <div class="frow"><div class="flbl">E-mail para NF-e</div><input class="finput" id="f-enfe" type="email"></div>
-    </div>
-    <div class="frow"><div class="flbl">Telefone comercial</div><input class="finput" id="f-telefone-empresa" type="tel"></div>
-  </div>
-
-  <div class="card">
-    <div class="card-title"><i class="ti ti-map-pin"></i> Endereço</div>
-    <div class="g2">
-      <div class="frow"><div class="flbl">CEP</div><input class="finput" id="f-cep" type="text"></div>
-      <div class="frow"><div class="flbl">Logradouro</div><input class="finput" id="f-logradouro" type="text"></div>
-    </div>
-    <div class="g2">
-      <div class="frow"><div class="flbl">Número</div><input class="finput" id="f-numero" type="text"></div>
-      <div class="frow"><div class="flbl">Complemento</div><input class="finput" id="f-complemento" type="text"></div>
-    </div>
-    <div class="g2">
-      <div class="frow"><div class="flbl">Bairro</div><input class="finput" id="f-bairro" type="text"></div>
-      <div class="frow"><div class="flbl">Cidade / UF</div><input class="finput" id="f-cidade-uf" type="text"></div>
-    </div>
-  </div>
-
-  <div class="card">
+  <div class="card" id="card-comentario">
     <div class="card-title"><i class="ti ti-message-2"></i> Comentário para o Cadastro</div>
     <div class="frow">
-      <div class="flbl">Descreva as alterações feitas ou deixe uma observação (opcional)</div>
-      <textarea class="finput" id="f-comentario" placeholder="Ex: Atualizei o e-mail da empresa e corrigi o endereço..."></textarea>
+      <div class="flbl">Observação sobre as correções (opcional)</div>
+      <textarea class="finput" id="f-comentario" placeholder="Ex: Atualizei o e-mail e corrigi o endereço conforme solicitado..."></textarea>
     </div>
   </div>
 
@@ -106,18 +80,16 @@ textarea.finput{height:90px;padding:10px 12px;resize:vertical}
   </button>
 </div>
 
-<!-- Sucesso -->
 <div class="suc-page" id="suc-page">
-  <div class="logo-bar" style="margin-bottom:32px">
+  <div class="logo-bar" style="margin-bottom:40px">
     <div class="logo-bolt"><i class="ti ti-bolt"></i></div>
     <div><div class="logo-name">Universo Elétrico</div></div>
   </div>
   <div class="suc-ico"><i class="ti ti-check"></i></div>
-  <div class="suc-title">Ajuste enviado com sucesso!</div>
+  <div class="suc-title">Ajuste enviado!</div>
   <div class="suc-sub">O setor de Cadastro foi notificado e irá revisar as informações.<br>Obrigado!</div>
 </div>
 
-<!-- Erro / link inválido -->
 <div class="err-page" id="err-page">
   <i class="ti ti-link-off err-ico"></i>
   <div class="err-title">Link inválido ou expirado</div>
@@ -125,45 +97,118 @@ textarea.finput{height:90px;padding:10px 12px;resize:vertical}
 </div>
 
 <script>
-const API = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+const API = window.location.hostname==='localhost' ? 'http://localhost:3000' : '';
 let TOKEN = '';
-let dadosOriginais = {};
+let _dadosCadastro = {};
+let _camposSolicitados = [];
+let _anexosSolicitados = [];
+
+// Mapeamento de tipo de input por campo
+const TIPO_INPUT = {
+  email_responsavel:'email', email_empresa:'email', email_nfe:'email',
+  telefone:'tel', telefone_empresa:'tel',
+};
 
 (async function init() {
-  const params = new URLSearchParams(window.location.search);
-  TOKEN = params.get('token') || '';
+  TOKEN = new URLSearchParams(window.location.search).get('token') || '';
   if (!TOKEN) { mostrarErro(); return; }
   try {
     const r = await fetch(`${API}/api/ajuste/${TOKEN}`);
     const j = await r.json();
     if (!j.ok) { mostrarErro(); return; }
-    dadosOriginais = j.data;
-    preencherFormulario(j.data);
+    _dadosCadastro    = j.data;
+    _camposSolicitados = j.data.campos_solicitados || [];
+    _anexosSolicitados = j.data.anexos_solicitados || [];
+    renderFormulario();
+    document.getElementById('main-page').style.display = 'block';
   } catch(e) { mostrarErro(); }
 })();
 
-function preencherFormulario(d) {
-  const set = (id, val) => { const el = document.getElementById(id); if(el) el.value = val||''; };
-  set('f-responsavel', d.responsavel);
-  set('f-telefone', d.telefone);
-  set('f-email-responsavel', d.email_responsavel);
-  set('f-razao-social', d.razao_social);
-  set('f-nome-fantasia', d.nome_fantasia);
-  set('f-cnpj', d.cnpj);
-  set('f-email-empresa', d.email_empresa);
-  set('f-enfe', d.email_nfe || d.enfe);
-  set('f-telefone-empresa', d.telefone_empresa);
-  set('f-cep', d.cep);
-  set('f-logradouro', d.logradouro);
-  set('f-numero', d.numero);
-  set('f-complemento', d.complemento);
-  set('f-bairro', d.bairro);
-  set('f-cidade-uf', d.cidade_uf || (d.cidade ? (d.cidade + (d.uf ? '/' + d.uf : '')) : ''));
+function renderFormulario() {
+  const d = _dadosCadastro;
 
+  // Alerta de mensagem
   if (d.ajuste_mensagem) {
     document.getElementById('alert-box').style.display = 'block';
     document.getElementById('alert-msg-text').textContent = d.ajuste_mensagem;
   }
+
+  // Agrupar campos por seção
+  const secMap = {};
+  _camposSolicitados.forEach(f => {
+    const sec = f.sec || 'Outros';
+    if (!secMap[sec]) secMap[sec] = [];
+    secMap[sec].push(f);
+  });
+
+  const container = document.getElementById('campos-container');
+  const secIcons = {
+    'Comprador / Responsável':'ti-user',
+    'Dados da Empresa':'ti-building',
+    'Endereço':'ti-map-pin',
+    'Fiscal':'ti-file-invoice',
+    'Financeiro':'ti-cash',
+    'Outros':'ti-adjustments',
+  };
+
+  Object.entries(secMap).forEach(([sec, fields]) => {
+    const card = document.createElement('div');
+    card.className = 'card';
+    const ico = secIcons[sec] || 'ti-adjustments';
+    let html = `<div class="card-title"><i class="ti ${ico}"></i> ${sec}</div>`;
+    fields.forEach(f => {
+      const tipo = TIPO_INPUT[f.key] || 'text';
+      const val  = d[f.key] != null ? String(d[f.key]) : '';
+      html += `<div class="frow">
+        <div class="flbl">${f.label}</div>
+        <input class="finput" id="f-${f.key}" type="${tipo}" value="${escHtml(val)}" placeholder="${f.label}">
+      </div>`;
+    });
+    card.innerHTML = html;
+    container.appendChild(card);
+  });
+
+  // Anexos solicitados
+  if (_anexosSolicitados.length > 0) {
+    const card = document.createElement('div');
+    card.className = 'card';
+    let html = `<div class="card-title"><i class="ti ti-paperclip"></i> Documentos Solicitados</div>`;
+    _anexosSolicitados.forEach((a, i) => {
+      html += `<div class="frow">
+        <div class="flbl">${escHtml(a.nome)}</div>
+        <div class="file-zone" id="fz-${i}"
+          ondragover="this.classList.add('over');event.preventDefault()"
+          ondragleave="this.classList.remove('over')"
+          ondrop="ajusteFileDrop(event,${i})">
+          <input type="file" id="file-${i}" onchange="ajusteFileChange(this,${i})" accept="*/*">
+          <i class="ti ti-upload file-zone-ico"></i>
+          <div class="file-zone-lbl">Clique ou arraste o arquivo</div>
+          <div class="file-zone-sub">${escHtml(a.nome)}</div>
+        </div>
+        <div class="file-chosen" id="fc-${i}"><i class="ti ti-file"></i><span id="fc-name-${i}"></span></div>
+      </div>`;
+    });
+    card.innerHTML = html;
+    container.appendChild(card);
+  }
+}
+
+function ajusteFileChange(input, i) {
+  const f = input.files[0];
+  if (!f) return;
+  document.getElementById(`fc-name-${i}`).textContent = f.name;
+  document.getElementById(`fc-${i}`).style.display = 'flex';
+  document.getElementById(`fz-${i}`).style.borderColor = '#16A34A';
+}
+
+function ajusteFileDrop(e, i) {
+  e.preventDefault();
+  document.getElementById(`fz-${i}`).classList.remove('over');
+  const f = e.dataTransfer.files[0];
+  if (!f) return;
+  const inp = document.getElementById(`file-${i}`);
+  const dt = new DataTransfer(); dt.items.add(f); inp.files = dt.files;
+  ajusteFileChange(inp, i);
 }
 
 async function enviarAjuste() {
@@ -171,33 +216,24 @@ async function enviarAjuste() {
   btn.disabled = true;
   btn.innerHTML = '<i class="ti ti-loader"></i> Enviando...';
 
-  const get = id => document.getElementById(id)?.value?.trim() || '';
-  const payload = {
-    responsavel:       get('f-responsavel'),
-    telefone:          get('f-telefone'),
-    email_responsavel: get('f-email-responsavel'),
-    razao_social:      get('f-razao-social'),
-    nome_fantasia:     get('f-nome-fantasia'),
-    cnpj:              get('f-cnpj'),
-    email_empresa:     get('f-email-empresa'),
-    email_nfe:         get('f-enfe'),
-    enfe:              get('f-enfe'),
-    telefone_empresa:  get('f-telefone-empresa'),
-    cep:               get('f-cep'),
-    logradouro:        get('f-logradouro'),
-    numero:            get('f-numero'),
-    complemento:       get('f-complemento'),
-    bairro:            get('f-bairro'),
-    cidade_uf:         get('f-cidade-uf'),
-    comentario_vendedor: get('f-comentario'),
-  };
+  const fd = new FormData();
+  fd.append('comentario_vendedor', document.getElementById('f-comentario')?.value?.trim() || '');
+
+  _camposSolicitados.forEach(f => {
+    const el = document.getElementById(`f-${f.key}`);
+    if (el) fd.append(f.key, el.value.trim());
+  });
+
+  _anexosSolicitados.forEach((a, i) => {
+    const inp = document.getElementById(`file-${i}`);
+    if (inp?.files[0]) {
+      fd.append(`file_${i}`, inp.files[0]);
+      fd.append(`file_label_${i}`, a.nome);
+    }
+  });
 
   try {
-    const r = await fetch(`${API}/api/ajuste/${TOKEN}`, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
-    });
+    const r = await fetch(`${API}/api/ajuste/${TOKEN}`, { method:'POST', body:fd });
     const j = await r.json();
     if (j.ok) {
       document.getElementById('main-page').style.display = 'none';
@@ -208,15 +244,18 @@ async function enviarAjuste() {
       btn.innerHTML = '<i class="ti ti-send"></i> Enviar para o Cadastro';
     }
   } catch(e) {
-    alert('Erro de conexão. Tente novamente.');
+    alert('Erro de conexão. Verifique sua internet e tente novamente.');
     btn.disabled = false;
     btn.innerHTML = '<i class="ti ti-send"></i> Enviar para o Cadastro';
   }
 }
 
 function mostrarErro() {
-  document.getElementById('main-page').style.display = 'none';
   document.getElementById('err-page').style.display = 'flex';
+}
+
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
 </body>
